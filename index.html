@@ -613,12 +613,22 @@
   const chime=g=>g?tone(660,990,'sine',.25,.26):tone(300,180,'triangle',.14,.22);
   const blip=()=>tone(720,960,'sine',.1,.09);
   const chomp=()=>tone(170,80,'square',.2,.12);
-  /* голос героя: Зайчонок — высоко и быстро */
-  const V_RATE=0.85,V_PITCH=1.85;
-  let ruVoice=null;function loadVoices(){const v=speechSynthesis.getVoices().filter(x=>/ru/i.test(x.lang));
-    ruVoice=v.find(x=>/(irina|svetlana|milena|alena|katya|tatyana|dariya|female)/i.test(x.name))||v[0]||null;}
+  /* голос героя: живая Светлана (нейроголос) без искажений; если её нет — старый Зайчонок */
+  const NEURO=/natural|online|neural/i;
+  const P_NEURO={rate:0.95,pitch:1.0},P_ROBOT={rate:0.85,pitch:1.85};
+  let V_RATE=P_ROBOT.rate,V_PITCH=P_ROBOT.pitch;
+  let ruVoice=null,localVoice=null;function loadVoices(){const v=speechSynthesis.getVoices().filter(x=>/ru/i.test(x.lang));
+    const nat=v.filter(x=>NEURO.test(x.name)&&!/dmitry|дмитр|pavel|павел/i.test(x.name));
+    localVoice=v.find(x=>/(irina|milena|alena|katya|tatyana|female)/i.test(x.name))||v[0]||null;
+    ruVoice=nat.find(x=>/svetlana|светлана/i.test(x.name))||nat[0]||localVoice;
+    const p=(ruVoice&&NEURO.test(ruVoice.name))?P_NEURO:P_ROBOT;V_RATE=p.rate;V_PITCH=p.pitch;}
   if('speechSynthesis'in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
-  function speak(t){if(!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ru-RU';u.rate=V_RATE;u.pitch=V_PITCH;if(ruVoice)u.voice=ruVoice;speechSynthesis.speak(u);}catch(e){}}
+  /* онлайн-голос может отвалиться без интернета — тогда молча переходим на локальный */
+  const voiceDied=e=>!/canceled|interrupted/i.test(e&&e.error||'')&&ruVoice&&NEURO.test(ruVoice.name)&&localVoice;
+  const downgrade=()=>{ruVoice=localVoice;V_RATE=P_ROBOT.rate;V_PITCH=P_ROBOT.pitch;};
+  function speak(t){if(!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ru-RU';u.rate=V_RATE;u.pitch=V_PITCH;if(ruVoice)u.voice=ruVoice;
+    u.onerror=e=>{if(voiceDied(e)){downgrade();speak(t);}};
+    speechSynthesis.speak(u);}catch(e){}}
   const sayLetter=ch=>speak(ch.toLowerCase());
 
   /* MONSTER BUILDER */
@@ -707,10 +717,38 @@
     setTimeout(function(){renderPreview();heroSrc=fileURL(sel);setHeroImg(heroSrc);save();btn.disabled=false;if(editing){editing=false;goWorld();}else{show('name');setTimeout(function(){var el=$('#nameInput');if(el)el.focus();},200);}},3000);}
   $('#redrawBtn').onclick=function(){editing=true;show('build');renderBuilder();};
 
-  /* SAVE */
-  const KEY='bukvolovy_save_v4';let heroSrc=null;let cDone=[];let playerName='Герой';let pages=[];let introSeen=false;let finaleDone=false;let stars=0;let coins=0;let keys=0;let recipes=[];
-  function save(){try{localStorage.setItem(KEY,JSON.stringify({hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,recipes}));}catch(e){}}
-  function load(){try{const s=JSON.parse(localStorage.getItem(KEY)||'null');if(s&&s.hero){heroSrc=s.hero;if(s.sel&&s.sel.body)sel=s.sel;setHeroImg(heroSrc);Object.assign(done,s.done||{});chosen=s.chosen||'А';curNode=s.curNode||0;cDone=s.cDone||[];playerName=s.playerName||'Герой';pages=s.pages||[];introSeen=!!s.introSeen;finaleDone=!!s.finaleDone;stars=s.stars||0;coins=s.coins||0;keys=s.keys||0;recipes=s.recipes||[];return true;}}catch(e){}return false;}
+  /* SAVE — один ребёнок = один постоянный герой. Ключ НЕ менять: новые поля добавляются со значением по умолчанию */
+  const KEY='bukvolovy_save_v4',BAK=KEY+'_bak';
+  const OLD_KEYS=['bukvolovy_save_v3','bukvolovy_save_v2','bukvolovy_save_v1','bukvolovy_save'];
+  let heroSrc=null;let cDone=[];let playerName='Герой';let pages=[];let introSeen=false;let finaleDone=false;let stars=0;let coins=0;let keys=0;let recipes=[];
+  let games={};let levels={};
+  let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
+  let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
+  function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,recipes,games,levels};}
+  function save(){
+    if(!heroSrc&&heroStored)return;                       /* защита от записи пустого профиля поверх готового */
+    const json=JSON.stringify(snapshot());let ok=false;
+    try{localStorage.setItem(KEY,json);ok=true;}catch(e){}
+    try{localStorage.setItem(BAK,json);}catch(e){}        /* запасная копия на случай порчи основной */
+    if(ok){heroStored=heroStored||!!heroSrc;}else if(!saveBroken){saveBroken=true;
+      const cur=Object.values(screens).find(s=>s.classList.contains('active'));
+      if(cur)flash(cur,'⚠️ Браузер не разрешает сохранять игру');}
+  }
+  function readSave(){const all=[KEY,BAK].concat(OLD_KEYS);
+    for(let i=0;i<all.length;i++){try{const s=JSON.parse(localStorage.getItem(all[i])||'null');if(s&&s.hero)return s;}catch(e){}}
+    return null;}
+  /* нечитаемую запись не стираем, а откладываем — вдруг получится достать вручную */
+  function quarantine(){try{const raw=localStorage.getItem(KEY)||localStorage.getItem(BAK);
+    if(raw&&!localStorage.getItem(KEY+'_broken'))localStorage.setItem(KEY+'_broken',raw);}catch(e){}}
+  function load(){const s=readSave();if(!s){quarantine();return false;}
+    heroStored=true;heroSrc=s.hero;if(s.sel&&s.sel.body)sel=s.sel;setHeroImg(heroSrc);
+    Object.assign(done,s.done||{});chosen=s.chosen||'А';curNode=s.curNode||0;cDone=s.cDone||[];playerName=s.playerName||'Герой';
+    pages=s.pages||[];introSeen=!!s.introSeen;finaleDone=!!s.finaleDone;
+    stars=s.stars||0;coins=s.coins||0;keys=s.keys||0;recipes=s.recipes||[];
+    games=s.games||{};levels=s.levels||{};
+    save();  /* переносим данные со старого ключа/копии на основной */
+    return true;}
+  function markGame(id){if(games[id])return;games[id]=true;save();}
   function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
 
   /* WORLD */
@@ -796,7 +834,7 @@
     Object.keys(bkFill).forEach(it=>{if(bkFill[it]>0&&!bkOrder.fill[it])s--;});
     Object.keys(bkOrder.deco).forEach(it=>{if((bkDeco[it]||0)<bkOrder.deco[it])s--;});
     return Math.max(3,Math.min(5,s));}
-  function bakeFinish(){earnPage('bakery');flash(screens.bakery,'Пекарня пройдена! 🎉');confetti(screens.bakery);setTimeout(goWorld,1700);}
+  function bakeFinish(){markGame('bakery');earnPage('bakery');flash(screens.bakery,'Пекарня пройдена! 🎉');confetti(screens.bakery);setTimeout(goWorld,1700);}
   function enterSleep(){show('sleep');setTimeout(()=>speak('Спокойной ночи'),200);}$('#wakeBtn').onclick=()=>{try{speechSynthesis.cancel();}catch(e){}goWorld();};
 
   /* PICKER + LETTERS */
@@ -824,7 +862,7 @@
       doCheer(hero);cur.caught++;if(dotsBox.children[cur.caught-1])dotsBox.children[cur.caught-1].classList.add('on');if(cur.caught>=cur.need)rewardL();
     }else{chime(false);o.el.style.background='#bfc7cf';popText(field,o.x+6,o.y,'ой','#8a97a3');o.el.animate([{transform:'scale(1)'},{transform:'scale(.4)',opacity:0}],{duration:250,fill:'forwards'});setTimeout(()=>rm(o),240);}}
   function doCheer(h){h.classList.remove('cheer');void h.offsetWidth;h.classList.add('cheer');setTimeout(()=>h.classList.remove('cheer'),520);}
-  function rewardL(){running=false;cancelAnimationFrame(raf);done.letters=true;save();earnPage('letters');items.forEach(o=>o.el.remove());items=[];flash(field,'Молодец!');
+  function rewardL(){running=false;cancelAnimationFrame(raf);done.letters=true;markGame('letters_catch');save();earnPage('letters');items.forEach(o=>o.el.remove());items=[];flash(field,'Молодец!');
     const h=field.clientHeight,heroTop=h-12-112;pieEat(field,heroX,heroTop,hero,()=>openPicker());}
   function loop(t){if(!running)return;const dt=Math.min(.05,(t-last)/1000);last=t;const prev=heroX;heroX+=(heroTargetX-heroX)*.22;placeHero();
     if(Math.abs(heroX-prev)>.6||dragging)hero.classList.add('run');else hero.classList.remove('run');
@@ -860,7 +898,7 @@
     if(u===asmUnits[asmNext]){const slot=$('#asmSlots').children[asmNext];slot.innerHTML=colHTML(u);slot.classList.add('full');b.classList.add('used');ensureAudio();blip();sayU(u);asmNext++;if(asmNext>=asmUnits.length)asmWordDone();}
     else{chime(false);try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(e){}}}
   function asmWordDone(){const item=asmSet[asmRound];setTimeout(()=>speak(wordOf(item).toLowerCase()),260);asmRound++;
-    if(asmRound>=asmSet.length){setTimeout(()=>{done.letters=true;save();earnPage('letters');flash(screens.asm,'Молодец!');confetti(screens.asm);const H=screens.asm.clientHeight;pieEat(screens.asm,54,H-8-82,$('#asmHero'),openLettersMenu);},800);}
+    if(asmRound>=asmSet.length){setTimeout(()=>{done.letters=true;markGame('letters_assemble');save();earnPage('letters');flash(screens.asm,'Молодец!');confetti(screens.asm);const H=screens.asm.clientHeight;pieEat(screens.asm,54,H-8-82,$('#asmHero'),openLettersMenu);},800);}
     else{flash(screens.asm,'✓');setTimeout(loadAsm,1000);}}
 
   /* ---------- СОБЕРИ СЛОГ ---------- */
@@ -869,8 +907,8 @@
   const SLOG_W3=[['МА','ШИ','НА','МАШИНА','🚗'],['КО','РО','ВА','КОРОВА','🐄'],['СО','БА','КА','СОБАКА','🐶'],['МА','ЛИ','НА','МАЛИНА','🫐'],['МО','ЛО','КО','МОЛОКО','🥛'],['СО','РО','КА','СОРОКА','🐦']];
   let slLevel=1,slI,slN,slUnits,slNext,slWord;
   $('#lm5').onclick=openSlog;$('#slBack').onclick=openLettersMenu;
-  function openSlog(){slLevel=1;show('slog');renderSlLevels();slI=0;slN=4;nextSl();}
-  function renderSlLevels(){const box=$('#slLevels');box.innerHTML='';for(let i=1;i<=5;i++){const b=document.createElement('button');b.className='lvbtn'+(i===slLevel?' sel':'');b.textContent=i;b.onclick=(function(n){return function(){slLevel=n;slI=0;renderSlLevels();nextSl();};})(i);box.appendChild(b);}}
+  function openSlog(){slLevel=levels.sl||1;show('slog');renderSlLevels();slI=0;slN=4;nextSl();}
+  function renderSlLevels(){const box=$('#slLevels');box.innerHTML='';for(let i=1;i<=5;i++){const b=document.createElement('button');b.className='lvbtn'+(i===slLevel?' sel':'');b.textContent=i;b.onclick=(function(n){return function(){slLevel=n;levels.sl=n;save();slI=0;renderSlLevels();nextSl();};})(i);box.appendChild(b);}}
   function slTask(){const R=(a)=>a[Math.random()*a.length|0];
     if(slLevel===1){const c=R(SLOG_CONS),v=R(SLOG_VOW);return{mode:'assemble',units:[c,v],word:c+v,ic:''};}
     if(slLevel===2){const c=R(SLOG_CONS),v=R(SLOG_VOW);return{mode:'choose',fixed:c,correct:v,word:c+v,ic:''};}
@@ -889,7 +927,7 @@
       shuf(slUnits.slice()).forEach(u=>{const b=document.createElement('button');b.className='tile';b.innerHTML=colHTML(u);b.onclick=()=>slTap(u,b);tiles.appendChild(b);});}}
   function slTap(u,b){if(b.classList.contains('used'))return;if(u===slUnits[slNext]){const slot=$('#slSlots').children[slNext];slot.innerHTML=colHTML(u);slot.classList.add('full');b.classList.add('used');blip();sayU(u);slNext++;if(slNext>=slUnits.length)slDone();}else wiggle(b);}
   function slDone(){setTimeout(()=>speak(slWord.toLowerCase()),280);flash(screens.slog,'Отлично! '+slWord+' 🎉');stars+=1;save();updateHUD();slI++;
-    if(slI>=slN){setTimeout(()=>{confetti(screens.slog);earnPage('letters');const H=screens.slog.clientHeight;pieEat(screens.slog,54,H-8-82,$('#slogHero'),openLettersMenu);},750);}else setTimeout(nextSl,1150);}
+    if(slI>=slN){markGame('letters_syllables');setTimeout(()=>{confetti(screens.slog);earnPage('letters');const H=screens.slog.clientHeight;pieEat(screens.slog,54,H-8-82,$('#slogHero'),openLettersMenu);},750);}else setTimeout(nextSl,1150);}
 
   /* ---------- КАКОЙ БУКВЫ НЕ ХВАТАЕТ? ---------- */
   const GAP_L1=[['КОТ','🐱'],['ДОМ','🏠'],['СОН','😴'],['МАК','🌺'],['ЛУК','🧅'],['СЫР','🧀'],['КИТ','🐋'],['ЖУК','🪲'],['СОК','🧃'],['РАК','🦞']];
@@ -899,15 +937,15 @@
   const SYL_POOL=(function(){const s={};SLOG_W3.forEach(w=>{s[w[0]]=1;s[w[1]]=1;s[w[2]]=1;});return Object.keys(s);})();
   let gapLevel=1,gapI,gapN;
   $('#lm6').onclick=openGap;$('#gapBack').onclick=openLettersMenu;
-  function openGap(){gapLevel=1;show('gap');renderGapLevels();gapI=0;gapN=5;nextGap();}
-  function renderGapLevels(){const box=$('#gapLevels');box.innerHTML='';for(let i=1;i<=4;i++){const b=document.createElement('button');b.className='lvbtn'+(i===gapLevel?' sel':'');b.textContent=i;b.onclick=(function(n){return function(){gapLevel=n;gapI=0;renderGapLevels();nextGap();};})(i);box.appendChild(b);}}
+  function openGap(){gapLevel=levels.gap||1;show('gap');renderGapLevels();gapI=0;gapN=5;nextGap();}
+  function renderGapLevels(){const box=$('#gapLevels');box.innerHTML='';for(let i=1;i<=4;i++){const b=document.createElement('button');b.className='lvbtn'+(i===gapLevel?' sel':'');b.textContent=i;b.onclick=(function(n){return function(){gapLevel=n;levels.gap=n;save();gapI=0;renderGapLevels();nextGap();};})(i);box.appendChild(b);}}
   function nextGap(){
     if(gapLevel<=3){const set=gapLevel===1?GAP_L1:gapLevel===2?GAP_L2:GAP_L3;const w=set[Math.random()*set.length|0];const letters=w[0].split('');const gp=Math.random()*letters.length|0;const correct=letters[gp];buildGap(letters,gp,correct,w[0],w[1],shuf([correct].concat(shufTake(GAP_ALPHA,2,correct))),'Ой! Пропала буква. Помоги её вернуть!');}
     else{const w=SLOG_W3[Math.random()*SLOG_W3.length|0];const parts=[w[0],w[1],w[2]];const gp=Math.random()*3|0;const correct=parts[gp];buildGap(parts,gp,correct,w[3],w[4],shuf([correct].concat(shufTake(SYL_POOL,2,correct))),'Какого слога не хватает?');}}
   function buildGap(cells,gapIdx,correct,word,ic,opts,hint){$('#gapPic').textContent='';$('#gapPic').style.display='none';$('#gapHint').textContent=hint;$('#gapProg').textContent=(gapI+1)+' / '+gapN;
     const row=$('#gapRow');row.innerHTML='';cells.forEach((c,i)=>{const d=document.createElement('div');d.className='gcell'+(i===gapIdx?' gap':'');d.innerHTML=i===gapIdx?'':colHTML(c);row.appendChild(d);});
     const box=$('#gapOpts');box.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='vopt';b.innerHTML=colHTML(o);b.onclick=()=>{if(o===correct){const cell=row.children[gapIdx];cell.className='gcell';cell.innerHTML=colHTML(o);blip();$('#gapPic').textContent=ic;$('#gapPic').style.display='block';setTimeout(()=>speak(word.toLowerCase()),280);flash(screens.gap,'Верно! '+word+' 🎉');stars+=1;save();updateHUD();gapI++;
-      if(gapI>=gapN){setTimeout(()=>{confetti(screens.gap);earnPage('letters');const H=screens.gap.clientHeight;pieEat(screens.gap,54,H-8-82,$('#gapHero'),openLettersMenu);},850);}else setTimeout(nextGap,1250);}
+      if(gapI>=gapN){markGame('letters_gaps');setTimeout(()=>{confetti(screens.gap);earnPage('letters');const H=screens.gap.clientHeight;pieEat(screens.gap,54,H-8-82,$('#gapHero'),openLettersMenu);},850);}else setTimeout(nextGap,1250);}
       else{wiggle(b);$('#gapHint').textContent='Попробуй ещё раз! 🙂';}};box.appendChild(b);});}
 
   /* ---------- CIRCUS: 30 раскрасок ---------- */
@@ -980,7 +1018,7 @@
   cpic.addEventListener('pointerdown',e=>{painting=true;paintAt(e,true);e.preventDefault();});
   cpic.addEventListener('pointermove',e=>{if(painting)paintAt(e,false);});
   window.addEventListener('pointerup',()=>painting=false);
-  function circusDone(){painting=false;if(cDone.indexOf(curPicIdx)<0)cDone.push(curPicIdx);done.circus=true;save();earnPage('circus');
+  function circusDone(){painting=false;if(cDone.indexOf(curPicIdx)<0)cDone.push(curPicIdx);done.circus=true;markGame('circus_color');save();earnPage('circus');
     flash(screens.circus,'Молодец!');confetti(screens.circus);const H=screens.circus.clientHeight;
     pieEat(screens.circus,54,H-8-82,$('#chero'),()=>{setTimeout(openGallery,700);});}
   $('#cBack').onclick=openGallery;
@@ -1000,7 +1038,7 @@
   let introEnded=false;
   function speakSeq(lines,onDone){let i=0;const hasTTS=('speechSynthesis'in window);
     function step(){if(introEnded){return;}if(i>=lines.length){onDone&&onDone();return;}$('#introSub').textContent=lines[i];
-      if(hasTTS){try{const u=new SpeechSynthesisUtterance(lines[i]);u.lang='ru-RU';u.rate=V_RATE;u.pitch=V_PITCH;if(ruVoice)u.voice=ruVoice;u.onend=()=>{i++;step();};u.onerror=()=>{i++;setTimeout(step,500);};speechSynthesis.speak(u);}catch(e){i++;setTimeout(step,2600);}}
+      if(hasTTS){try{const u=new SpeechSynthesisUtterance(lines[i]);u.lang='ru-RU';u.rate=V_RATE;u.pitch=V_PITCH;if(ruVoice)u.voice=ruVoice;u.onend=()=>{i++;step();};u.onerror=e=>{if(voiceDied(e)){downgrade();setTimeout(step,300);return;}i++;setTimeout(step,500);};speechSynthesis.speak(u);}catch(e){i++;setTimeout(step,2600);}}
       else{i++;setTimeout(step,2800);}}
     try{speechSynthesis.cancel();}catch(e){}step();}
   function afterIntro(){if(introEnded)return;introEnded=true;try{speechSynthesis.cancel();}catch(e){}introSeen=true;save();
@@ -1073,7 +1111,7 @@
       const cells=$('#vanRow').children;for(let i=0;i<cells.length;i++){if(cells[i].classList.contains('hidden')){cells[i].classList.remove('hidden');cells[i].textContent=e;try{cells[i].animate([{transform:'scale(0.3)'},{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:350});}catch(x){}break;}}
       vanFound++;if(vanFound>=vanMissing.length){vanRound++;if(vanRound>=5)shopDone();else{flash(screens.vanish,'✓');setTimeout(loadShop,800);}}}
     else{chime(false);vanRoundMiss++;$('#vanAsk').textContent='Попробуй вспомнить ещё раз! 🙂';try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(x){}}}
-  function shopDone(){const st=vanRoundMiss===0?3:vanRoundMiss<=2?2:1;flash(screens.vanish,'Молодец! 🎉');confetti(screens.vanish);giveReward('star',st,screens.vanish,null);const H=screens.vanish.clientHeight;pieEat(screens.vanish,54,H-8-82,$('#vanHero'),openShopMenu);}
+  function shopDone(){markGame('shop_vanish');const st=vanRoundMiss===0?3:vanRoundMiss<=2?2:1;flash(screens.vanish,'Молодец! 🎉');confetti(screens.vanish);giveReward('star',st,screens.vanish,null);const H=screens.vanish.clientHeight;pieEat(screens.vanish,54,H-8-82,$('#vanHero'),openShopMenu);}
 
   /* МАГАЗИННЫЙ КВЕСТ */
   const QDEPTS=[['Фрукты','🍎'],['Овощи','🥦'],['Молочное','🥛'],['Выпечка','🍞'],['Сладости','🍫'],['Игрушки','🧸'],['Напитки','🥤']];
@@ -1117,7 +1155,7 @@
     $('#qDepts').style.display='flex';
     if(!missing&&!extra){flash(screens.cart,'Ура! Всё куплено! 🎉');confetti(screens.cart);doCheer($('#cartHero'));qLevel++;if(qLevel>=6)questFinish();else setTimeout(loadQuest,1500);}
     else{qBusy=false;qMiss++;$('#cartMsg').textContent=missing?'Кажется, мы что-то забыли. Посмотри на список! 📝':'Ой! В тележке есть лишнее 🙂';renderShelf();}}
-  function questFinish(){const st=qMiss===0?3:qMiss<=2?2:1;stars+=st;coins+=10;save();updateHUD();flash(screens.cart,'⭐'+st+'  🪙+10');confetti(screens.cart);const H=screens.cart.clientHeight;pieEat(screens.cart,54,H-8-82,$('#cartHero'),openShopMenu);}
+  function questFinish(){markGame('shop_quest');const st=qMiss===0?3:qMiss<=2?2:1;stars+=st;coins+=10;save();updateHUD();flash(screens.cart,'⭐'+st+'  🪙+10');confetti(screens.cart);const H=screens.cart.clientHeight;pieEat(screens.cart,54,H-8-82,$('#cartHero'),openShopMenu);}
 
   /* СКОЛЬКО СТОИТ? */
   const PRICES={'🍎':3,'🍌':2,'🥛':4,'🍞':3,'🧃':2,'🧀':5,'🥚':2,'🍓':4,'🍇':5,'🥕':2,'🍅':3,'🍪':2,'🍫':4,'🥐':3,'🍊':3,'🍐':3};
@@ -1137,7 +1175,7 @@
     else{const p=5+(Math.random()*4|0),change=10-p;beep();stage.innerHTML='<div>Покупка: '+p+'🪙</div><div>Дал: 10🪙</div>';$('#cashHint').textContent='Сколько сдачи?';setTimeout(()=>speak('Сколько сдачи?'),350);numOpts(change).forEach(n=>cOpt(n,n===change));}}
   function cashBad(b){chime(false);cashMiss++;$('#cashMsg').textContent='Попробуй ещё раз! 🙂';try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(x){}}
   function cashWin(){blip();$('#cashMsg').textContent='Оплата прошла! 🎉';doCheer($('#cashHero'));cashRound++;if(cashRound>=5)cashFinish();else setTimeout(loadCash,1050);}
-  function cashFinish(){const st=cashMiss===0?3:cashMiss<=2?2:1;flash(screens.cash,'Молодец! 🎉');confetti(screens.cash);const H=screens.cash.clientHeight;giveReward('star',st,screens.cash,null);pieEat(screens.cash,54,H-8-82,$('#cashHero'),openShopMenu);}
+  function cashFinish(){markGame('shop_cash');const st=cashMiss===0?3:cashMiss<=2?2:1;flash(screens.cash,'Молодец! 🎉');confetti(screens.cash);const H=screens.cash.clientHeight;giveReward('star',st,screens.cash,null);pieEat(screens.cash,54,H-8-82,$('#cashHero'),openShopMenu);}
 
   /* Повтори последовательность / ритм */
   const SEQ_OBJ=['🦁','🐘','🎠','🤡'];const RHY=[['🥁',170],['🎺',340],['🎸',255],['🔔',520]];
@@ -1155,7 +1193,7 @@
   function tapPad(i){if(seqPos<0)return;playPad(i,280);if(i===seqArr[seqPos]){seqPos++;if(seqPos>=seqArr.length){seqPos=-1;seqOK();}}else{seqPos=-1;seqFail();}}
   function seqOK(){disablePads(true);awardStars(seqMode==='rhythm'?(seqLen>=6?2:1):1,screens.seq,()=>{seqLen++;if(seqLen>seqMax)seqFinish();else nextSeq();});}
   function seqFail(){chime(false);disablePads(true);$('#seqHint').textContent='Ой! Ещё разок 🙂';setTimeout(nextSeq,1000);}
-  function seqFinish(){if(seqMode==='rhythm')earnPage('rhythm');flash(screens.seq,'Молодец! 🎉');confetti(screens.seq);setTimeout(openCircusMenu,1500);}
+  function seqFinish(){markGame('circus_'+seqMode);if(seqMode==='rhythm')earnPage('rhythm');flash(screens.seq,'Молодец! 🎉');confetti(screens.seq);setTimeout(openCircusMenu,1500);}
 
   /* Фокус памяти */
   $('#cm6').onclick=()=>openMemMenu();
@@ -1172,7 +1210,7 @@
     if(!memFirst){memFirst=c;return;}memLock=true;const a=memFirst;
     if(c.dataset.it===a.dataset.it){setTimeout(()=>{a.classList.add('matched');c.classList.add('matched');a.classList.remove('up');c.classList.remove('up');chime(true);memMatched++;$('#memProg').textContent=memMatched+' / '+memTotal;memFirst=null;memLock=false;if(memMatched>=memTotal)memWin();},350);}
     else{setTimeout(()=>{a.classList.remove('up');c.classList.remove('up');memFirst=null;memLock=false;},850);}}
-  function memWin(){flash(screens.memory,'Все пары найдены! 🎉');confetti(screens.memory);giveReward('star',memPairs,screens.memory,openCircusMenu);}
+  function memWin(){markGame('circus_memory');flash(screens.memory,'Все пары найдены! 🎉');confetti(screens.memory);giveReward('star',memPairs,screens.memory,openCircusMenu);}
 
   /* Запомни номер */
   const PERF=['🤡','🐘','🎩','🦁','🎪','🎠','🥁','🎈'];
@@ -1188,7 +1226,7 @@
     const slots=$('#ordSlots');slots.innerHTML='';ordSeq.forEach(()=>{const d=document.createElement('div');d.className='slot';slots.appendChild(d);});
     const pool=$('#ordPool');pool.innerHTML='';shuf(ordSeq.slice()).forEach(p=>{const b=document.createElement('button');b.className='tile';b.textContent=p;b.onclick=()=>ordTap(p,b);pool.appendChild(b);});}
   function ordTap(p,b){if(b.classList.contains('used'))return;if(p===ordSeq[ordNext]){const slot=$('#ordSlots').children[ordNext];slot.textContent=p;slot.classList.add('full');b.classList.add('used');blip();ordNext++;if(ordNext>=ordSeq.length)ordDone();}else wiggle(b);}
-  function ordDone(){flash(screens.order,'Браво! 🎉');ordLen++;if(ordLen>5)giveReward('star',4,screens.order,openCircusMenu);else setTimeout(ordRound,900);}
+  function ordDone(){flash(screens.order,'Браво! 🎉');ordLen++;if(ordLen>5){markGame('circus_order');giveReward('star',4,screens.order,openCircusMenu);}else setTimeout(ordRound,900);}
 
   /* Цирковой дирижёр */
   const ACTS=['👏','🎈','🥁','🤸','🎺'];
@@ -1203,7 +1241,7 @@
   function condPerform(){condPhase='show';$('#condGo').style.display='none';$('#condHint').textContent='Смотри, как выступает герой! 🎪';
     let t=400;condSeqArr.forEach((a,i)=>{setTimeout(()=>{const el=$('#condSeq').children[i];if(el){el.classList.add('lit');setTimeout(()=>el.classList.remove('lit'),400);}playAct(a);},t);t+=700;});
     setTimeout(()=>{condPhase='repeat';condNext=0;$('#condHint').textContent='А теперь повтори свой номер! 👆';$('#condSeq').innerHTML='';},t+300);}
-  function condWin(){$('#condHint').textContent='Браво! Публика аплодирует! 👏';flash(screens.cond,'Браво! 🎉');confetti(screens.cond);giveReward('star',3,screens.cond,null);const H=screens.cond.clientHeight;pieEat(screens.cond,54,H-8-82,$('#condHero'),openCircusMenu);}
+  function condWin(){markGame('circus_cond');$('#condHint').textContent='Браво! Публика аплодирует! 👏';flash(screens.cond,'Браво! 🎉');confetti(screens.cond);giveReward('star',3,screens.cond,null);const H=screens.cond.clientHeight;pieEat(screens.cond,54,H-8-82,$('#condHero'),openCircusMenu);}
 
   /* ---------- ЛЕС: меню + игры ---------- */
   function giveReward(kind,n,container,onEnd){if(kind==='star')stars+=n;else if(kind==='coin')coins+=n;else keys+=n;save();updateHUD();
@@ -1238,7 +1276,7 @@
       const am=tgt.closest('.tanimal');try{am.animate([{transform:'scale(1)'},{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:420});}catch(x){}
       tlMatched++;if(tlMatched>=tlNeed)tailsRoundDone();}
     else{el.style.position='';el.style.left='';el.style.top='';el.style.zIndex='';chime(false);$('#tlSay').textContent='Попробуй ещё раз! Кому подходит такой хвост? 🙂';}});
-  function tailsRoundDone(){tlRound++;if(tlRound>=tlRounds){flash(screens.tails,'Ты нашёл всех потеряшек! 🎉');confetti(screens.tails);stars+=5;save();updateHUD();
+  function tailsRoundDone(){tlRound++;if(tlRound>=tlRounds){markGame('forest_tails');flash(screens.tails,'Ты нашёл всех потеряшек! 🎉');confetti(screens.tails);stars+=5;save();updateHUD();
       const H=screens.tails.clientHeight;pieEat(screens.tails,54,H-8-82,$('#tlHero'),openForestMenu);}
     else{flash(screens.tails,'✓');setTimeout(loadTails,900);}}
 
@@ -1277,7 +1315,7 @@
     const box=$('#fsHouses');box.className='houses';box.innerHTML='';SEASON_HOUSES.forEach(h=>{const b=document.createElement('button');b.className='house';b.style.background=h[2];b.textContent=h[1];b.onclick=()=>seasonTap(h[0]===it[1],b);box.appendChild(b);});}
   function seasonTap(correct,b){if(correct){blip();keys+=1;save();updateHUD();fsRound++;if(fsRound>=fsSet.length)seasonFinish();else{flash(screens.fseason,'🔑');setTimeout(loadSeason,650);}}
     else{chime(false);try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-5px)'},{transform:'translateX(5px)'},{transform:'translateX(0)'}],{duration:200});}catch(e){}}}
-  function seasonFinish(){earnPage('forest');flash(screens.fseason,'Молодец! 🎉');confetti(screens.fseason);setTimeout(openForestMenu,1500);}
+  function seasonFinish(){markGame('forest_seasons');earnPage('forest');flash(screens.fseason,'Молодец! 🎉');confetti(screens.fseason);setTimeout(openForestMenu,1500);}
 
   /* ---------- ЧЬИ СЛЕДЫ: 5 уровней + локации ---------- */
   const LOCATIONS=[['Зима ❄️','снегу','linear-gradient(180deg,#DDEEFB,#F3FAFF)'],['Лето ☀️','песке','linear-gradient(180deg,#FBEEC8,#FFF7E0)'],['Лес 🌲','земле','linear-gradient(180deg,#CFEFD6,#EAF7C7)'],['Берег 🌊','у воды','linear-gradient(180deg,#CFEFF7,#E7FAFF)'],['Ферма 🐄','во дворе','linear-gradient(180deg,#E7F3C8,#F5FBE0)'],['Джунгли 🌴','в джунглях','linear-gradient(180deg,#CDEBC0,#E2F5CE)']];
