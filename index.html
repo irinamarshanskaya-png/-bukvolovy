@@ -664,21 +664,27 @@
   const chime=g=>g?tone(660,990,'sine',.25,.26):tone(300,180,'triangle',.14,.22);
   const blip=()=>tone(720,960,'sine',.1,.09);
   const chomp=()=>tone(170,80,'square',.2,.12);
-  /* голос героя: живая Светлана (нейроголос) без искажений; если её нет — старый Зайчонок */
+  /* голос героя: всегда Светлана. Список голосов Edge отдаёт с задержкой и иногда пересобирает,
+     поэтому голос выбираем заново перед каждой фразой, а не один раз на старте. */
   const NEURO=/natural|online|neural/i;
-  const P_NEURO={rate:0.95,pitch:1.0},P_ROBOT={rate:0.85,pitch:1.85};
-  let V_RATE=P_ROBOT.rate,V_PITCH=P_ROBOT.pitch;
-  let ruVoice=null,localVoice=null;function loadVoices(){const v=speechSynthesis.getVoices().filter(x=>/ru/i.test(x.lang));
-    const nat=v.filter(x=>NEURO.test(x.name)&&!/dmitry|дмитр|pavel|павел/i.test(x.name));
-    localVoice=v.find(x=>/(irina|milena|alena|katya|tatyana|female)/i.test(x.name))||v[0]||null;
-    ruVoice=nat.find(x=>/svetlana|светлана/i.test(x.name))||nat[0]||localVoice;
-    const p=(ruVoice&&NEURO.test(ruVoice.name))?P_NEURO:P_ROBOT;V_RATE=p.rate;V_PITCH=p.pitch;}
+  const MALE=/dmitry|дмитр|pavel|павел|maxim|максим/i;
+  let ruVoice=null,V_RATE=0.95,V_PITCH=1.0;
+  function loadVoices(){let v=[];
+    try{v=speechSynthesis.getVoices().filter(x=>/ru/i.test(x.lang)&&!MALE.test(x.name));}catch(e){}
+    ruVoice=v.find(x=>/svetlana|светлана/i.test(x.name))                      /* её и просили */
+          ||v.find(x=>NEURO.test(x.name))                                     /* другой живой женский */
+          ||v.find(x=>/(irina|milena|alena|katya|tatyana|female)/i.test(x.name))
+          ||v[0]||null;
+    /* задранный pitch и делал «робота» — держим обычную высоту на любом голосе */
+    V_PITCH=1.0;V_RATE=(ruVoice&&NEURO.test(ruVoice.name))?0.95:0.9;}
   if('speechSynthesis'in window){loadVoices();speechSynthesis.onvoiceschanged=loadVoices;}
-  /* онлайн-голос может отвалиться без интернета — тогда молча переходим на локальный */
-  const voiceDied=e=>!/canceled|interrupted/i.test(e&&e.error||'')&&ruVoice&&NEURO.test(ruVoice.name)&&localVoice;
-  const downgrade=()=>{ruVoice=localVoice;V_RATE=P_ROBOT.rate;V_PITCH=P_ROBOT.pitch;};
-  function speak(t){if(!('speechSynthesis'in window))return;try{speechSynthesis.cancel();const u=new SpeechSynthesisUtterance(t);u.lang='ru-RU';u.rate=V_RATE;u.pitch=V_PITCH;if(ruVoice)u.voice=ruVoice;
-    u.onerror=e=>{if(voiceDied(e)){downgrade();speak(t);}};
+  function voiceUp(u){loadVoices();u.lang='ru-RU';u.rate=V_RATE;u.pitch=V_PITCH;if(ruVoice)u.voice=ruVoice;return u;}
+  /* сорвалась фраза — повторяем её тем же голосом. На запасной голос НЕ переключаемся насовсем:
+     одна осечка интернета не должна лишить ребёнка живого голоса до конца игры. */
+  const lost=e=>!/canceled|interrupted/i.test((e&&e.error)||'');
+  function speak(t,retry){if(!('speechSynthesis'in window))return;try{speechSynthesis.cancel();
+    const u=voiceUp(new SpeechSynthesisUtterance(t));
+    u.onerror=e=>{if(!retry&&lost(e))setTimeout(()=>speak(t,1),250);};
     speechSynthesis.speak(u);}catch(e){}}
   const sayLetter=ch=>speak(ch.toLowerCase());
 
@@ -1089,7 +1095,7 @@
   let introEnded=false;
   function speakSeq(lines,onDone){let i=0;const hasTTS=('speechSynthesis'in window);
     function step(){if(introEnded){return;}if(i>=lines.length){onDone&&onDone();return;}$('#introSub').textContent=lines[i];
-      if(hasTTS){try{const u=new SpeechSynthesisUtterance(lines[i]);u.lang='ru-RU';u.rate=V_RATE;u.pitch=V_PITCH;if(ruVoice)u.voice=ruVoice;u.onend=()=>{i++;step();};u.onerror=e=>{if(voiceDied(e)){downgrade();setTimeout(step,300);return;}i++;setTimeout(step,500);};speechSynthesis.speak(u);}catch(e){i++;setTimeout(step,2600);}}
+      if(hasTTS){try{const u=voiceUp(new SpeechSynthesisUtterance(lines[i]));u.onend=()=>{i++;step();};u.onerror=e=>{i++;setTimeout(step,500);};speechSynthesis.speak(u);}catch(e){i++;setTimeout(step,2600);}}
       else{i++;setTimeout(step,2800);}}
     try{speechSynthesis.cancel();}catch(e){}step();}
   function afterIntro(){if(introEnded)return;introEnded=true;try{speechSynthesis.cancel();}catch(e){}introSeen=true;save();
@@ -1111,7 +1117,7 @@
     const cur=Object.values(screens).find(s=>s.classList.contains('active'))||screens.world;flash(cur,'📖 +1 страница!');blip();
     if(pages.length>=PAGE_TARGET&&!finaleDone)setTimeout(runFinale,1600);}
   function runFinale(){if(finaleDone)return;finaleDone=true;save();show('final');confetti(screens.final);
-    setTimeout(()=>{try{const u=new SpeechSynthesisUtterance('Ура! Все страницы вернулись в Волшебную книгу! Вирус знаний исчез. Теперь ты — настоящий Хранитель знаний!');u.lang='ru-RU';u.rate=V_RATE;u.pitch=V_PITCH;if(ruVoice)u.voice=ruVoice;speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}},300);}
+    setTimeout(()=>{try{const u=new SpeechSynthesisUtterance('Ура! Все страницы вернулись в Волшебную книгу! Вирус знаний исчез. Теперь ты — настоящий Хранитель знаний!');voiceUp(u);speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}},300);}
   $('#finalNext').onclick=goWorld;
 
   /* ---------- ЦИРК: меню + игры ---------- */
