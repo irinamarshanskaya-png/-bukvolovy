@@ -271,6 +271,38 @@
   .card .big-ic{font-size:64px;} .card h1{font-size:26px;color:var(--grape);} .card p{margin:0;font-weight:800;color:#4b6b7a;font-size:15px;}
   .confetti{position:absolute;top:-20px;width:12px;height:16px;border-radius:3px;z-index:0;animation:fall linear forwards;}
   @keyframes fall{to{transform:translateY(820px) rotate(540deg);}}
+
+  /* ---------- МАСТЕРСКАЯ ---------- */
+  #wkshop{background:linear-gradient(180deg,#FBE7C6,#F3D3A6);}
+  .wkshelf{display:flex;justify-content:space-around;font-size:24px;opacity:.35;padding:0 18px;pointer-events:none;}
+  .wkguest{display:flex;align-items:center;gap:9px;max-width:350px;}
+  .wkface{font-size:46px;flex:none;}
+  .wkbub{background:#fff;border-radius:16px 16px 16px 4px;padding:9px 13px;font-family:'Fredoka';font-weight:700;color:#6b4a24;font-size:15px;box-shadow:0 4px 10px rgba(0,0,0,.12);}
+  .wkbench{background:linear-gradient(180deg,#C98F52,#A9743E);border-radius:18px;padding:14px 10px;box-shadow:0 8px 0 #8a5c2e,0 14px 22px rgba(0,0,0,.22);max-width:352px;width:100%;}
+  .wkchain{display:flex;align-items:center;justify-content:center;gap:4px;flex-wrap:wrap;}
+  .wkarr{font-size:22px;color:#FFE9C7;font-weight:700;}
+  .wkcell{width:60px;height:60px;border-radius:14px;background:#FFF6E4;display:flex;align-items:center;justify-content:center;font-size:34px;box-shadow:inset 0 -3px 0 rgba(0,0,0,.08);}
+  .wkcell.gap{background:rgba(255,255,255,.42);border:3px dashed #FFEBC8;box-shadow:none;}
+  .wkcell.gap.over{background:rgba(255,255,255,.85);border-color:#7BC950;}
+  .wkcell.set{cursor:pointer;}
+  .wktray{display:flex;gap:10px;justify-content:center;flex-wrap:wrap;min-height:62px;}
+  .wkpart{width:58px;height:58px;border-radius:14px;background:#fff;display:flex;align-items:center;justify-content:center;font-size:32px;cursor:grab;touch-action:none;box-shadow:0 4px 10px rgba(0,0,0,.16);}
+  .wkpart.used{visibility:hidden;}
+  .wkspin{animation:wkrot .9s linear infinite;}
+  @keyframes wkrot{to{transform:rotate(360deg);}}
+  .wklit{background:#FFF3B0;box-shadow:0 0 22px 8px rgba(255,210,63,.9);}
+  .wkshake{animation:wksh .5s ease-in-out;}
+  @keyframes wksh{25%{transform:translateX(-5px) rotate(-3deg);}75%{transform:translateX(5px) rotate(3deg);}}
+  .wkspark{position:absolute;font-size:22px;pointer-events:none;z-index:6;animation:wksp .8s ease-out forwards;}
+  @keyframes wksp{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0;}}
+  .wkprize{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(30,20,10,.42);z-index:8;}
+  .wkprize.on{display:flex;}
+  .wkcard{background:var(--cream);border-radius:26px;padding:22px 26px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 18px 40px rgba(0,0,0,.32);max-width:290px;}
+  .wkwin{font-family:'Fredoka';font-weight:700;font-size:22px;color:var(--grape);text-align:center;}
+  .wkgifts{display:flex;gap:14px;font-family:'Fredoka';font-weight:700;font-size:19px;color:#6b4a24;}
+  .wkgift{display:flex;flex-direction:column;align-items:center;font-size:34px;animation:wkpop .5s ease-out backwards;}
+  .wkgift span{font-size:15px;}
+  @keyframes wkpop{from{transform:scale(0) rotate(-25deg);opacity:0;}}
 </style>
 </head>
 <body>
@@ -592,6 +624,25 @@
     <button class="btn" id="finalNext">Играть дальше ✨</button>
   </section>
 
+  <section id="wkshop" class="screen">
+    <div class="topbar"><button class="backb" id="wkBack">← Карта</button><h2>🔧 Мастерская</h2><div class="prog" id="wkProg"></div></div>
+    <div class="wkshelf"><span>🔧</span><span>🔩</span><span>🧰</span><span>⚙️</span><span>💡</span><span>🪵</span></div>
+    <div class="gwrap">
+      <div class="lvsel" id="wkLevels"></div>
+      <div class="wkguest"><div class="wkface" id="wkFace">🐻</div><div class="wkbub" id="wkSay">Ой! Мой механизм сломался. Поможешь его починить?</div></div>
+      <div class="wkbench"><div class="wkchain" id="wkChain"></div></div>
+      <div class="wktray" id="wkTray"></div>
+      <button class="btn coral" id="wkCheck">▶️ ПРОВЕРИТЬ</button>
+    </div>
+    <div class="hero chero" id="wkHero"><img id="wkImg" alt="герой"></div>
+    <div class="wkprize" id="wkPrize"><div class="wkcard">
+      <div class="wkwin">🎉 Механизм работает!</div>
+      <div class="wkgifts" id="wkGifts"></div>
+      <button class="btn small" id="wkMore">🔧 Починить ещё один</button>
+      <button class="btn small coral" id="wkOut">← На карту</button>
+    </div></div>
+  </section>
+
   <section id="stub" class="screen">
     <div class="card"><div class="big-ic" id="stubIc">🛒</div><h1 id="stubTitle">Магазин</h1>
       <p id="stubTxt">Здесь скоро будут игры! Заходи позже ✨</p>
@@ -602,7 +653,7 @@
 <script>
 (function(){
   const $=s=>document.querySelector(s);
-  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),circus:$('#circus'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),circus:$('#circus'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),wkshop:$('#wkshop'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -749,10 +800,10 @@
     save();  /* переносим данные со старого ключа/копии на основной */
     return true;}
   function markGame(id){if(games[id])return;games[id]=true;save();}
-  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
+  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg','wkImg'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
 
   /* WORLD */
-  const NODES=[{x:50,y:91,b:'home',nm:'Домик',room:'home'},{x:25,y:80,b:'letters',nm:'Дом букв',room:'letters'},{x:72,y:70,b:'circus',nm:'Цирк',room:'circus'},{x:28,y:60,b:'shop',nm:'Магазин',room:'shop'},{x:71,y:50,b:'bakery',nm:'Пекарня',room:'bakery'},{x:26,y:40,b:'forest',nm:'Лес',room:'forest'},{x:68,y:31,b:'workshop',nm:'Мастерская',room:'workshop',soon:true},{x:30,y:22,b:'station',nm:'Вокзал',room:'station',soon:true},{x:66,y:12,b:'park',nm:'Парк',room:'park',soon:true}];
+  const NODES=[{x:50,y:91,b:'home',nm:'Домик',room:'home'},{x:25,y:80,b:'letters',nm:'Дом букв',room:'letters'},{x:72,y:70,b:'circus',nm:'Цирк',room:'circus'},{x:28,y:60,b:'shop',nm:'Магазин',room:'shop'},{x:71,y:50,b:'bakery',nm:'Пекарня',room:'bakery'},{x:26,y:40,b:'forest',nm:'Лес',room:'forest'},{x:68,y:31,b:'workshop',nm:'Мастерская',room:'workshop'},{x:30,y:22,b:'station',nm:'Вокзал',room:'station',soon:true},{x:66,y:12,b:'park',nm:'Парк',room:'park',soon:true}];
   const done={letters:false,circus:false,shop:false};
   const topmap=$('#topmap'),token=$('#mapToken');let curNode=0,walking=false,nodeEls=[];
   let mapInit=false;
@@ -782,7 +833,7 @@
   function goWorld(){show('world');buildNodes();placeToken();const tn=$('#tokname');if(tn)tn.textContent=playerName;updateHUD();}
   function walkTo(idx){if(walking)return;if(idx===curNode){actAt(idx);return;}walking=true;token.classList.add('walk');const step=idx>curNode?1:-1;
     (function next(){if(curNode===idx){walking=false;token.classList.remove('walk');save();actAt(idx);return;}curNode+=step;placeToken();setTimeout(next,520);})();}
-  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakery();else openSoon(n);}
+  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakery();else if(n.room==='workshop')openWorkshop();else openSoon(n);}
   function openSoon(n){const ic={shop:'🛒',bakery:'🍰',workshop:'🛠️',station:'🚂',park:'🎠'}[n.room]||'✨';$('#stubIc').textContent=ic;$('#stubTitle').textContent=n.nm;$('#stubTxt').textContent='Здесь скоро будут игры! Заходи позже ✨';show('stub');}$('#stubBack').onclick=goWorld;
 
   /* ---------- ПЕКАРНЯ: Создай свой десерт ---------- */
@@ -1378,6 +1429,114 @@
     renderTrkOpts(shuf([a[0],...shufTake(TRK_ANIMALS,2,a[0])]),(o,b)=>{if(o===a[0]){blip();trk5Hab(a);}else wiggle(b);});}
   function trk5Hab(a){$('#trkArea').style.display='none';$('#trkBig').style.display='block';$('#trkBig').textContent=a[0];$('#trkQ').textContent='Где живёт?';renderTrkOpts(shuf([a[1],...shufTake(HAB5,2,a[1])]),(o,b)=>{if(o===a[1]){blip();trk5Food(a);}else wiggle(b);});}
   function trk5Food(a){$('#trkQ').textContent='Что ест?';renderTrkOpts(shuf([a[2],...shufTake(FOOD5,2,a[2])]),(o,b)=>{if(o===a[2]){blip();trkChain++;if(trkChain>=2)giveReward('coin',5,screens.trk,openTracksMenu);else{flash(screens.trk,'✓');setTimeout(loadTrk5,700);}}else wiggle(b);});}
+
+  /* ---------- МАСТЕРСКАЯ: ПОЧИНИ МЕХАНИЗМ ---------- */
+  /* Правило, которое ребёнок выводит сам: цепочка идёт от питания 🔋 через передачу к прибору.
+     🧲 🔧 🪵 🔩 не подходят никогда — это и есть материал для проб и ошибок. */
+  const WK_CHAINS={
+    1:[['🔋','💡'],['🔋','🔔'],['🔋','🌀']],
+    2:[['🔋','⚙️','💡'],['🔋','⚙️','🌀'],['🔋','🔘','🔔'],['🔋','⚙️','🎵']],
+    3:[['🔋','⚙️','🔘','💡'],['🔋','⚙️','🔘','🤖'],['🔋','🔘','⚙️','🌀']],
+    4:[['🔋','⚙️','🔘','💡'],['🔋','🔘','⚙️','🎵'],['🔋','⚙️','🔘','🔔']],
+    5:[['🔋','⚙️','🔘','💡'],['🔋','⚙️','🔘','🤖'],['🔋','🔘','⚙️','🌀'],['🔋','⚙️','🔘','🎵']]};
+  const WK_JUNK=['🧲','🔧','🪵','🔩'];
+  const WK_FACES=['🐻','🐰','🦊','🐨','🐼','🐵'];
+  const WK_HINT={1:'Механизму нечем питаться. Чего не хватает?',2:'Одного звена нет. Что должно стоять посередине?',
+    3:'Не хватает детали. Куда её поставить?',4:'Пропали сразу две детали!',5:'Собери весь механизм сам — лишние детали не бери.'};
+  let wkLevel=1,wkChain=[],wkGaps=[],wkSlots=[],wkDrag=null,wkBusy=false;
+  $('#wkBack').onclick=goWorld;$('#wkOut').onclick=()=>{$('#wkPrize').classList.remove('on');goWorld();};
+  $('#wkMore').onclick=()=>{$('#wkPrize').classList.remove('on');wkLoad();};
+  $('#wkCheck').onclick=wkCheck;
+  function openWorkshop(){wkLevel=Math.min(5,levels.wk||1);show('wkshop');$('#wkPrize').classList.remove('on');wkLoad();}
+  function wkRenderLevels(){const box=$('#wkLevels');box.innerHTML='';const open=Math.min(5,levels.wk||1);
+    for(let i=1;i<=5;i++){const b=document.createElement('button');b.className='lvbtn'+(i===wkLevel?' sel':'');b.textContent=i;b.disabled=i>open;b.style.opacity=i>open?'.35':'';
+      b.onclick=(function(n){return function(){wkLevel=n;wkLoad();};})(i);box.appendChild(b);}}
+  function wkLoad(){wkBusy=false;
+    wkChain=WK_CHAINS[wkLevel][Math.random()*WK_CHAINS[wkLevel].length|0];
+    const mid=[];for(let i=1;i<wkChain.length-1;i++)mid.push(i);
+    if(wkLevel===1)wkGaps=[0];
+    else if(wkLevel===2)wkGaps=[1];
+    else if(wkLevel===3)wkGaps=[mid[Math.random()*mid.length|0]];
+    else if(wkLevel===4)wkGaps=mid.slice(0,2);
+    else wkGaps=wkChain.map((_,i)=>i);
+    wkGaps.sort((a,b)=>a-b);
+    wkSlots=wkChain.map((p,i)=>wkGaps.indexOf(i)>=0?null:p);
+    $('#wkProg').textContent='Механизм '+wkLevel+' / 5';
+    $('#wkFace').textContent=WK_FACES[Math.random()*WK_FACES.length|0];
+    wkSay('Ой! Мой механизм сломался. Поможешь его починить? '+WK_HINT[wkLevel],400);
+    wkRenderLevels();wkDrawChain();
+    const need=wkGaps.map(i=>wkChain[i]);
+    const junk=shuf(WK_JUNK).slice(0,wkLevel===5?2:2);
+    wkDrawTray(shuf(need.concat(junk)));}
+  /* персонаж проговаривает вслух ровно то, что написал в облачке — ребёнок 5 лет ещё не читает.
+     Эмодзи из речи убираем, иначе синтезатор диктует их названия. */
+  const wkVoice=t=>t.replace(/[\u{1F000}-\u{1FAFF}\u{2190}-\u{2BFF}\u{FE0F}\u{200D}]/gu,'').replace(/\s+/g,' ').trim();
+  function wkSay(t,delay){$('#wkSay').textContent=t;const s=wkVoice(t);if(!s)return;
+    if(delay)setTimeout(()=>speak(s),delay);else speak(s);}
+  function wkDrawChain(){const box=$('#wkChain');box.innerHTML='';
+    wkChain.forEach((p,i)=>{if(i){const a=document.createElement('div');a.className='wkarr';a.textContent='→';box.appendChild(a);}
+      const c=document.createElement('div');c.className='wkcell'+(wkSlots[i]?'':' gap');c.dataset.idx=i;
+      c.textContent=wkSlots[i]||'';
+      if(wkSlots[i]&&wkGaps.indexOf(i)>=0){c.classList.add('set');c.title='Убрать деталь';
+        c.onclick=()=>{if(wkBusy)return;wkSlots[i]=null;wkDrawChain();wkRefreshTray();};}
+      box.appendChild(c);});}
+  function wkDrawTray(parts){const tr=$('#wkTray');tr.innerHTML='';
+    parts.forEach(p=>{const el=document.createElement('div');el.className='wkpart';el.textContent=p;el.dataset.part=p;
+      el.addEventListener('pointerdown',e=>{if(wkBusy||el.classList.contains('used'))return;e.preventDefault();
+        /* держим высоту стола: иначе ряд деталей схлопывается и механизм уезжает из-под пальца */
+        tr.style.height=tr.offsetHeight+'px';
+        wkDrag=el;el.style.position='fixed';el.style.zIndex='60';el.style.left=(e.clientX-29)+'px';el.style.top=(e.clientY-29)+'px';});
+      tr.appendChild(el);});}
+  function wkRefreshTray(){const used=wkSlots.filter(Boolean);
+    Array.prototype.forEach.call($('#wkTray').children,el=>{const k=used.indexOf(el.dataset.part);
+      if(k>=0&&!el.dataset.placed){el.classList.add('used');el.dataset.placed='1';used.splice(k,1);}
+      else if(k<0&&el.dataset.placed){el.classList.remove('used');el.dataset.placed='';}});}
+  window.addEventListener('pointermove',e=>{if(!wkDrag)return;wkDrag.style.left=(e.clientX-29)+'px';wkDrag.style.top=(e.clientY-29)+'px';
+    document.querySelectorAll('#wkChain .gap').forEach(c=>{const b=c.getBoundingClientRect();
+      c.classList.toggle('over',e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom);});});
+  window.addEventListener('pointerup',e=>{if(!wkDrag)return;const el=wkDrag;wkDrag=null;
+    let tgt=null;document.querySelectorAll('#wkChain .gap').forEach(c=>{c.classList.remove('over');
+      const b=c.getBoundingClientRect();if(e.clientX>=b.left&&e.clientX<=b.right&&e.clientY>=b.top&&e.clientY<=b.bottom)tgt=c;});
+    el.style.position='';el.style.left='';el.style.top='';el.style.zIndex='';$('#wkTray').style.height='';
+    if(!tgt)return;
+    wkSlots[+tgt.dataset.idx]=el.dataset.part;blip();wkDrawChain();wkRefreshTray();});
+  function wkCheck(){if(wkBusy)return;
+    if(wkGaps.some(i=>!wkSlots[i])){wkSay('Сначала поставь деталь на пустое место 🙂');chime(false);return;}
+    wkBusy=true;
+    const good=wkGaps.every(i=>wkSlots[i]===wkChain[i]);
+    const cells=$('#wkChain').querySelectorAll('.wkcell');
+    if(good){
+      cells.forEach(c=>{if(c.textContent==='⚙️')c.classList.add('wkspin');
+        if(['💡','🔔','🌀','🎵','🤖'].indexOf(c.textContent)>=0)c.classList.add('wklit');});
+      tone(160,420,'sawtooth',.14,.5);setTimeout(()=>tone(420,760,'sine',.13,.35),380);
+      wkSparks();confetti(screens.wkshop);
+      wkSay('Получилось! Ты починил механизм!');
+      setTimeout(wkReward,1500);
+    }else{
+      cells.forEach(c=>{if(c.textContent==='⚙️')c.classList.add('wkshake');});
+      tone(240,120,'square',.12,.22);setTimeout(()=>tone(180,90,'square',.1,.18),240);
+      const lines=['Хм... что-то не работает. Попробуй ещё раз.','Кажется, нужна другая деталь.'];
+      const line=lines[Math.random()*lines.length|0];wkSay(line);
+      setTimeout(()=>{cells.forEach(c=>c.classList.remove('wkshake'));
+        wkGaps.forEach(i=>{if(wkSlots[i]!==wkChain[i])wkSlots[i]=null;});
+        wkDrawChain();wkRefreshTray();wkBusy=false;},1100);}}
+  function wkSparks(){const box=screens.wkshop,r=$('#wkChain').getBoundingClientRect(),br=box.getBoundingClientRect();
+    for(let i=0;i<10;i++){const s=document.createElement('div');s.className='wkspark';s.textContent=i%2?'✨':'⚡';
+      s.style.left=(r.left-br.left+r.width/2)+'px';s.style.top=(r.top-br.top+r.height/2)+'px';
+      s.style.setProperty('--dx',(Math.random()*160-80)+'px');s.style.setProperty('--dy',(Math.random()*-120-20)+'px');
+      box.appendChild(s);setTimeout(()=>s.remove(),820);}}
+  function wkReward(){const id='workshop_l'+wkLevel,first=!games[id];
+    const got=first?[['⭐','+1',1],['🪙','+5',5],['🔑','+1',1]]:[['🪙','+2',2]];
+    if(first){stars+=1;coins+=5;keys+=1;markGame(id);if(wkLevel>=5){markGame('workshop_all');done.workshop=true;}}
+    else coins+=2;
+    if(first&&wkLevel<5&&(levels.wk||1)<wkLevel+1){levels.wk=wkLevel+1;}
+    save();updateHUD();
+    $('#wkGifts').innerHTML=got.map((g,i)=>'<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>').join('');
+    $('#wkMore').textContent=first&&wkLevel<5?'🔧 Механизм посложнее':'🔧 Починить ещё один';
+    $('#wkPrize').classList.add('on');
+    got.forEach((g,i)=>setTimeout(()=>{blip();popText(screens.wkshop,screens.wkshop.clientWidth/2-16+(Math.random()*60-30),screens.wkshop.clientHeight*0.4,g[0],'#FFB800');},300+i*220));
+    if(first&&wkLevel<5)wkLevel++;
+    wkBusy=false;}
 
   if(load()){ if(!introSeen){show('intro');} else {goWorld();} }else{ show('intro'); }
   updateHUD();
