@@ -682,10 +682,17 @@
   /* сорвалась фраза — повторяем её тем же голосом. На запасной голос НЕ переключаемся насовсем:
      одна осечка интернета не должна лишить ребёнка живого голоса до конца игры. */
   const lost=e=>!/canceled|interrupted/i.test((e&&e.error)||'');
-  function speak(t,retry){if(!('speechSynthesis'in window))return;try{speechSynthesis.cancel();
+  function speak(t,retry){if(!('speechSynthesis'in window))return;try{speechSynthesis.cancel();speechSynthesis.resume();
     const u=voiceUp(new SpeechSynthesisUtterance(t));
     u.onerror=e=>{if(!retry&&lost(e))setTimeout(()=>speak(t,1),250);};
     speechSynthesis.speak(u);}catch(e){}}
+  /* планшет не даёт говорить, пока ребёнок сам не коснулся экрана. Если вступление пропущено
+     или уже просмотрено, ни одной фразы «с касания» не звучало — и iPad молчит всю игру.
+     Поэтому на первом же касании разблокируем синтезатор беззвучной фразой. */
+  let ttsReady=false;
+  function unlockTTS(){if(ttsReady||!('speechSynthesis'in window))return;ttsReady=true;
+    try{const u=new SpeechSynthesisUtterance(' ');u.volume=0;u.lang='ru-RU';speechSynthesis.speak(u);}catch(e){}}
+  ['pointerdown','touchend','click'].forEach(ev=>document.addEventListener(ev,unlockTTS,{capture:true}));
   const sayLetter=ch=>speak(ch.toLowerCase());
 
   /* MONSTER BUILDER */
