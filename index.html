@@ -495,6 +495,110 @@
      крупный размер клеток. Подпись поменяна с «нижняя» на «правая» под новую раскладку. */
   #diff .gwrap{flex-direction:row;align-items:center;justify-content:center;gap:28px;}
   .dvs{font-size:21px;max-width:170px;text-align:center;line-height:1.35;}
+
+  /* ============ ВОКЗАЛ: «ПУТЕШЕСТВИЕ» ============
+     Посадка героя в паровоз + карта железной дороги. Поле карты 11x7 клеток по 84 px,
+     клетка крупная нарочно: ребёнок должен видеть рельсы, монетки и светофоры без прищура. */
+  #board,#train{background:linear-gradient(180deg,#BFE7F8 0%,#E3F5FC 54%,#CDEBA2 54%,#B6DE86 100%);}
+
+  /* ---- посадка ---- */
+  .bdcloud{position:absolute;font-size:58px;opacity:.9;animation:bdfloat 34s linear infinite;}
+  @keyframes bdfloat{from{transform:translateX(-140px);}to{transform:translateX(1420px);}}
+  .bdstat{position:absolute;left:56px;top:214px;width:250px;height:300px;}
+  .bdrailbed{position:absolute;left:0;right:0;top:544px;height:34px;background:#D9B98A;}
+  .bdsleep{position:absolute;left:0;right:0;top:546px;height:30px;background:repeating-linear-gradient(90deg,#A9743F 0 11px,transparent 11px 40px);}
+  .bdrail{position:absolute;left:0;right:0;height:7px;background:#9AA0A6;border-radius:4px;box-shadow:0 2px 0 #7d8288;}
+  .bdplat{position:absolute;left:0;top:513px;width:626px;height:64px;background:#EBDCBB;
+          box-shadow:inset 0 7px 0 #FFF6E2, 0 5px 0 #C9B287;border-radius:0 14px 0 0;}
+  .bdtrain{position:absolute;left:600px;top:320px;width:340px;height:288px;transition:left 1.4s ease-in;}
+  .bdtrain.away{left:1400px;}
+  .bddoor{position:absolute;left:655px;top:393px;width:78px;height:110px;background:#3E97C0;border-radius:12px;
+          box-shadow:inset 0 0 0 4px #2E7EA3;transition:transform .5s ease,opacity .5s ease;transform-origin:50% 100%;}
+  .bddoor.open{transform:translateY(-84%) scaleY(.2);opacity:.25;}
+  .bdcab{position:absolute;left:658px;top:396px;width:72px;height:66px;opacity:0;transform:scale(.6);
+         transition:opacity .35s ease,transform .35s ease;}
+  .bdcab.in{opacity:1;transform:scale(1);}
+  .bdcap{position:absolute;left:673px;top:366px;font-size:34px;opacity:0;transform:translateY(-18px) scale(.4);
+         transition:opacity .3s ease,transform .3s ease;}
+  .bdcap.on{opacity:1;transform:translateY(0) scale(1);}
+  .bdwalk{position:absolute;left:120px;top:387px;width:126px;height:126px;transition:left 2s linear,opacity .4s ease,transform .4s ease;}
+  .bdwalk.gone{opacity:0;transform:scale(.45) translateX(40px);}
+  .bdskip{position:absolute;right:22px;bottom:20px;}
+
+  /* ---- карта дороги ---- */
+  .tvbody{flex:1;display:flex;gap:22px;padding:0 28px 14px;align-items:flex-start;justify-content:center;}
+  .tvmap{position:relative;width:940px;height:604px;padding:8px;flex:none;border-radius:28px;
+         background:linear-gradient(180deg,#D9F1AB,#BEE388);box-shadow:0 10px 0 #A3CC6E, 0 18px 32px rgba(0,0,0,.18);}
+  .tvfield{position:relative;width:924px;height:588px;}
+  .tvrails{position:absolute;left:0;top:0;width:924px;height:588px;}
+  .tvobj{position:absolute;left:0;top:0;right:0;bottom:0;}
+  .tvdec{position:absolute;transform:translate(-50%,-50%);font-size:44px;line-height:1;opacity:.92;pointer-events:none;
+         filter:drop-shadow(0 3px 2px rgba(0,0,0,.15));}
+  .tvcoin{position:absolute;transform:translate(-50%,-50%);font-size:46px;line-height:1;
+          animation:tvspin 1.8s ease-in-out infinite;filter:drop-shadow(0 3px 3px rgba(0,0,0,.25));}
+  @keyframes tvspin{0%,100%{transform:translate(-50%,-50%) scale(1) rotate(-6deg);}50%{transform:translate(-50%,-52%) scale(1.12) rotate(6deg);}}
+  .tvcoin.got{animation:tvtake .45s ease-out forwards;}
+  @keyframes tvtake{to{transform:translate(-50%,-160%) scale(1.9);opacity:0;}}
+  .tvblock{position:absolute;transform:translate(-50%,-50%);font-size:54px;line-height:1;filter:drop-shadow(0 4px 3px rgba(0,0,0,.28));}
+  .tvst{position:absolute;transform:translate(-50%,-50%);width:84px;height:84px;pointer-events:none;}
+  .tvst .sthouse{position:absolute;left:7px;top:-30px;width:70px;height:62px;}
+  .tvst .stdot{position:absolute;left:50%;top:52px;transform:translateX(-50%);width:34px;height:12px;border-radius:7px;
+               box-shadow:0 3px 0 rgba(0,0,0,.18);}
+  .tvst .stok{position:absolute;left:50%;top:-44px;transform:translateX(-50%) scale(0);font-size:30px;transition:transform .3s ease;}
+  .tvst.done .stok{transform:translateX(-50%) scale(1);}
+  .tvlight{position:absolute;transform:translate(-50%,-50%);width:84px;height:84px;pointer-events:none;}
+  .tvlight svg{position:absolute;left:46px;top:-16px;}
+  .tvlight .lr,.tvlight .ly,.tvlight .lg{fill:#57525f;}
+  .tvlight.red .lr{fill:#FF3B30;filter:drop-shadow(0 0 7px #FF3B30);}
+  .tvlight.yellow .ly{fill:#FFD23F;filter:drop-shadow(0 0 7px #FFD23F);}
+  .tvlight.green .lg{fill:#4CD964;filter:drop-shadow(0 0 7px #4CD964);}
+  .tvpuff{position:absolute;transform:translate(-50%,-50%);font-size:28px;pointer-events:none;
+          animation:tvpuff 1.1s ease-out forwards;}
+  @keyframes tvpuff{from{opacity:.85;transform:translate(-50%,-50%) scale(.5);}
+                    to{opacity:0;transform:translate(-50%,-190%) scale(1.6);}}
+  .tvtrain{position:absolute;left:0;top:0;width:100px;height:100px;margin:-50px 0 0 -50px;z-index:5;}
+  .tvloco{position:relative;width:100px;height:100px;transform:rotate(var(--a,0deg));transition:transform .22s ease;}
+  .tvloco svg{position:absolute;left:0;top:0;}
+  .tvhero{position:absolute;left:13px;top:31px;width:42px;height:38px;object-fit:contain;
+          transform:rotate(calc(-1 * var(--a,0deg)));transition:transform .22s ease;}
+  .tvcap{position:absolute;left:22px;top:11px;font-size:24px;transform:rotate(calc(-1 * var(--a,0deg)));transition:transform .22s ease;}
+  .tvhero.out{animation:tvout .9s ease-out forwards;}
+  @keyframes tvout{to{transform:translate(-48px,-42px) scale(2.2);}}
+
+  /* ---- панель управления ---- */
+  .tvside{width:334px;height:604px;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .tvcard{width:100%;background:var(--cream);border-radius:22px;padding:11px 14px;box-shadow:0 6px 0 rgba(0,0,0,.10);
+          display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .tvseq{display:flex;align-items:center;justify-content:center;gap:9px;flex-wrap:wrap;font-size:28px;}
+  .tvseq .schip{width:40px;height:40px;border-radius:13px;box-shadow:0 4px 0 rgba(0,0,0,.18);position:relative;}
+  .tvseq .schip.ok::after{content:'\2713';position:absolute;left:0;top:0;right:0;bottom:0;display:flex;align-items:center;
+          justify-content:center;font-family:'Fredoka';font-weight:700;font-size:26px;color:#fff;text-shadow:0 2px 3px rgba(0,0,0,.3);}
+  .tvseq .sarr{font-family:'Fredoka';font-weight:700;font-size:24px;color:#8a6a3a;}
+  .tvcnt{font-family:'Fredoka';font-weight:700;font-size:26px;color:#6b4a24;}
+  .tvpad{display:grid;grid-template-columns:repeat(3,98px);grid-template-rows:repeat(3,98px);gap:8px;}
+  .tvb{border:none;border-radius:26px;background:#fff;font-size:46px;line-height:1;cursor:pointer;padding:0;
+       box-shadow:0 7px 0 rgba(0,0,0,.16);transition:transform .07s,box-shadow .07s;}
+  .tvb:active{transform:translateY(4px);box-shadow:0 3px 0 rgba(0,0,0,.16);}
+  .tvb.u{grid-area:1/2;} .tvb.l{grid-area:2/1;} .tvb.c{grid-area:2/2;background:#FFE9B8;font-size:40px;}
+  .tvb.r{grid-area:2/3;} .tvb.d{grid-area:3/2;}
+  .tvb.hint{background:#FFF2A8;animation:tvhint .7s ease-in-out infinite alternate;}
+  @keyframes tvhint{from{transform:scale(1);box-shadow:0 7px 0 rgba(0,0,0,.16);}
+                    to{transform:scale(1.09);box-shadow:0 7px 0 #E9B21E, 0 0 0 5px rgba(255,210,63,.55);}}
+  .tvb.no{animation:tvno .3s ease;}
+  @keyframes tvno{25%{transform:translateX(-6px);}75%{transform:translateX(6px);}}
+
+  /* ---- карточка задания ---- */
+  .tvtask{position:absolute;left:0;top:0;right:0;bottom:0;display:none;align-items:center;justify-content:center;
+          background:rgba(30,20,10,.42);z-index:9;}
+  .tvtask.on{display:flex;}
+  .tvtask .wkcard{max-width:660px;}
+  .tvvis{display:flex;align-items:center;justify-content:center;gap:12px;flex-wrap:wrap;padding:6px 0 2px;}
+  .tvvis .vbig{font-size:66px;line-height:1;}
+  .tvvis .varr{font-family:'Fredoka';font-weight:700;font-size:38px;color:#8a6a3a;}
+  .tvvis .vchip{width:56px;height:56px;border-radius:18px;box-shadow:0 5px 0 rgba(0,0,0,.18);}
+  .tvvis .vnum{font-family:'Fredoka';font-weight:700;font-size:44px;color:#6b4a24;}
+  .bdwalk.go img{animation:waddle .52s ease-in-out infinite;}
+  .bdcab.wave img{animation:cheerjump .5s ease;}
 </style>
 </head>
 <body>
@@ -860,6 +964,88 @@
     </div></div>
   </section>
 
+  <section id="board" class="screen">
+    <div class="topbar"><button class="backb" id="bdBack">← Карта</button><h2>🚂 Вокзал</h2><div class="prog">Посадка</div></div>
+    <div class="bdcloud" style="left:60px;top:70px">☁️</div>
+    <div class="bdcloud" style="left:-200px;top:130px;animation-delay:-13s">⛅</div>
+    <div class="bdcloud" style="left:-500px;top:40px;animation-delay:-25s">☁️</div>
+    <div class="bdrailbed"></div><div class="bdsleep"></div>
+    <div class="bdrail" style="top:550px"></div><div class="bdrail" style="top:570px"></div>
+    <div class="bdstat"><svg viewBox="0 0 250 300" style="width:100%;height:100%">
+      <rect x="30" y="120" width="190" height="180" rx="10" fill="#FFE1B0"/>
+      <path d="M12 126 L125 42 L238 126 Z" fill="#C0553F"/>
+      <circle cx="125" cy="98" r="21" fill="#FFF3E0" stroke="#C0553F" stroke-width="4"/>
+      <path d="M125 98 L125 85 M125 98 L134 103" stroke="#37344F" stroke-width="4" stroke-linecap="round"/>
+      <rect x="44" y="146" width="42" height="42" rx="7" fill="#BFE3F5" stroke="#fff" stroke-width="4"/>
+      <rect x="164" y="146" width="42" height="42" rx="7" fill="#BFE3F5" stroke="#fff" stroke-width="4"/>
+      <rect x="62" y="196" width="126" height="38" rx="12" fill="#4DB6E5"/>
+      <text x="125" y="223" font-family="Fredoka" font-size="24" font-weight="700" fill="#fff" text-anchor="middle">ВОКЗАЛ</text>
+      <rect x="100" y="244" width="50" height="56" rx="8" fill="#B77A47"/>
+    </svg></div>
+    <div class="bdplat"></div>
+    <div class="tvdec" style="left:120px;top:672px;font-size:58px">🌳</div>
+    <div class="tvdec" style="left:300px;top:700px;font-size:46px">🌸</div>
+    <div class="tvdec" style="left:640px;top:690px;font-size:52px">🌲</div>
+    <div class="tvdec" style="left:900px;top:706px;font-size:44px">🌻</div>
+    <div class="tvdec" style="left:1140px;top:676px;font-size:58px">🌳</div>
+    <div class="tvdec" style="left:1265px;top:466px;font-size:52px">🌲</div>
+    <div class="bdwalk" id="bdWalk"><img id="bdImg" alt="герой"></div>
+    <div class="bdtrain" id="bdTrain"><svg viewBox="0 0 260 220" style="width:100%;height:100%">
+      <rect x="18" y="136" width="224" height="16" rx="8" fill="#37344F"/>
+      <rect x="108" y="66" width="126" height="74" rx="26" fill="#E4573B"/>
+      <rect x="226" y="62" width="16" height="82" rx="7" fill="#C0553F"/>
+      <rect x="196" y="30" width="26" height="38" rx="6" fill="#37344F"/>
+      <rect x="188" y="20" width="42" height="14" rx="7" fill="#37344F"/>
+      <circle cx="164" cy="64" r="14" fill="#FFD23F"/>
+      <rect x="20" y="28" width="106" height="18" rx="9" fill="#37344F"/>
+      <rect x="28" y="42" width="88" height="98" rx="16" fill="#4DB6E5"/>
+      <circle cx="70" cy="166" r="26" fill="#37344F"/><circle cx="70" cy="166" r="11" fill="#9AA0A6"/>
+      <circle cx="140" cy="172" r="20" fill="#37344F"/><circle cx="140" cy="172" r="8" fill="#9AA0A6"/>
+      <circle cx="196" cy="172" r="20" fill="#37344F"/><circle cx="196" cy="172" r="8" fill="#9AA0A6"/>
+      <circle cx="238" cy="112" r="9" fill="#FFD23F"/>
+    </svg></div>
+    <div class="bddoor" id="bdDoor"></div>
+    <div class="bdcab" id="bdCab"><img id="bdCabImg" alt="герой в кабине" style="width:100%;height:100%;object-fit:contain"></div>
+    <div class="bdcap" id="bdCap">🧢</div>
+    <button class="btn small coral bdskip" id="bdSkip">Пропустить ⏩</button>
+  </section>
+
+  <section id="train" class="screen">
+    <div class="topbar"><button class="backb" id="tvBack">← Карта</button><h2>🚂 Путешествие</h2><div class="prog" id="tvProg"></div></div>
+    <div class="tvbody">
+      <div class="tvmap"><div class="tvfield">
+        <svg class="tvrails" id="tvRails" viewBox="0 0 924 588"></svg>
+        <div class="tvobj" id="tvObj"></div>
+      </div></div>
+      <div class="tvside">
+        <div class="lvsel" id="tvLevels"></div>
+        <div class="tvcard">
+          <div class="tvseq" id="tvSeq"></div>
+          <div class="tvcnt" id="tvCnt">🪙 0</div>
+        </div>
+        <div class="tvpad">
+          <button class="tvb u" id="tvU">⬆️</button>
+          <button class="tvb l" id="tvL">⬅️</button>
+          <button class="tvb c" id="tvBell">🔔</button>
+          <button class="tvb r" id="tvR">➡️</button>
+          <button class="tvb d" id="tvD">⬇️</button>
+        </div>
+        <button class="btn small" id="tvRepeat">🔊 Повторить задание</button>
+      </div>
+    </div>
+    <div class="tvtask" id="tvTask"><div class="wkcard">
+      <div class="wkwin" id="tvTaskTtl">🎯 Задание</div>
+      <div class="tvvis" id="tvTaskVis"></div>
+      <button class="btn" id="tvStart">🚂 Поехали!</button>
+    </div></div>
+    <div class="wkprize" id="tvPrize"><div class="wkcard">
+      <div class="wkwin" id="tvWinTxt">🎉 Приехали!</div>
+      <div class="wkgifts" id="tvGifts"></div>
+      <button class="btn small" id="tvMore">🚂 Дальше</button>
+      <button class="btn small coral" id="tvOut">← На карту</button>
+    </div></div>
+  </section>
+
   <section id="stub" class="screen">
     <div class="card"><div class="big-ic" id="stubIc">🛒</div><h1 id="stubTitle">Магазин</h1>
       <p id="stubTxt">Здесь скоро будут игры! Заходи позже ✨</p>
@@ -885,7 +1071,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),wkshop:$('#wkshop'),park:$('#park'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),wkshop:$('#wkshop'),park:$('#park'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -1045,7 +1231,7 @@
     save();  /* переносим данные со старого ключа/копии на основной */
     return true;}
   function markGame(id){if(games[id])return;games[id]=true;save();}
-  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg','wkImg','pkImg'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
+  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg','wkImg','pkImg','tvImg','bdImg','bdCabImg'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
 
   /* WORLD */
   /* Городок-ромашка: Домик в центре (всегда NODES[0]), от него своя дорожка к каждой локации.
@@ -1057,7 +1243,7 @@
     {x:74,y:69,b:'bakery',nm:'Пекарня',room:'bakery',bend:6},
     {x:34,y:82,b:'forest',nm:'Лес',room:'forest',bend:6},
     {x:29,y:25,b:'workshop',nm:'Мастерская',room:'workshop',bend:-6},
-    {x:49,y:17,b:'station',nm:'Вокзал',room:'station',soon:true,bend:4},
+    {x:49,y:17,b:'station',nm:'Вокзал',room:'station',bend:4},
     {x:20,y:52,b:'park',nm:'Парк',room:'park',bend:5}];
   const done={letters:false,circus:false,shop:false};
   const topmap=$('#topmap'),token=$('#mapToken');let curNode=0,walking=false,nodeEls=[];
@@ -1112,7 +1298,7 @@
   function walkTo(idx){if(walking)return;if(idx===0){actAt(0);return;}
     walking=true;token.classList.add('walk');curNode=idx;placeToken();
     setTimeout(function(){walking=false;token.classList.remove('walk');save();actAt(idx);},820);}
-  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakery();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openPark();else openSoon(n);}
+  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakery();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openPark();else if(n.room==='station')openStation();else openSoon(n);}
   function openSoon(n){const ic={shop:'🛒',bakery:'🍰',workshop:'🛠️',station:'🚂',park:'🎡'}[n.room]||'✨';$('#stubIc').textContent=ic;$('#stubTitle').textContent=n.nm;$('#stubTxt').textContent='Здесь скоро будут игры! Заходи позже ✨';show('stub');}$('#stubBack').onclick=goWorld;
 
   /* ---------- ПЕКАРНЯ: Создай свой десерт ---------- */
@@ -2237,6 +2423,342 @@
   $('#pkBack').onclick=goWorld;$('#pkOut').onclick=goWorld;
   $('#pkMore').onclick=function(){$('#pkPrize').classList.remove('on');pkNew(false);};
   $('#pkAgain').onclick=function(){$('#pkPrize').classList.remove('on');pkNew(false);};
+
+  /* ---------- ВОКЗАЛ: «ПУТЕШЕСТВИЕ» ----------
+     Ребёнок сажает СВОЕГО монстрика в паровоз и ведёт поезд по карте железной дороги.
+     Правило одно на всех уровнях: поезд едет сам, но останавливается там, где нужно решение, —
+     на повороте, на развилке, перед красным светофором и в тупике. Проигрыша нет:
+     неверная ветка приводит в тупик, оттуда всегда можно поехать назад. */
+  const TV_C=84,TV_COLS=11,TV_ROWS=7,TV_SPEED=520;
+  const TV_D={R:[1,0],L:[-1,0],U:[0,-1],D:[0,1]};
+  const TV_OPP={R:'L',L:'R',U:'D',D:'U'};
+  const TV_ANG={R:0,D:90,L:180,U:270};
+  const TV_WAY={R:'направо',L:'налево',U:'вверх',D:'вниз'};
+  const TV_COL={red:'#FF6B6B',blue:'#4DB6E5',yellow:'#FFD23F',green:'#7BC950'};
+  const TV_CN={red:'красная',blue:'синяя',yellow:'жёлтая',green:'зелёная'};
+  const TV_CV={red:'красную',blue:'синюю',yellow:'жёлтую',green:'зелёную'};
+  /* подарки паровозу за первое прохождение уровня: монетки НЕ тратятся —
+     от накопленных монет зависят разблокировки конструктора героя */
+  const TV_KIT={2:['wagon','🚃','вагончик'],3:['bell','🔔','колокольчик'],
+                4:['flag','🚩','флажок'],5:['smoke','💨','цветной дым'],6:['gold','⭐','золотой паровоз']};
+  /* уровни: segs — отрезки путей по клеткам, из них считаются повороты и развилки */
+  const TV_LEVELS=[
+    {segs:[[[1,5],[6,5]],[[6,5],[6,2]],[[6,2],[9,2]]],start:[1,5,'R'],
+     st:{'9,2':'red'},seq:['red'],coins:[],need:0,lights:[],blocks:[],
+     say:'Ты машинист! Довези поезд до красной станции. Нажимай стрелку — куда ехать.'},
+    {segs:[[[1,1],[5,1]],[[5,1],[5,4]],[[5,4],[9,4]]],start:[1,1,'R'],
+     st:{'9,4':'green'},seq:['green'],coins:['2,1','5,2','7,4'],need:0,lights:['3,1','7,4'],blocks:[],
+     say:'Доедь до зелёной станции. Красный свет — стоим, зелёный — едем!'},
+    {segs:[[[0,3],[10,3]],[[3,3],[3,1]],[[3,1],[7,1]],[[7,1],[7,3]]],start:[0,3,'R'],
+     st:{'10,3':'yellow'},seq:['yellow'],coins:['3,2','4,1','5,1','6,1','7,2','5,3'],need:5,lights:['1,3'],blocks:[],
+     say:'Собери пять монеток и приезжай на жёлтую станцию. Наверху монеток больше!'},
+    {segs:[[[0,3],[10,3]],[[3,1],[3,5]],[[7,1],[7,5]]],start:[0,3,'R'],
+     st:{'3,1':'red','7,5':'blue','10,3':'green'},seq:['red','blue','green'],
+     coins:['1,3','3,2','5,3','7,4','9,3'],need:3,lights:['5,3'],blocks:[],
+     say:'Сначала красная станция, потом синяя, потом зелёная. И собери три монетки!'},
+    {segs:[[[1,1],[9,1]],[[1,5],[9,5]],[[1,1],[1,5]],[[9,1],[9,5]],[[5,1],[5,5]]],start:[1,5,'R'],
+     st:{'9,3':'blue'},seq:['blue'],coins:['1,3','3,1','5,3','7,5','8,5'],need:3,lights:['5,2'],blocks:['3,5','7,1'],
+     say:'Доедь до синей станции. На путях завалы — придётся искать другую дорогу!'},
+    {segs:[[[1,1],[9,1]],[[1,3],[9,3]],[[1,5],[9,5]],[[1,1],[1,5]],[[5,1],[5,5]],[[9,1],[9,5]]],start:[1,3,'R'],
+     st:{'5,1':'red','9,5':'blue','1,5':'yellow'},seq:['red','blue','yellow'],
+     coins:['2,1','4,1','6,1','8,1','9,4','7,5','5,5','3,5'],need:6,lights:['3,1','9,2'],blocks:['3,3','7,3'],
+     say:'Большой рейс! Сначала красная станция, потом синяя, потом жёлтая. Собери шесть монеток и берегись завалов.'},
+  ];
+
+  let tvLevel=1,tvConn={},tvSt={},tvCoin={},tvBlock={},tvLight={};
+  let tvStEl={},tvCoinEl={},tvLightEl={};
+  let tvPos={c:0,r:0},tvDir='R',tvMoving=false,tvBusy=true,tvQueue=null;
+  let tvSeq=[],tvSeqI=0,tvGot=0,tvNeed=0,tvAll=0,tvWrong=0,tvOk=false;
+  let tvTimers=[],tvHintT=0;
+  function tvLater(fn,ms){const id=setTimeout(fn,ms);tvTimers.push(id);return id;}
+  function tvClear(){tvTimers.forEach(clearTimeout);tvTimers=[];}
+  const tvKey=(c,r)=>c+','+r;
+  const tvSpeak=t=>{const s=wkVoice(t);if(s)speak(s);};
+
+  /* --- пути: из отрезков считаем, куда из каждой клетки уходят рельсы --- */
+  function tvAddConn(c,r,d){const k=tvKey(c,r);if(!tvConn[k])tvConn[k]={};tvConn[k][d]=1;}
+  function tvBuildConn(lv){tvConn={};
+    lv.segs.forEach(function(s){
+      const a=s[0],b=s[1];
+      const dc=Math.sign(b[0]-a[0]),dr=Math.sign(b[1]-a[1]);
+      const d=dc>0?'R':dc<0?'L':dr>0?'D':'U';
+      let c=a[0],r=a[1];
+      while(c!==b[0]||r!==b[1]){tvAddConn(c,r,d);tvAddConn(c+dc,r+dr,TV_OPP[d]);c+=dc;r+=dr;}});}
+
+  /* --- рисование рельсов: насыпь, шпалы, две нитки. Прямая — отрезок, поворот — четверть круга
+         (её центр ровно в углу клетки), развилка — по половинке пути на каждое направление --- */
+  function tvArc(cx,cy,d1,d2){const H=TV_C/2;
+    const ox=cx+(TV_D[d1][0]+TV_D[d2][0])*H,oy=cy+(TV_D[d1][1]+TV_D[d2][1])*H;
+    const a0=Math.atan2(cy+TV_D[d1][1]*H-oy,cx+TV_D[d1][0]*H-ox);
+    let a1=Math.atan2(cy+TV_D[d2][1]*H-oy,cx+TV_D[d2][0]*H-ox),dd=a1-a0;
+    while(dd>Math.PI)dd-=2*Math.PI;while(dd<-Math.PI)dd+=2*Math.PI;
+    const pts=[];for(let i=0;i<=8;i++){const t=a0+dd*i/8;pts.push([ox+Math.cos(t)*H,oy+Math.sin(t)*H]);}
+    return pts;}
+  function tvPaths(c,r,ds){const H=TV_C/2,cx=c*TV_C+H,cy=r*TV_C+H;
+    const edge=d=>[cx+TV_D[d][0]*H,cy+TV_D[d][1]*H];
+    if(ds.length===2)return TV_OPP[ds[0]]===ds[1]?[[edge(ds[0]),edge(ds[1])]]:[tvArc(cx,cy,ds[0],ds[1])];
+    return ds.map(d=>[[cx,cy],edge(d)]);}
+  function tvOffset(pts,d){return pts.map(function(p,i){
+      const a=pts[Math.max(0,i-1)],b=pts[Math.min(pts.length-1,i+1)];
+      const tx=b[0]-a[0],ty=b[1]-a[1],L=Math.hypot(tx,ty)||1;
+      return [p[0]-ty/L*d,p[1]+tx/L*d];});}
+  function tvLine(pts,col,w){return '<path d="M'+pts.map(p=>p[0].toFixed(1)+' '+p[1].toFixed(1)).join(' L')
+      +'" fill="none" stroke="'+col+'" stroke-width="'+w+'" stroke-linecap="round" stroke-linejoin="round"/>';}
+  function tvSleepers(pts){let out='',tot=0;const L=[];
+    for(let i=1;i<pts.length;i++){const d=Math.hypot(pts[i][0]-pts[i-1][0],pts[i][1]-pts[i-1][1]);L.push(d);tot+=d;}
+    [0.2,0.5,0.8].forEach(function(t){let need=tot*t,i=0;
+      while(i<L.length-1&&need>L[i]){need-=L[i];i++;}
+      const a=pts[i],b=pts[i+1],f=L[i]?Math.min(1,need/L[i]):0;
+      const x=a[0]+(b[0]-a[0])*f,y=a[1]+(b[1]-a[1])*f;
+      const tx=b[0]-a[0],ty=b[1]-a[1],M=Math.hypot(tx,ty)||1,nx=-ty/M*20,ny=tx/M*20;
+      out+='<line x1="'+(x+nx).toFixed(1)+'" y1="'+(y+ny).toFixed(1)+'" x2="'+(x-nx).toFixed(1)+'" y2="'+(y-ny).toFixed(1)
+        +'" stroke="#A9743F" stroke-width="7" stroke-linecap="round"/>';});
+    return out;}
+  function tvRailsSVG(){let bed='',sleep='',rail='';
+    Object.keys(tvConn).forEach(function(k){const p=k.split(','),ds=Object.keys(tvConn[k]);
+      tvPaths(+p[0],+p[1],ds).forEach(function(pts){
+        bed+=tvLine(pts,'#D9B98A',54);
+        sleep+=tvSleepers(pts);
+        rail+=tvLine(tvOffset(pts,13),'#9AA0A6',6)+tvLine(tvOffset(pts,-13),'#9AA0A6',6);});});
+    return bed+sleep+rail;}
+
+  /* --- картинки --- */
+  function tvStationSVG(col){return '<svg viewBox="0 0 70 62" style="width:100%;height:100%">'
+    +'<rect x="12" y="26" width="46" height="32" rx="6" fill="#FFF3E0"/>'
+    +'<path d="M4 29 L35 5 L66 29 Z" fill="'+col+'"/>'
+    +'<rect x="28" y="40" width="14" height="18" rx="3" fill="#B77A47"/>'
+    +'<rect x="16" y="33" width="9" height="9" rx="2" fill="#BFE3F5"/>'
+    +'<rect x="45" y="33" width="9" height="9" rx="2" fill="#BFE3F5"/></svg>';}
+  function tvLightSVG(){return '<svg viewBox="0 0 26 66" width="26" height="66">'
+    +'<rect x="11" y="36" width="5" height="30" rx="2" fill="#6b6f76"/>'
+    +'<rect x="2" y="2" width="22" height="38" rx="7" fill="#37344F"/>'
+    +'<circle class="lr" cx="13" cy="11" r="5.5"/><circle class="ly" cx="13" cy="21" r="5.5"/>'
+    +'<circle class="lg" cx="13" cy="31" r="5.5"/></svg>';}
+  function tvLocoSVG(){const kit=levels.tvKit||{};
+    const c1=kit.gold?'#FFC93C':'#E4573B',c2=kit.gold?'#E0A417':'#C0553F';
+    let s='';
+    if(kit.wagon)s+='<svg viewBox="0 0 50 100" width="50" height="100" style="position:absolute;left:-40px;top:0">'
+      +'<rect x="8" y="22" width="34" height="11" rx="5" fill="#37344F"/><rect x="8" y="67" width="34" height="11" rx="5" fill="#37344F"/>'
+      +'<rect x="4" y="30" width="36" height="40" rx="12" fill="#7BC950"/>'
+      +'<rect x="38" y="46" width="12" height="8" rx="4" fill="#37344F"/></svg>';
+    s+='<svg viewBox="0 0 100 100" width="100" height="100">'
+      +'<rect x="12" y="17" width="76" height="12" rx="6" fill="#37344F"/>'
+      +'<rect x="12" y="71" width="76" height="12" rx="6" fill="#37344F"/>'
+      +'<rect x="8" y="26" width="84" height="48" rx="18" fill="'+c1+'"/>'
+      +'<rect x="56" y="30" width="36" height="40" rx="16" fill="'+c2+'"/>'
+      +'<circle cx="74" cy="50" r="9" fill="#37344F"/><circle cx="74" cy="50" r="4.4" fill="#9AA0A6"/>'
+      +'<rect x="12" y="30" width="44" height="40" rx="15" fill="#FFF3E0"/>'
+      +'<circle cx="90" cy="50" r="5" fill="#FFD23F"/>';
+    if(kit.bell)s+='<circle cx="60" cy="35" r="5" fill="#FFD23F" stroke="#C99A16" stroke-width="1.6"/>';
+    if(kit.flag)s+='<rect x="60" y="58" width="2.6" height="17" fill="#8B5E3C"/><path d="M62 60 L75 64 L62 68 Z" fill="#F368C4"/>';
+    return s+'</svg>';}
+
+  const TV_DEC=['🌳','🌲','🌸','🏠','🍄','🌻','🌳','🌉'];
+  function tvEl(cls,c,r,html,dx,dy){const e=document.createElement('div');e.className=cls;
+    e.style.left=(c*TV_C+TV_C/2+(dx||0))+'px';e.style.top=(r*TV_C+TV_C/2+(dy||0))+'px';
+    e.innerHTML=html;return e;}
+  function tvRender(){
+    $('#tvRails').innerHTML=tvRailsSVG();
+    const box=$('#tvObj');box.innerHTML='';tvStEl={};tvCoinEl={};tvLightEl={};
+    for(let r=0;r<TV_ROWS;r++)for(let c=0;c<TV_COLS;c++){const k=tvKey(c,r);
+      if(tvConn[k]||tvSt[k]||tvCoin[k]||tvLight[k]||tvBlock[k])continue;
+      /* рядом со стартом не сажаем деревья: вагончик торчит за клетку и налезал бы на них */
+      if(Math.abs(c-tvPos.c)<=1&&Math.abs(r-tvPos.r)<=1)continue;
+      const h=(c*7+r*13+tvLevel*11)%17;if(h>5)continue;
+      box.appendChild(tvEl('tvdec',c,r,TV_DEC[h%TV_DEC.length],(h%3-1)*13,(h%2)*12-6));}
+    Object.keys(tvSt).forEach(function(k){const p=k.split(',');
+      const e=tvEl('tvst',+p[0],+p[1],'<div class="sthouse">'+tvStationSVG(TV_COL[tvSt[k]])+'</div>'
+        +'<div class="stdot" style="background:'+TV_COL[tvSt[k]]+'"></div><div class="stok">✅</div>');
+      box.appendChild(e);tvStEl[k]=e;});
+    Object.keys(tvCoin).forEach(function(k){const p=k.split(',');
+      const e=tvEl('tvcoin',+p[0],+p[1],'🪙');box.appendChild(e);tvCoinEl[k]=e;});
+    Object.keys(tvLight).forEach(function(k){const p=k.split(',');
+      const e=tvEl('tvlight '+tvLight[k],+p[0],+p[1],tvLightSVG());box.appendChild(e);tvLightEl[k]=e;});
+    Object.keys(tvBlock).forEach(function(k){const p=k.split(',');
+      box.appendChild(tvEl('tvblock',+p[0],+p[1],'🚧'));});
+    const t=document.createElement('div');t.className='tvtrain';t.id='tvTrainEl';
+    t.innerHTML='<div class="tvloco" id="tvLoco" style="--a:0deg">'+tvLocoSVG()
+      +'<img class="tvhero" id="tvImg" alt="машинист"><span class="tvcap">🧢</span></div>';
+    box.appendChild(t);
+    if(heroSrc)$('#tvImg').src=heroSrc;}
+
+  /* --- движение --- */
+  function tvPlaceTrain(ms){const el=$('#tvTrainEl');if(!el)return;
+    el.style.transition=ms?('left '+ms+'ms linear, top '+ms+'ms linear'):'none';
+    el.style.left=(tvPos.c*TV_C+TV_C/2)+'px';el.style.top=(tvPos.r*TV_C+TV_C/2)+'px';}
+  function tvAngle(){const l=$('#tvLoco');if(l)l.style.setProperty('--a',TV_ANG[tvDir]+'deg');}
+  function tvPuff(){const box=$('#tvObj');if(!box)return;const kit=levels.tvKit||{};
+    const e=tvEl('tvpuff',tvPos.c,tvPos.r,kit.smoke?['💨','✨','☁️'][Math.random()*3|0]:'💨',
+      (Math.random()*24-12),-16);box.appendChild(e);setTimeout(()=>e.remove(),1150);
+    if(kit.bell&&Math.random()<0.35)tone(1180,1560,'sine',.06,.12);}
+  function tvOptions(){const k=tvKey(tvPos.c,tvPos.r),out=[];
+    Object.keys(tvConn[k]||{}).forEach(function(d){
+      if(d===TV_OPP[tvDir])return;
+      if(tvBlock[tvKey(tvPos.c+TV_D[d][0],tvPos.r+TV_D[d][1])])return;
+      out.push(d);});
+    return out;}
+  /* подсветку гасим ВМЕСТЕ с её отложенным таймером: иначе подсказка загорится уже на ходу */
+  function tvClearHints(){clearTimeout(tvHintT);['U','D','L','R'].forEach(d=>$('#tv'+d).classList.remove('hint'));}
+  /* малышам подсказываем сразу, старшим — только если задумались: подсказок постепенно меньше */
+  function tvHints(list){tvClearHints();
+    tvHintT=tvLater(function(){list.forEach(d=>$('#tv'+d).classList.add('hint'));},tvLevel>=5?4200:700);}
+  function tvNo(d,msg){const b=$('#tv'+d);b.classList.add('no');setTimeout(()=>b.classList.remove('no'),320);
+    chime(false);tvSpeak(msg);}
+  function tvPress(d){if(tvBusy)return;ensureAudio();
+    if(tvMoving){tvQueue=d;return;}
+    const k=tvKey(tvPos.c,tvPos.r);
+    if(!tvConn[k]||!tvConn[k][d]){tvNo(d,'Туда рельсов нет!');return;}
+    if(tvBlock[tvKey(tvPos.c+TV_D[d][0],tvPos.r+TV_D[d][1])]){tvNo(d,'Тут завал! Поедем другой дорогой.');return;}
+    tvClearHints();tvDir=d;tvAngle();tvLater(tvAdvance,180);}
+  function tvStop(){tvMoving=false;
+    const opt=tvOptions();
+    if(!opt.length){
+      /* тупик после нужной станции — это не ошибка: ребёнок доехал верно, просто пора развернуться */
+      if(tvOk){tvSpeak('Станция есть! Теперь поедем назад.');tvHints([TV_OPP[tvDir]]);return;}
+      tvWrong++;flash(screens.train,'😯');
+      tvSpeak('Ой! Мы свернули не туда! Поедем назад.');tvHints([TV_OPP[tvDir]]);return;}
+    if(opt.length>1)tvSpeak('Развилка! Куда поедем?');
+    else if(tvLevel<=3)tvSpeak('Поворот! Едем '+TV_WAY[opt[0]]+'.');
+    else tvSpeak('Поворот!');
+    tvHints(opt);}
+  function tvAdvance(){if(tvBusy)return;
+    const nc=tvPos.c+TV_D[tvDir][0],nr=tvPos.r+TV_D[tvDir][1],nk=tvKey(nc,nr);
+    if(!tvConn[nk]||!tvConn[nk][TV_OPP[tvDir]]){tvStop();return;}
+    if(tvBlock[nk]){tvSpeak('Тут завал! Поедем другой дорогой.');chime(false);tvStop();return;}
+    if(tvLight[nk]&&tvLight[nk]!=='green'){tvWaitLight(nk);return;}
+    tvMoving=true;tvOk=false;tvClearHints();tvPuff();
+    tvPos={c:nc,r:nr};tvPlaceTrain(TV_SPEED);
+    tvLater(tvArrive,TV_SPEED);}
+  function tvArrive(){tvMoving=false;
+    const k=tvKey(tvPos.c,tvPos.r);
+    if(tvCoin[k])tvTake(k);
+    if(tvSt[k]&&tvVisit(k))return;
+    if(tvBusy)return;
+    if(tvQueue){const q=tvQueue;tvQueue=null;
+      if(tvConn[k][q]&&!tvBlock[tvKey(tvPos.c+TV_D[q][0],tvPos.r+TV_D[q][1])]){
+        tvDir=q;tvAngle();tvLater(tvAdvance,160);return;}}
+    const opt=tvOptions();
+    if(opt.length===1&&opt[0]===tvDir){tvAdvance();return;}
+    tvStop();}
+  function tvSetLight(k,s){tvLight[k]=s;const e=tvLightEl[k];
+    if(e)e.className='tvlight '+s;}
+  function tvWaitLight(k){tvMoving=false;tvClearHints();
+    tvSetLight(k,'red');tone(300,220,'triangle',.12,.3);tvSpeak('Красный свет! Стоим.');
+    tvLater(function(){tvSetLight(k,'yellow');blip();tvSpeak('Жёлтый! Приготовились.');},2100);
+    tvLater(function(){tvSetLight(k,'green');chime(true);tvSpeak('Зелёный! Поехали!');tvLater(tvAdvance,450);},3500);}
+  function tvTake(k){delete tvCoin[k];tvGot++;blip();
+    const e=tvCoinEl[k];if(e){e.classList.add('got');setTimeout(()=>e.remove(),480);}
+    const s=tvEl('tvcoin got',tvPos.c,tvPos.r,'✨');$('#tvObj').appendChild(s);setTimeout(()=>s.remove(),500);
+    tvCntDraw();}
+  function tvVisit(k){const col=tvSt[k],el=tvStEl[k],need=tvSeq[tvSeqI];
+    if(!el||el.classList.contains('done'))return false;
+    if(col!==need){if(tvSeq.indexOf(col)>tvSeqI){tvWrong++;chime(false);
+        tvSpeak('Ещё рано! Сначала '+TV_CN[need]+' станция.');}
+      return false;}
+    if(tvSeqI===tvSeq.length-1&&tvGot<tvNeed){chime(false);
+      tvSpeak('Почти! Нужно ещё монеток: '+(tvNeed-tvGot)+'. Собери и возвращайся!');return false;}
+    el.classList.add('done');tvOk=true;chime(true);tvSeqI++;tvSeqDraw();
+    if(tvSeqI>=tvSeq.length){tvWin();return true;}
+    tvSpeak(TV_CN[col]+' станция есть! Теперь на '+TV_CV[tvSeq[tvSeqI]]+'.');
+    return false;}
+  function tvWin(){tvBusy=true;tvClearHints();confetti(screens.train);
+    const h=$('#tvImg');if(h)h.classList.add('out');
+    tone(520,880,'sine',.2,.4);tvLater(()=>tone(660,990,'sine',.2,.5),260);
+    tvSpeak('Ура! Приехали! Молодец, машинист!');
+    tvLater(tvReward,1600);}
+
+  function tvReward(){const id='station_l'+tvLevel,first=!games[id];
+    const perfect=(tvWrong===0&&tvGot>=tvAll);
+    const add=(first?5:2)+tvGot+(perfect?3:0);
+    const got=[];
+    if(first){stars+=1;keys+=1;got.push(['⭐','+1']);}
+    coins+=add;got.push(['🪙','+'+add]);
+    if(first)got.push(['🔑','+1']);
+    if(first){markGame(id);
+      if(tvLevel<6&&(levels.tv||1)<tvLevel+1)levels.tv=tvLevel+1;
+      const kit=TV_KIT[tvLevel];
+      if(kit){levels.tvKit=levels.tvKit||{};levels.tvKit[kit[0]]=1;got.push([kit[1],kit[2]]);}
+      if(tvLevel>=6){markGame('station_all');done.station=true;pies+=1;got.push(['🥧','+1']);}}
+    save();updateHUD();
+    if(perfect&&tvLevel>=6)earnPage('station');
+    $('#tvWinTxt').textContent=perfect?'🏆 Идеальный рейс!':'🎉 Приехали!';
+    $('#tvGifts').innerHTML=got.map(function(g,i){
+      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#tvMore').textContent=(first&&tvLevel<6)?'🚂 Следующий путь':'🚂 Ещё раз';
+    $('#tvPrize').classList.add('on');
+    if(first&&tvLevel<6)tvLevel++;}
+
+  /* --- задание, панель, уровни --- */
+  function tvSeqDraw(){let h='';
+    tvSeq.forEach(function(cl,i){if(i)h+='<span class="sarr">→</span>';
+      h+='<span class="schip'+(i<tvSeqI?' ok':'')+'" style="background:'+TV_COL[cl]+'"></span>';});
+    $('#tvSeq').innerHTML=h;}
+  function tvCntDraw(){$('#tvCnt').style.display=tvAll?'block':'none';
+    $('#tvCnt').textContent='🪙 '+tvGot+(tvNeed?' / '+tvNeed:'');}
+  function tvRenderLevels(){const box=$('#tvLevels');box.innerHTML='';const open=Math.min(6,levels.tv||1);
+    for(let i=1;i<=6;i++){const b=document.createElement('button');
+      b.className='lvbtn'+(i===tvLevel?' sel':'');b.textContent=i;b.disabled=i>open;b.style.opacity=i>open?'.35':'';
+      b.onclick=(function(n){return function(){tvLevel=n;tvLoad();};})(i);box.appendChild(b);}}
+  /* задание показываем картинкой и голосом — читать ребёнок не обязан */
+  function tvShowTask(){const lv=TV_LEVELS[tvLevel-1];
+    $('#tvTaskTtl').textContent='🎯 Уровень '+tvLevel;
+    let h='<span class="vbig">🚂</span>';
+    lv.seq.forEach(function(cl){h+='<span class="varr">→</span><span class="vchip" style="background:'+TV_COL[cl]+'"></span>';});
+    if(lv.need)h+='<span class="varr">+</span><span class="vbig">🪙</span><span class="vnum">'+lv.need+'</span>';
+    if(lv.lights.length)h+='<span class="vbig">🚦</span>';
+    if(lv.blocks.length)h+='<span class="vbig">🚧</span>';
+    $('#tvTaskVis').innerHTML=h;$('#tvTask').classList.add('on');
+    tvLater(function(){tvSpeak(lv.say);},380);}
+  function tvLoad(){tvClear();
+    const lv=TV_LEVELS[tvLevel-1];
+    tvBuildConn(lv);
+    tvSt={};Object.keys(lv.st).forEach(k=>tvSt[k]=lv.st[k]);
+    tvCoin={};lv.coins.forEach(k=>tvCoin[k]=1);
+    tvBlock={};lv.blocks.forEach(k=>tvBlock[k]=1);
+    tvLight={};lv.lights.forEach(k=>tvLight[k]='red');
+    tvSeq=lv.seq.slice();tvSeqI=0;tvNeed=lv.need;tvAll=lv.coins.length;tvGot=0;tvWrong=0;tvOk=false;
+    tvPos={c:lv.start[0],r:lv.start[1]};tvDir=lv.start[2];
+    tvMoving=false;tvBusy=true;tvQueue=null;
+    $('#tvProg').textContent='Уровень '+tvLevel+' / 6';
+    $('#tvPrize').classList.remove('on');tvClearHints();
+    tvRenderLevels();tvRender();tvSeqDraw();tvCntDraw();tvPlaceTrain(0);tvAngle();
+    tvShowTask();}
+  function tvLeave(){tvClear();bdClear();tvBusy=true;goWorld();}
+  $('#tvU').onclick=()=>tvPress('U');$('#tvD').onclick=()=>tvPress('D');
+  $('#tvL').onclick=()=>tvPress('L');$('#tvR').onclick=()=>tvPress('R');
+  $('#tvBell').onclick=function(){ensureAudio();tone(1180,1560,'sine',.16,.3);
+    tvLater(()=>tone(980,1320,'sine',.12,.25),150);tvPuff();};
+  $('#tvRepeat').onclick=function(){tvSpeak(TV_LEVELS[tvLevel-1].say);};
+  $('#tvStart').onclick=function(){$('#tvTask').classList.remove('on');tvBusy=false;
+    ensureAudio();tvHints(tvOptions());};
+  $('#tvMore').onclick=function(){$('#tvPrize').classList.remove('on');tvLoad();};
+  $('#tvBack').onclick=tvLeave;$('#tvOut').onclick=tvLeave;
+
+  /* --- посадка героя в паровоз: тот самый монстрик ребёнка, не новый --- */
+  let bdT=[];
+  function bdLater(fn,ms){bdT.push(setTimeout(fn,ms));}
+  function bdClear(){bdT.forEach(clearTimeout);bdT=[];}
+  function bdToGame(){bdClear();show('train');tvLoad();}
+  function openStation(){
+    tvLevel=Math.min(6,levels.tv||1);
+    bdClear();tvClear();show('board');
+    const w=$('#bdWalk'),d=$('#bdDoor'),cb=$('#bdCab'),cp=$('#bdCap'),tr=$('#bdTrain');
+    if(heroSrc){$('#bdImg').src=heroSrc;$('#bdCabImg').src=heroSrc;}
+    w.style.transition='none';w.style.left='120px';
+    w.classList.remove('gone','go');d.classList.remove('open');
+    cb.classList.remove('in','wave');cp.classList.remove('on');tr.classList.remove('away');
+    void w.offsetWidth;w.style.transition='';
+    bdLater(function(){tvSpeak('Смотри, '+playerName+'! Это твой паровозик. Садись, ты машинист!');},350);
+    bdLater(function(){w.classList.add('go');w.style.left='520px';},650);
+    bdLater(function(){d.classList.add('open');blip();},1500);
+    bdLater(function(){w.classList.remove('go');w.classList.add('gone');},2750);
+    bdLater(function(){cb.classList.add('in');},3150);
+    bdLater(function(){cp.classList.add('on');chime(true);tvSpeak('Фуражка машиниста!');},3600);
+    bdLater(function(){cb.classList.add('wave');},4200);
+    bdLater(function(){tone(520,300,'sawtooth',.16,.6);tr.classList.add('away');tvSpeak('Поехали!');},4800);
+    bdLater(bdToGame,6200);}
+  $('#bdSkip').onclick=bdToGame;
+  $('#bdBack').onclick=function(){bdClear();goWorld();};
 
   if(load()){ if(!introSeen){show('intro');} else {goWorld();} }else{ show('intro'); }
   updateHUD();
