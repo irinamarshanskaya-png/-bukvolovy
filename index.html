@@ -409,6 +409,19 @@
   #sleep h1{font-size:32px;} #sleep p{font-size:20px;} #sleep .moon{font-size:70px;}
   .bkbubble{font-size:22px;padding:12px 18px;border-radius:20px;max-width:620px;}
   .bkcust{gap:14px;}
+
+  /* ---------- ПАРК: крестики-нолики ---------- */
+  #park{background:linear-gradient(180deg,#CFEFD6,#EAF7C7);}
+  .pkboard{display:grid;grid-template-columns:repeat(3,132px);grid-template-rows:repeat(3,132px);gap:12px;
+           background:#7BC950;padding:14px;border-radius:28px;box-shadow:0 10px 0 #5CA836, 0 18px 28px rgba(0,0,0,.2);}
+  .pkcell{background:#FFF8EC;border:none;border-radius:20px;font-size:76px;line-height:1;display:flex;align-items:center;
+          justify-content:center;cursor:pointer;box-shadow:inset 0 -5px 0 rgba(0,0,0,.07);transition:transform .08s;padding:0;}
+  .pkcell:active{transform:scale(.96);}
+  .pkcell.taken{cursor:default;}
+  .pkcell.win{background:#FFD23F;animation:pkpulse .55s ease-in-out infinite alternate;}
+  @keyframes pkpulse{from{transform:scale(1);}to{transform:scale(1.08);}}
+  .pkcell span{display:block;animation:pkpop .26s ease-out;}
+  @keyframes pkpop{from{transform:scale(.3);opacity:0;}to{transform:scale(1);opacity:1;}}
 </style>
 </head>
 <body>
@@ -746,6 +759,22 @@
     </div></div>
   </section>
 
+  <section id="park" class="screen">
+    <div class="topbar"><button class="backb" id="pkBack">← Карта</button><h2>🎡 Парк</h2><div class="prog" id="pkProg"></div></div>
+    <div class="gwrap">
+      <div class="wkguest"><div class="wkface" id="pkFace">🦊</div><div class="wkbub" id="pkSay">Сыграем в крестики-нолики?</div></div>
+      <div class="pkboard" id="pkBoard"></div>
+      <button class="btn coral" id="pkAgain">🔁 Новая игра</button>
+    </div>
+    <div class="hero chero" id="pkHero"><img id="pkImg" alt="герой"></div>
+    <div class="wkprize" id="pkPrize"><div class="wkcard">
+      <div class="wkwin" id="pkWinTxt">🎉 Ты выиграл!</div>
+      <div class="wkgifts" id="pkGifts"></div>
+      <button class="btn small" id="pkMore">🎡 Сыграть ещё</button>
+      <button class="btn small coral" id="pkOut">← На карту</button>
+    </div></div>
+  </section>
+
   <section id="stub" class="screen">
     <div class="card"><div class="big-ic" id="stubIc">🛒</div><h1 id="stubTitle">Магазин</h1>
       <p id="stubTxt">Здесь скоро будут игры! Заходи позже ✨</p>
@@ -771,7 +800,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),circus:$('#circus'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),wkshop:$('#wkshop'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),circus:$('#circus'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),wkshop:$('#wkshop'),park:$('#park'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -931,7 +960,7 @@
     save();  /* переносим данные со старого ключа/копии на основной */
     return true;}
   function markGame(id){if(games[id])return;games[id]=true;save();}
-  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg','wkImg'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
+  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg','wkImg','pkImg'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
 
   /* WORLD */
   /* Городок-ромашка: Домик в центре (всегда NODES[0]), от него своя дорожка к каждой локации.
@@ -944,7 +973,7 @@
     {x:34,y:82,b:'forest',nm:'Лес',room:'forest',bend:6},
     {x:29,y:25,b:'workshop',nm:'Мастерская',room:'workshop',bend:-6},
     {x:49,y:17,b:'station',nm:'Вокзал',room:'station',soon:true,bend:4},
-    {x:20,y:52,b:'park',nm:'Парк',room:'park',soon:true,bend:5}];
+    {x:20,y:52,b:'park',nm:'Парк',room:'park',bend:5}];
   const done={letters:false,circus:false,shop:false};
   const topmap=$('#topmap'),token=$('#mapToken');let curNode=0,walking=false,nodeEls=[];
   let mapInit=false;
@@ -998,7 +1027,7 @@
   function walkTo(idx){if(walking)return;if(idx===0){actAt(0);return;}
     walking=true;token.classList.add('walk');curNode=idx;placeToken();
     setTimeout(function(){walking=false;token.classList.remove('walk');save();actAt(idx);},820);}
-  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakery();else if(n.room==='workshop')openWorkshop();else openSoon(n);}
+  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakery();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openPark();else openSoon(n);}
   function openSoon(n){const ic={shop:'🛒',bakery:'🍰',workshop:'🛠️',station:'🚂',park:'🎡'}[n.room]||'✨';$('#stubIc').textContent=ic;$('#stubTitle').textContent=n.nm;$('#stubTxt').textContent='Здесь скоро будут игры! Заходи позже ✨';show('stub');}$('#stubBack').onclick=goWorld;
 
   /* ---------- ПЕКАРНЯ: Создай свой десерт ---------- */
@@ -1711,6 +1740,71 @@
     got.forEach((g,i)=>setTimeout(()=>{blip();popText(screens.wkshop,screens.wkshop.clientWidth/2-16+(Math.random()*60-30),screens.wkshop.clientHeight*0.4,g[0],'#FFB800');},300+i*220));
     if(first&&wkLevel<5)wkLevel++;
     wkBusy=false;}
+
+  /* ---------- ПАРК: КРЕСТИКИ-НОЛИКИ ---------- */
+  const PK_FACES=['🦊','🐰','🐻','🐼','🐵','🐨'];
+  const PK_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
+  const PK_MARK={x:'❌',o:'⭕'};
+  let pkCells=[],pkBusy=false,pkOver=false;
+  /* реплику пишем и озвучиваем одной функцией — ребёнок ещё не читает */
+  function pkSay(t,delay){$('#pkSay').textContent=t;const s=wkVoice(t);if(!s)return;
+    if(delay)setTimeout(()=>speak(s),delay);else speak(s);}
+  function openPark(){show('park');$('#pkPrize').classList.remove('on');
+    $('#pkFace').textContent=PK_FACES[Math.random()*PK_FACES.length|0];pkNew(true);}
+  function pkNew(greet){pkCells=['','','','','','','','',''];pkBusy=false;pkOver=false;
+    $('#pkProg').textContent='Побед: '+(levels.pkWins||0);
+    const b=$('#pkBoard');b.innerHTML='';
+    for(let i=0;i<9;i++){const c=document.createElement('button');c.className='pkcell';
+      c.onclick=(function(n){return function(){pkPlay(n);};})(i);b.appendChild(c);}
+    pkSay(greet?'Сыграем в крестики-нолики? Ты ставишь крестики, я нолики. Твой ход!':'Новая игра. Твой ход!',greet?450:250);}
+  function pkDraw(){const b=$('#pkBoard');
+    for(let i=0;i<9;i++){const c=b.children[i];
+      c.innerHTML=pkCells[i]?'<span>'+PK_MARK[pkCells[i]]+'</span>':'';
+      c.classList.toggle('taken',!!pkCells[i]);}}
+  function pkResult(){for(let k=0;k<PK_LINES.length;k++){const L=PK_LINES[k];
+      if(pkCells[L[0]]&&pkCells[L[0]]===pkCells[L[1]]&&pkCells[L[1]]===pkCells[L[2]])return{who:pkCells[L[0]],line:L};}
+    for(let i=0;i<9;i++)if(!pkCells[i])return null;
+    return {who:'draw',line:null};}
+  function pkTry(mark){/* клетка, которой mark выигрывает прямо сейчас */
+    for(let k=0;k<PK_LINES.length;k++){const L=PK_LINES[k];let mine=0,free=-1;
+      for(let j=0;j<3;j++){const v=pkCells[L[j]];if(v===mark)mine++;else if(!v)free=L[j];else{mine=-9;break;}}
+      if(mine===2&&free>=0)return free;}
+    return -1;}
+  /* зверёк играет по-доброму: выигрывает, если может, но закрывает ход ребёнка не всегда —
+     иначе пятилетний не выиграет никогда, а игра должна радовать */
+  function pkAiMove(){const w=pkTry('o');if(w>=0)return w;
+    const b=pkTry('x');if(b>=0&&Math.random()<0.55)return b;
+    if(!pkCells[4]&&Math.random()<0.5)return 4;
+    const free=[];for(let i=0;i<9;i++)if(!pkCells[i])free.push(i);
+    return free.length?free[Math.random()*free.length|0]:-1;}
+  function pkPlay(i){if(pkBusy||pkOver||pkCells[i])return;
+    pkCells[i]='x';blip();pkDraw();
+    let r=pkResult();if(r){pkEnd(r);return;}
+    pkBusy=true;$('#pkSay').textContent='Теперь мой ход…';
+    setTimeout(function(){const m=pkAiMove();
+      if(m>=0){pkCells[m]='o';blip();pkDraw();}
+      pkBusy=false;const r2=pkResult();
+      if(r2)pkEnd(r2);else pkSay('Твой ход!');},780);}
+  function pkEnd(r){pkOver=true;
+    if(r.line)r.line.forEach(function(i){$('#pkBoard').children[i].classList.add('win');});
+    if(r.who==='x'){chime(true);confetti(screens.park);pkSay('Ура! Ты выиграл!');setTimeout(function(){pkReward('win');},1000);}
+    else if(r.who==='o'){pkSay('В этот раз выиграл я. Сыграем ещё?');setTimeout(function(){pkReward('lose');},1000);}
+    else{pkSay('Ничья! Никто не проиграл.');setTimeout(function(){pkReward('draw');},1000);}}
+  /* проигрыш не наказывается: монетка всё равно даётся, чтобы не было обидно */
+  function pkReward(kind){let got;
+    if(kind==='win'){const first=!games['park_win'];
+      if(first){stars+=1;coins+=5;markGame('park_win');done.park=true;got=[['⭐','+1'],['🪙','+5']];}
+      else{coins+=2;got=[['🪙','+2']];}
+      levels.pkWins=(levels.pkWins||0)+1;}
+    else if(kind==='draw'){coins+=2;got=[['🪙','+2']];}
+    else{coins+=1;got=[['🪙','+1']];}
+    save();updateHUD();
+    $('#pkWinTxt').textContent=kind==='win'?'🎉 Ты выиграл!':kind==='draw'?'🤝 Ничья!':'🙂 Молодец, что играл!';
+    $('#pkGifts').innerHTML=got.map(function(g,i){return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#pkPrize').classList.add('on');}
+  $('#pkBack').onclick=goWorld;$('#pkOut').onclick=goWorld;
+  $('#pkMore').onclick=function(){$('#pkPrize').classList.remove('on');pkNew(false);};
+  $('#pkAgain').onclick=function(){$('#pkPrize').classList.remove('on');pkNew(false);};
 
   if(load()){ if(!introSeen){show('intro');} else {goWorld();} }else{ show('intro'); }
   updateHUD();
