@@ -512,13 +512,15 @@
           box-shadow:inset 0 7px 0 #FFF6E2, 0 5px 0 #C9B287;border-radius:0 14px 0 0;}
   .bdtrain{position:absolute;left:600px;top:320px;width:340px;height:288px;transition:left 1.4s ease-in;}
   .bdtrain.away{left:1400px;}
-  .bddoor{position:absolute;left:655px;top:393px;width:78px;height:110px;background:#3E97C0;border-radius:12px;
+  /* дверца, кабина с героем и фуражка лежат ВНУТРИ .bdtrain и позиционируются от него:
+     иначе паровоз уезжает, а машинист остаётся стоять на платформе */
+  .bddoor{position:absolute;left:55px;top:73px;width:78px;height:110px;background:#3E97C0;border-radius:12px;
           box-shadow:inset 0 0 0 4px #2E7EA3;transition:transform .5s ease,opacity .5s ease;transform-origin:50% 100%;}
   .bddoor.open{transform:translateY(-84%) scaleY(.2);opacity:.25;}
-  .bdcab{position:absolute;left:658px;top:396px;width:72px;height:66px;opacity:0;transform:scale(.6);
+  .bdcab{position:absolute;left:58px;top:76px;width:72px;height:66px;opacity:0;transform:scale(.6);
          transition:opacity .35s ease,transform .35s ease;}
   .bdcab.in{opacity:1;transform:scale(1);}
-  .bdcap{position:absolute;left:673px;top:366px;font-size:34px;opacity:0;transform:translateY(-18px) scale(.4);
+  .bdcap{position:absolute;left:73px;top:46px;font-size:34px;opacity:0;transform:translateY(-18px) scale(.4);
          transition:opacity .3s ease,transform .3s ease;}
   .bdcap.on{opacity:1;transform:translateY(0) scale(1);}
   .bdwalk{position:absolute;left:120px;top:387px;width:126px;height:126px;transition:left 2s linear,opacity .4s ease,transform .4s ease;}
@@ -1003,10 +1005,11 @@
       <circle cx="140" cy="172" r="20" fill="#37344F"/><circle cx="140" cy="172" r="8" fill="#9AA0A6"/>
       <circle cx="196" cy="172" r="20" fill="#37344F"/><circle cx="196" cy="172" r="8" fill="#9AA0A6"/>
       <circle cx="238" cy="112" r="9" fill="#FFD23F"/>
-    </svg></div>
-    <div class="bddoor" id="bdDoor"></div>
-    <div class="bdcab" id="bdCab"><img id="bdCabImg" alt="герой в кабине" style="width:100%;height:100%;object-fit:contain"></div>
-    <div class="bdcap" id="bdCap">🧢</div>
+    </svg>
+      <div class="bddoor" id="bdDoor"></div>
+      <div class="bdcab" id="bdCab"><img id="bdCabImg" alt="герой в кабине" style="width:100%;height:100%;object-fit:contain"></div>
+      <div class="bdcap" id="bdCap">🧢</div>
+    </div>
     <button class="btn small coral bdskip" id="bdSkip">Пропустить ⏩</button>
   </section>
 
@@ -2474,6 +2477,29 @@
   function tvClear(){tvTimers.forEach(clearTimeout);tvTimers=[];}
   const tvKey=(c,r)=>c+','+r;
   const tvSpeak=t=>{const s=wkVoice(t);if(s)speak(s);};
+  /* голос паровоза. «Чух» — это шум пара, синусом его не сыграть, поэтому короткий
+     всплеск белого шума через полосовой фильтр. Буфер шума делаем один раз и переиспользуем. */
+  let tvNoise=null;
+  function tvChuff(vol){ensureAudio();if(!actx)return;
+    if(!tvNoise){const n=actx.sampleRate*0.3|0;tvNoise=actx.createBuffer(1,n,actx.sampleRate);
+      const d=tvNoise.getChannelData(0);for(let i=0;i<n;i++)d[i]=Math.random()*2-1;}
+    const t=actx.currentTime,s=actx.createBufferSource(),f=actx.createBiquadFilter(),g=actx.createGain();
+    s.buffer=tvNoise;f.type='bandpass';f.frequency.value=460;f.Q.value=1.2;
+    s.connect(f);f.connect(g);g.connect(actx.destination);
+    g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(vol||.13,t+.02);
+    g.gain.exponentialRampToValueAtTime(.0001,t+.24);
+    s.start(t);s.stop(t+.28);}
+  /* гудок — две ноты вместе, как у настоящего паровоза, с лёгким «провисанием» в конце */
+  function tvWhistle(){ensureAudio();if(!actx)return;const t=actx.currentTime;
+    [740,988].forEach(function(fr,i){const o=actx.createOscillator(),g=actx.createGain();
+      o.type='triangle';o.frequency.setValueAtTime(fr,t);o.frequency.linearRampToValueAtTime(fr*.95,t+.75);
+      o.connect(g);g.connect(actx.destination);const v=i?.055:.09;
+      g.gain.setValueAtTime(.0001,t);g.gain.exponentialRampToValueAtTime(v,t+.09);
+      g.gain.setValueAtTime(v,t+.5);g.gain.exponentialRampToValueAtTime(.0001,t+.85);
+      o.start(t);o.stop(t+.9);});}
+  /* разгон: «чух» сначала редкие, потом всё чаще */
+  function tvChuffRun(n,later){let d=0,step=260;
+    for(let i=0;i<n;i++){later(function(){tvChuff(.15);},d);d+=step;step=Math.max(150,step-14);}}
 
   /* --- пути: из отрезков считаем, куда из каждой клетки уходят рельсы --- */
   function tvAddConn(c,r,d){const k=tvKey(c,r);if(!tvConn[k])tvConn[k]={};tvConn[k][d]=1;}
@@ -2627,6 +2653,7 @@
     if(tvBlock[nk]){tvSpeak('Тут завал! Поедем другой дорогой.');chime(false);tvStop();return;}
     if(tvLight[nk]&&tvLight[nk]!=='green'){tvWaitLight(nk);return;}
     tvMoving=true;tvOk=false;tvClearHints();tvPuff();
+    tvChuff(.12);tvLater(function(){tvChuff(.1);},250);   /* чух-чух на каждую клетку пути */
     tvPos={c:nc,r:nr};tvPlaceTrain(TV_SPEED);
     tvLater(tvArrive,TV_SPEED);}
   function tvArrive(){tvMoving=false;
@@ -2729,7 +2756,7 @@
   $('#tvBell').onclick=function(){ensureAudio();tone(1180,1560,'sine',.16,.3);
     tvLater(()=>tone(980,1320,'sine',.12,.25),150);tvPuff();};
   $('#tvRepeat').onclick=function(){tvSpeak(TV_LEVELS[tvLevel-1].say);};
-  $('#tvStart').onclick=function(){$('#tvTask').classList.remove('on');tvBusy=false;
+  $('#tvStart').onclick=function(){$('#tvTask').classList.remove('on');tvBusy=false;tvWhistle();
     ensureAudio();tvHints(tvOptions());};
   $('#tvMore').onclick=function(){$('#tvPrize').classList.remove('on');tvLoad();};
   $('#tvBack').onclick=tvLeave;$('#tvOut').onclick=tvLeave;
@@ -2755,7 +2782,8 @@
     bdLater(function(){cb.classList.add('in');},3150);
     bdLater(function(){cp.classList.add('on');chime(true);tvSpeak('Фуражка машиниста!');},3600);
     bdLater(function(){cb.classList.add('wave');},4200);
-    bdLater(function(){tone(520,300,'sawtooth',.16,.6);tr.classList.add('away');tvSpeak('Поехали!');},4800);
+    bdLater(function(){tvWhistle();tr.classList.add('away');tvSpeak('Поехали!');
+      tvChuffRun(6,bdLater);},4800);
     bdLater(bdToGame,6200);}
   $('#bdSkip').onclick=bdToGame;
   $('#bdBack').onclick=function(){bdClear();goWorld();};
