@@ -601,6 +601,50 @@
   .tvvis .vnum{font-family:'Fredoka';font-weight:700;font-size:44px;color:#6b4a24;}
   .bdwalk.go img{animation:waddle .52s ease-in-out infinite;}
   .bdcab.wave img{animation:cheerjump .5s ease;}
+
+  /* ============ ПАРК: «СЛАДКАЯ ТРОЙКА» ============
+     Поле 7x7 клеток по 88 px — палец ребёнка попадает в клетку без прицеливания.
+     Фишки лежат абсолютно и ездят через transition left/top: так падение сверху и
+     обмен местами получаются плавными без единого кадра, нарисованного вручную. */
+  #pmenu{background:linear-gradient(180deg,#CFEFD6,#EAF7C7);}
+  #m3{background:linear-gradient(180deg,#FFE3F1 0%,#FFF4DA 46%,#DFF3C4 46%,#C9EA9E 100%);}
+  .m3flags{position:absolute;left:0;right:0;top:70px;height:26px;display:flex;justify-content:space-between;
+           padding:0 12px;pointer-events:none;z-index:1;}
+  .m3flags span{width:24px;height:26px;clip-path:polygon(0 0,100% 0,50% 100%);}
+  .m3body{flex:1;display:flex;align-items:center;justify-content:center;gap:30px;padding:6px 60px 10px;position:relative;z-index:2;}
+  .m3left{width:240px;flex:none;display:flex;flex-direction:column;align-items:center;gap:10px;}
+  .m3ride{font-size:78px;line-height:1;filter:drop-shadow(0 4px 3px rgba(0,0,0,.16));}
+  .m3hero{width:172px;height:172px;}
+  .m3hero img{width:100%;height:100%;object-fit:contain;}
+  .m3hero.cheer img{animation:cheerjump .5s ease;}
+  .m3name{font-family:'Fredoka';font-weight:700;font-size:23px;color:#7a4a86;}
+  .m3bub{background:#fff;border-radius:20px 20px 20px 5px;padding:11px 16px;font-family:'Fredoka';font-weight:700;
+         font-size:21px;color:#6b4a24;box-shadow:0 5px 12px rgba(0,0,0,.14);text-align:center;min-width:150px;}
+  .m3board{position:relative;width:616px;height:616px;flex:none;padding:12px;
+           background:linear-gradient(180deg,#FFF6E2,#FFE7C4);border-radius:30px;
+           box-shadow:0 12px 0 #E3C293, 0 20px 34px rgba(0,0,0,.2);}
+  .m3in{position:relative;width:616px;height:616px;overflow:hidden;border-radius:20px;touch-action:none;}
+  .m3t{position:absolute;width:88px;height:88px;display:flex;align-items:center;justify-content:center;
+       transition:left .2s ease,top .26s ease;}
+  .m3t i{width:76px;height:76px;border-radius:24px;display:flex;align-items:center;justify-content:center;
+         font-size:46px;font-style:normal;line-height:1;box-shadow:0 5px 0 rgba(0,0,0,.14);transition:transform .12s;}
+  .m3t.sel i{outline:5px solid var(--grape);outline-offset:2px;transform:scale(1.07);}
+  .m3t.pop i{animation:m3pop .32s ease-out forwards;}
+  @keyframes m3pop{40%{transform:scale(1.3);}to{transform:scale(.2);opacity:0;}}
+  .m3spark{position:absolute;font-size:34px;pointer-events:none;animation:m3sp .6s ease-out forwards;}
+  @keyframes m3sp{from{opacity:1;transform:scale(.5);}to{opacity:0;transform:scale(1.8) translateY(-20px);}}
+  .m3right{width:300px;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .m3goal{width:100%;background:var(--cream);border-radius:24px;padding:13px 14px;display:flex;flex-direction:column;
+          gap:9px;box-shadow:0 6px 0 rgba(0,0,0,.10);}
+  .m3grow{display:flex;align-items:center;gap:12px;font-family:'Fredoka';font-weight:700;font-size:26px;color:#6b4a24;}
+  .m3gic{width:60px;height:60px;border-radius:20px;display:flex;align-items:center;justify-content:center;
+         font-size:34px;line-height:1;box-shadow:0 4px 0 rgba(0,0,0,.14);flex:none;}
+  .m3grow.done{color:var(--grass-dark);}
+  .m3grow.done .m3gic{outline:4px solid var(--grass);outline-offset:2px;}
+  .m3moves{width:100%;background:#fff;border-radius:22px;padding:9px;text-align:center;font-family:'Fredoka';
+           font-weight:700;font-size:32px;color:#7a4a86;box-shadow:0 5px 0 rgba(0,0,0,.10);}
+  .m3moves.low{color:var(--coral);}
+  .m3park{display:flex;gap:10px;font-size:42px;line-height:1;filter:drop-shadow(0 4px 3px rgba(0,0,0,.15));}
 </style>
 </head>
 <body>
@@ -1049,6 +1093,40 @@
     </div></div>
   </section>
 
+  <section id="pmenu" class="screen">
+    <div class="topbar"><button class="backb" id="pmBack">← Карта</button><h2>🎡 Парк</h2><div style="width:70px"></div></div>
+    <div class="lmwrap">
+      <button class="lbtn" id="pm1"><span class="lic">⭕</span>Крестики-нолики</button>
+      <button class="lbtn" id="pm2"><span class="lic">🍭</span>Сладкая тройка</button>
+    </div>
+  </section>
+
+  <section id="m3" class="screen">
+    <div class="topbar"><button class="backb" id="m3Back">← Парк</button><h2>🍭 Сладкая тройка</h2><div class="prog" id="m3Prog"></div></div>
+    <div class="m3flags" id="m3Flags"></div>
+    <div class="m3body">
+      <div class="m3left">
+        <div class="m3ride">🎡</div>
+        <div class="m3hero" id="m3Hero"><img id="m3Img" alt="герой"></div>
+        <div class="m3name" id="m3Name">Герой</div>
+        <div class="m3bub" id="m3Say">Готов?</div>
+      </div>
+      <div class="m3board"><div class="m3in" id="m3Board"></div></div>
+      <div class="m3right">
+        <div class="lvsel" id="m3Levels"></div>
+        <div class="m3goal" id="m3Goals"></div>
+        <div class="m3moves" id="m3Moves">♾️</div>
+        <div class="m3park">🎠<span>🎈</span>🎪<span>🍬</span></div>
+      </div>
+    </div>
+    <div class="wkprize" id="m3Prize"><div class="wkcard">
+      <div class="wkwin" id="m3WinTxt">🎉 Уровень пройден!</div>
+      <div class="wkgifts" id="m3Gifts"></div>
+      <button class="btn small" id="m3More">🍭 Дальше</button>
+      <button class="btn small coral" id="m3Out">← На карту</button>
+    </div></div>
+  </section>
+
   <section id="stub" class="screen">
     <div class="card"><div class="big-ic" id="stubIc">🛒</div><h1 id="stubTitle">Магазин</h1>
       <p id="stubTxt">Здесь скоро будут игры! Заходи позже ✨</p>
@@ -1074,7 +1152,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),wkshop:$('#wkshop'),park:$('#park'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),wkshop:$('#wkshop'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -1234,7 +1312,7 @@
     save();  /* переносим данные со старого ключа/копии на основной */
     return true;}
   function markGame(id){if(games[id])return;games[id]=true;save();}
-  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg','wkImg','pkImg','tvImg','bdImg','bdCabImg'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
+  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg','wkImg','pkImg','tvImg','bdImg','bdCabImg','m3Img'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
 
   /* WORLD */
   /* Городок-ромашка: Домик в центре (всегда NODES[0]), от него своя дорожка к каждой локации.
@@ -1301,7 +1379,7 @@
   function walkTo(idx){if(walking)return;if(idx===0){actAt(0);return;}
     walking=true;token.classList.add('walk');curNode=idx;placeToken();
     setTimeout(function(){walking=false;token.classList.remove('walk');save();actAt(idx);},820);}
-  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakery();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openPark();else if(n.room==='station')openStation();else openSoon(n);}
+  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakery();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStation();else openSoon(n);}
   function openSoon(n){const ic={shop:'🛒',bakery:'🍰',workshop:'🛠️',station:'🚂',park:'🎡'}[n.room]||'✨';$('#stubIc').textContent=ic;$('#stubTitle').textContent=n.nm;$('#stubTxt').textContent='Здесь скоро будут игры! Заходи позже ✨';show('stub');}$('#stubBack').onclick=goWorld;
 
   /* ---------- ПЕКАРНЯ: Создай свой десерт ---------- */
@@ -2423,7 +2501,7 @@
     $('#pkWinTxt').textContent=kind==='win'?'🎉 Ты выиграл!':kind==='draw'?'🤝 Ничья!':'🙂 Молодец, что играл!';
     $('#pkGifts').innerHTML=got.map(function(g,i){return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
     $('#pkPrize').classList.add('on');}
-  $('#pkBack').onclick=goWorld;$('#pkOut').onclick=goWorld;
+  $('#pkBack').onclick=function(){openParkMenu();};$('#pkOut').onclick=goWorld;
   $('#pkMore').onclick=function(){$('#pkPrize').classList.remove('on');pkNew(false);};
   $('#pkAgain').onclick=function(){$('#pkPrize').classList.remove('on');pkNew(false);};
 
@@ -2787,6 +2865,220 @@
     bdLater(bdToGame,6200);}
   $('#bdSkip').onclick=bdToGame;
   $('#bdBack').onclick=function(){bdClear();goWorld();};
+
+  /* ---------- ПАРК: «СЛАДКАЯ ТРОЙКА» ----------
+     Match-3 на поле 7x7. Правило одно: три одинаковых в ряд — исчезли, сверху упали новые.
+     Четыре в ряд сносят ещё и соседей вокруг, пять — все такие сладости на поле.
+     Проигрыша нет: кончились ходы — просто предлагаем сыграть заново. */
+  const M3_N=7,M3_S=88,M3_MOVE=210,M3_FALL=280;
+  const M3_SET=[['🍩','#FF9EC7'],['🍭','#FF6B6B'],['🎈','#4DB6E5'],['🍿','#FFD23F'],['🍦','#7BC950'],
+                ['⭐','#9B5DE5'],['🍬','#F368C4'],['🎁','#3FC6B0'],['🎠','#FF9F45']];
+  /* types — сколько видов сладостей на поле: чем больше, тем реже случайные тройки */
+  const M3_LEVELS=[
+    {types:6,goals:[[0,5],[1,5],[2,5]],moves:0},
+    {types:6,goals:[[0,5],[1,5],[2,5]],moves:25},
+    {types:7,goals:[[0,6],[3,6],[5,6]],moves:27},
+    {types:7,goals:[[2,6],[4,6],[6,6]],moves:28},
+    {types:8,goals:[[1,7],[5,7],[7,7]],moves:32}];
+  let m3B=[],m3Level=1,m3Busy=true,m3Sel=null,m3Drag=null;
+  let m3Got=[],m3Goals=[],m3Types=6,m3Moves=0,m3MovesOn=false;
+  let m3T=[];
+  function m3Later(fn,ms){const id=setTimeout(fn,ms);m3T.push(id);return id;}
+  function m3Clear(){m3T.forEach(clearTimeout);m3T=[];}
+  const m3i=(c,r)=>r*M3_N+c;
+
+  /* --- поиск троек. Работает и на «сыром» поле, поэтому им же проверяем, есть ли ход --- */
+  function m3Runs(B){const out=[];
+    for(let r=0;r<M3_N;r++){let s=0;
+      for(let c=1;c<=M3_N;c++){
+        const a=B[m3i(s,r)],b=c<M3_N?B[m3i(c,r)]:null;
+        if(b&&a&&b.t===a.t)continue;
+        if(c-s>=3&&a){const cells=[];for(let k=s;k<c;k++)cells.push(m3i(k,r));out.push({cells:cells,t:a.t,len:c-s});}
+        s=c;}}
+    for(let c=0;c<M3_N;c++){let s=0;
+      for(let r=1;r<=M3_N;r++){
+        const a=B[m3i(c,s)],b=r<M3_N?B[m3i(c,r)]:null;
+        if(b&&a&&b.t===a.t)continue;
+        if(r-s>=3&&a){const cells=[];for(let k=s;k<r;k++)cells.push(m3i(c,k));out.push({cells:cells,t:a.t,len:r-s});}
+        s=r;}}
+    return out;}
+  function m3Pair(B,a,b){const t=B[a].t;B[a].t=B[b].t;B[b].t=t;
+    const ok=m3Runs(B).length>0;
+    const u=B[a].t;B[a].t=B[b].t;B[b].t=u;return ok;}
+  function m3HasMove(B){
+    for(let r=0;r<M3_N;r++)for(let c=0;c<M3_N;c++){
+      if(c<M3_N-1&&m3Pair(B,m3i(c,r),m3i(c+1,r)))return true;
+      if(r<M3_N-1&&m3Pair(B,m3i(c,r),m3i(c,r+1)))return true;}
+    return false;}
+  /* новое поле: без готовых троек, но обязательно с возможным ходом — иначе ребёнок в тупике */
+  function m3Gen(){const B=new Array(M3_N*M3_N);
+    for(let r=0;r<M3_N;r++)for(let c=0;c<M3_N;c++){let t,n=0;
+      do{t=Math.random()*m3Types|0;n++;}
+      while(n<30&&((c>=2&&B[m3i(c-1,r)].t===t&&B[m3i(c-2,r)].t===t)||(r>=2&&B[m3i(c,r-1)].t===t&&B[m3i(c,r-2)].t===t)));
+      B[m3i(c,r)]={t:t};}
+    return B;}
+  function m3NewBoard(){let B=m3Gen(),g=0;while(!m3HasMove(B)&&g++<50)B=m3Gen();return B;}
+
+  /* --- рисование --- */
+  function m3Tile(t,c,r,top){const el=document.createElement('div');el.className='m3t';
+    el.innerHTML='<i style="background:'+M3_SET[t][1]+'">'+M3_SET[t][0]+'</i>';
+    el.style.left=(c*M3_S)+'px';el.style.top=(top*M3_S)+'px';
+    $('#m3Board').appendChild(el);return el;}
+  function m3Put(o,c,r){o.el.style.left=(c*M3_S)+'px';o.el.style.top=(r*M3_S)+'px';}
+  function m3Draw(){const box=$('#m3Board');box.innerHTML='';
+    for(let r=0;r<M3_N;r++)for(let c=0;c<M3_N;c++){const o=m3B[m3i(c,r)];o.el=m3Tile(o.t,c,r,r);}}
+  function m3Spark(c,r){const s=document.createElement('div');s.className='m3spark';s.textContent='✨';
+    s.style.left=(c*M3_S+26)+'px';s.style.top=(r*M3_S+22)+'px';$('#m3Board').appendChild(s);
+    setTimeout(()=>s.remove(),620);}
+  function m3Goal(t){for(let i=0;i<m3Goals.length;i++)if(m3Goals[i][0]===t)return i;return -1;}
+  function m3DrawGoals(){$('#m3Goals').innerHTML=m3Goals.map(function(g,i){
+      const ok=m3Got[i]>=g[1];
+      return '<div class="m3grow'+(ok?' done':'')+'"><span class="m3gic" style="background:'+M3_SET[g[0]][1]+'">'
+        +M3_SET[g[0]][0]+'</span>'+Math.min(m3Got[i],g[1])+' / '+g[1]+(ok?' ✅':'')+'</div>';}).join('');}
+  function m3DrawMoves(){const el=$('#m3Moves');
+    if(!m3MovesOn){el.textContent='♾️';el.classList.remove('low');return;}
+    el.textContent='👣 '+m3Moves;el.classList.toggle('low',m3Moves<=5);}
+  function m3Bub(t){$('#m3Say').textContent=t;}
+  function m3React(emo,txt){$('#m3Say').textContent=emo+' '+txt;doCheer($('#m3Hero'));}
+
+  /* --- ход --- */
+  function m3Unsel(){if(m3Sel!==null&&m3B[m3Sel]&&m3B[m3Sel].el)m3B[m3Sel].el.classList.remove('sel');m3Sel=null;}
+  function m3Move(a,b,onDone){const A=m3B[a],B=m3B[b];m3B[a]=B;m3B[b]=A;
+    m3Put(B,a%M3_N,a/M3_N|0);m3Put(A,b%M3_N,b/M3_N|0);m3Later(onDone,M3_MOVE);}
+  function m3Try(a,b){if(m3Busy||!m3B[a]||!m3B[b])return;
+    m3Busy=true;m3Unsel();blip();
+    m3Move(a,b,function(){
+      if(m3Runs(m3B).length){
+        if(m3MovesOn){m3Moves--;m3DrawMoves();}
+        m3Resolve(0);
+      }else{/* неудачный обмен ход не тратит: ребёнок пробует сколько хочет */
+        m3Move(a,b,function(){m3Busy=false;m3Bub('Так не выйдет 🙂 Попробуй ещё');chime(false);});}});}
+  function m3Resolve(depth){
+    const runs=m3Runs(m3B);
+    if(!runs.length){m3Settle();return;}
+    const kill={};let big=0;
+    runs.forEach(function(R){
+      R.cells.forEach(function(i){kill[i]=1;});
+      if(R.len===4){if(big<1)big=1;
+        const mid=R.cells[R.cells.length>>1],mc=mid%M3_N,mr=mid/M3_N|0;
+        [[1,0],[-1,0],[0,1],[0,-1]].forEach(function(d){const c=mc+d[0],r=mr+d[1];
+          if(c>=0&&r>=0&&c<M3_N&&r<M3_N&&m3B[m3i(c,r)])kill[m3i(c,r)]=1;});}
+      if(R.len>=5){big=2;
+        for(let i=0;i<M3_N*M3_N;i++)if(m3B[i]&&m3B[i].t===R.t)kill[i]=1;}});
+    const idx=Object.keys(kill);
+    idx.forEach(function(k){const o=m3B[k];if(!o)return;
+      o.el.classList.add('pop');m3Spark(k%M3_N,(k/M3_N|0)|0);
+      const g=m3Goal(o.t);if(g>=0)m3Got[g]++;});
+    m3DrawGoals();
+    if(big===2){tone(523,1046,'sine',.2,.5);m3Later(()=>chime(true),160);m3React('🤩','Ух ты! Вот это да!');speak('Ух ты!');}
+    else if(big===1){chime(true);m3React('😮','Ух ты!');}
+    else{blip();m3React('😊',depth?'И ещё!':'Динь!');}
+    m3Later(function(){
+      idx.forEach(function(k){const o=m3B[k];if(o){o.el.remove();m3B[k]=null;}});
+      m3Fall();
+      m3Later(function(){m3Resolve(depth+1);},M3_FALL+40);},340);}
+  /* всё падает вниз, сверху досыпаются новые — новые начинают путь выше поля и въезжают в кадр */
+  function m3Fall(){
+    for(let c=0;c<M3_N;c++){let w=M3_N-1;
+      for(let r=M3_N-1;r>=0;r--){const o=m3B[m3i(c,r)];if(!o)continue;
+        if(w!==r){m3B[m3i(c,w)]=o;m3B[m3i(c,r)]=null;m3Put(o,c,w);}
+        w--;}
+      let up=1;
+      for(let r=w;r>=0;r--){const t=Math.random()*m3Types|0;
+        const o={t:t,el:m3Tile(t,c,r,-up)};m3B[m3i(c,r)]=o;
+        void o.el.offsetWidth;   /* фиксируем стартовую позицию над полем: без этого переход не запустится
+                                    и фишка «телепортируется». Через requestAnimationFrame ненадёжно —
+                                    в фоновой вкладке кадры не идут, и новые сладости зависают наверху. */
+        m3Put(o,c,r);
+        up++;}}}
+  function m3Won(){return m3Goals.every(function(g,i){return m3Got[i]>=g[1];});}
+  function m3Settle(){
+    if(m3Won()){m3Finish();return;}
+    if(!m3HasMove(m3B)){m3Bub('Перемешаем! 🔄');m3Busy=true;
+      m3Later(function(){m3B=m3NewBoard();m3Draw();m3Busy=false;m3Bub('Ищи три одинаковых! 👆');},700);return;}
+    if(m3MovesOn&&m3Moves<=0){m3Fail();return;}
+    m3Busy=false;}
+
+  function m3Finish(){m3Busy=true;confetti(screens.m3);m3React('🎉','Молодец!');
+    tone(523,784,'sine',.18,.4);m3Later(()=>tone(659,988,'sine',.18,.5),240);
+    speak('Молодец! Уровень пройден!');m3Later(m3Reward,1400);}
+  function m3Reward(){const id='park_m3_l'+m3Level,first=!games[id];
+    const got=[];
+    if(first){const cn=4+m3Level;stars+=1;coins+=cn;keys+=1;pies+=1;markGame(id);
+      got.push(['⭐','+1'],['🪙','+'+cn],['🔑','+1'],['🥧','+1']);
+      if(m3Level<5&&(levels.m3||1)<m3Level+1)levels.m3=m3Level+1;
+      if(m3Level>=5)markGame('park_m3_all');
+    }else{coins+=3;got.push(['🪙','+3']);}
+    save();updateHUD();
+    $('#m3WinTxt').textContent='🎉 Уровень пройден!';
+    $('#m3Gifts').innerHTML=got.map(function(g,i){
+      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#m3More').textContent=(first&&m3Level<5)?'🍭 Следующий уровень':'🍭 Сыграть ещё';
+    $('#m3Prize').classList.add('on');
+    if(first&&m3Level<5)m3Level++;}
+  /* ходы кончились — это не проигрыш, просто предложение сыграть заново */
+  function m3Fail(){m3Busy=true;
+    $('#m3WinTxt').textContent='Ходы кончились 🙂';
+    $('#m3Gifts').innerHTML='<div class="wkgift">🍭<span>ещё разок?</span></div>';
+    $('#m3More').textContent='🔄 Сыграть заново';
+    $('#m3Prize').classList.add('on');
+    speak('Ходы кончились. Давай попробуем ещё раз!');}
+
+  /* --- палец: свайп по соседней клетке, а для самых маленьких ещё и «ткнул — ткнул» --- */
+  function m3At(e){const b=$('#m3Board').getBoundingClientRect();
+    const c=Math.floor((e.clientX-b.left)/K/M3_S),r=Math.floor((e.clientY-b.top)/K/M3_S);
+    if(c<0||r<0||c>=M3_N||r>=M3_N)return null;return {c:c,r:r};}
+  $('#m3Board').addEventListener('pointerdown',function(e){
+    if(m3Busy)return;const p=m3At(e);if(!p)return;e.preventDefault();
+    m3Drag={c:p.c,r:p.r,x:e.clientX,y:e.clientY};});
+  window.addEventListener('pointermove',function(e){
+    if(!m3Drag)return;if(m3Busy){m3Drag=null;return;}
+    const dx=(e.clientX-m3Drag.x)/K,dy=(e.clientY-m3Drag.y)/K;
+    if(Math.abs(dx)<26&&Math.abs(dy)<26)return;
+    let c=m3Drag.c,r=m3Drag.r;
+    if(Math.abs(dx)>Math.abs(dy))c+=dx>0?1:-1;else r+=dy>0?1:-1;
+    const from=m3i(m3Drag.c,m3Drag.r);m3Drag=null;
+    if(c<0||r<0||c>=M3_N||r>=M3_N)return;
+    m3Try(from,m3i(c,r));});
+  window.addEventListener('pointerup',function(){
+    if(!m3Drag)return;const p=m3Drag;m3Drag=null;if(m3Busy)return;
+    const i=m3i(p.c,p.r);
+    if(m3Sel===null){m3Sel=i;if(m3B[i])m3B[i].el.classList.add('sel');blip();return;}
+    if(m3Sel===i){m3Unsel();return;}
+    const a=m3Sel,ac=a%M3_N,ar=a/M3_N|0;
+    if(Math.abs(ac-p.c)+Math.abs(ar-p.r)===1){m3Try(a,i);return;}
+    m3Unsel();m3Sel=i;if(m3B[i])m3B[i].el.classList.add('sel');});
+
+  function m3Levels(){const box=$('#m3Levels');box.innerHTML='';const open=Math.min(5,levels.m3||1);
+    for(let i=1;i<=5;i++){const b=document.createElement('button');
+      b.className='lvbtn'+(i===m3Level?' sel':'');b.textContent=i;b.disabled=i>open;b.style.opacity=i>open?'.35':'';
+      b.onclick=(function(n){return function(){m3Level=n;m3Load();};})(i);box.appendChild(b);}}
+  function m3Load(){m3Clear();
+    const L=M3_LEVELS[m3Level-1];
+    m3Types=L.types;m3Goals=L.goals;m3Got=L.goals.map(function(){return 0;});
+    m3MovesOn=!!L.moves;m3Moves=L.moves;m3Sel=null;m3Drag=null;
+    m3B=m3NewBoard();m3Draw();
+    m3Levels();m3DrawGoals();m3DrawMoves();
+    $('#m3Prog').textContent='Уровень '+m3Level+' / 5';
+    $('#m3Prize').classList.remove('on');
+    m3Bub('Найди три одинаковых! 👆');
+    m3Busy=false;}
+  function openM3(){m3Level=Math.min(5,levels.m3||1);show('m3');
+    if(heroSrc)$('#m3Img').src=heroSrc;
+    $('#m3Name').textContent=playerName;
+    if(!$('#m3Flags').children.length){const cols=['#FF6B6B','#FFD23F','#4DB6E5','#7BC950','#9B5DE5','#F368C4'];
+      for(let i=0;i<44;i++){const s=document.createElement('span');s.style.background=cols[i%6];$('#m3Flags').appendChild(s);}}
+    m3Load();
+    m3Later(function(){speak('Двигай пальцем картинки. Собери три одинаковых!');},400);}
+  $('#m3Back').onclick=function(){m3Clear();m3Busy=true;openParkMenu();};
+  $('#m3Out').onclick=function(){m3Clear();m3Busy=true;goWorld();};
+  $('#m3More').onclick=function(){$('#m3Prize').classList.remove('on');m3Load();};
+
+  /* в Парке теперь две игры, поэтому у локации появилось меню */
+  function openParkMenu(){show('pmenu');}
+  $('#pmBack').onclick=goWorld;
+  $('#pm1').onclick=openPark;
+  $('#pm2').onclick=openM3;
 
   if(load()){ if(!introSeen){show('intro');} else {goWorld();} }else{ show('intro'); }
   updateHUD();
