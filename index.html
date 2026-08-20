@@ -700,6 +700,31 @@
   .lhbtn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.15);}
   .lhbtn span{font-size:38px;line-height:1;}
 
+  /* ---------- ПЕКАРНЯ: экран локации и «Найди лишнее» ----------
+     Размер карточек задаёт сетка под число картинок (4 / 6 / 9): чем их больше,
+     тем мельче карточка, но палец ребёнка попадает в любую из них. */
+  #bmenu{background:linear-gradient(180deg,#BFE9F5 0%,#DFF3FB 34%,#8FD46A 34%,#7BC950 100%);padding:0;}
+  #odd{background:linear-gradient(180deg,#FBE3C8,#FDEFC7);}
+  .odbody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:16px;padding:0 16px 14px;}
+  .odask{font-family:'Fredoka';font-weight:700;font-size:27px;color:var(--grape);text-align:center;line-height:1.2;
+         background:rgba(255,255,255,.8);border-radius:20px;padding:9px 28px;max-width:900px;}
+  .odgrid{display:grid;gap:20px;justify-content:center;}
+  .odgrid.n4{grid-template-columns:repeat(2,304px);}
+  .odgrid.n6{grid-template-columns:repeat(3,276px);}
+  .odgrid.n9{grid-template-columns:repeat(3,236px);gap:16px;}
+  .odcard{background:#fff;border:none;border-radius:28px;cursor:pointer;padding:0;line-height:1;
+          display:flex;align-items:center;justify-content:center;
+          box-shadow:0 7px 0 rgba(0,0,0,.13);transition:transform .08s,box-shadow .08s,opacity .2s;}
+  .odcard:active{transform:translateY(4px);box-shadow:0 3px 0 rgba(0,0,0,.13);}
+  .odgrid.n4 .odcard{height:236px;font-size:120px;}
+  .odgrid.n6 .odcard{height:206px;font-size:100px;}
+  .odgrid.n9 .odcard{height:152px;font-size:76px;}
+  .odcard.tried{opacity:.42;box-shadow:0 3px 0 rgba(0,0,0,.1);cursor:default;}
+  .odcard.hit{outline:6px solid var(--grass);outline-offset:-6px;animation:odpop .45s ease;}
+  .odcard.miss{animation:odshake .3s ease;}
+  @keyframes odpop{40%{transform:scale(1.12) rotate(-3deg);}}
+  @keyframes odshake{25%{transform:translateX(-9px);}75%{transform:translateX(9px);}}
+
   /* ---------- ПАРК: экран локации ---------- */
   #pmenu{background:linear-gradient(180deg,#BFE9F5 0%,#DFF3FB 34%,#8FD46A 34%,#7BC950 100%);padding:0;}
   #pmenu .nwbtn{width:420px;}
@@ -902,7 +927,7 @@
   </section>
 
   <section id="bakery" class="screen">
-    <div class="topbar"><button class="backb" id="bkBack">← Карта</button><h2>🧁 Пекарня</h2><div class="prog" id="bkProg"></div></div>
+    <div class="topbar"><button class="backb" id="bkBack">← Пекарня</button><h2>🎂 Собери заказ</h2><div class="prog" id="bkProg"></div></div>
     <div class="gwrap" style="gap:6px;justify-content:flex-start;padding-top:8px">
       <div class="bkcust"><div class="bkface" id="bkCust">🐰</div><div class="bkbubble" id="bkBubble"></div></div>
       <div class="bkorder" id="bkOrder"></div>
@@ -917,6 +942,31 @@
       <div class="bkctrl" id="bkCtrl"></div>
       <div class="fqq" id="bkMsg" style="min-height:18px"></div>
     </div>
+  </section>
+
+  <section id="bmenu" class="screen">
+    <div class="topbar"><button class="backb" id="bmBack">← Карта</button><h2>🥐 Пекарня</h2><div style="width:70px"></div></div>
+    <div class="nwscene" id="bkScene"></div>
+    <div class="nwbtns">
+      <button class="nwbtn" id="bm1"><span>🎂</span>Собери заказ</button>
+      <button class="nwbtn" id="bm2"><span>🔎</span>Найди лишнее</button>
+    </div>
+  </section>
+
+  <section id="odd" class="screen">
+    <div class="topbar"><button class="backb" id="odBack">← Пекарня</button><h2>🔎 Найди лишнее</h2><div class="prog" id="odProg"></div></div>
+    <div class="odbody">
+      <div class="lvsel" id="odLevels"></div>
+      <div class="odask" id="odAsk">Какая картинка лишняя?</div>
+      <div class="odgrid" id="odGrid"></div>
+    </div>
+    <div class="hero chero" id="odHero"><img id="odImg" alt="герой"></div>
+    <div class="wkprize" id="odPrize"><div class="wkcard">
+      <div class="wkwin" id="odWinTxt">🎉 Уровень пройден!</div>
+      <div class="wkgifts" id="odGifts"></div>
+      <button class="btn small" id="odMore">🔎 Дальше</button>
+      <button class="btn small coral" id="odOut">← В Пекарню</button>
+    </div></div>
   </section>
 
   <section id="cmenu" class="screen">
@@ -1225,7 +1275,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),wkshop:$('#wkshop'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -1452,7 +1502,7 @@
   function walkTo(idx){if(walking)return;if(idx===0){actAt(0);return;}
     walking=true;token.classList.add('walk');curNode=idx;placeToken();
     setTimeout(function(){walking=false;token.classList.remove('walk');save();actAt(idx);},820);}
-  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakery();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStation();else openSoon(n);}
+  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakeryMenu();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStation();else openSoon(n);}
   function openSoon(n){const ic={shop:'🛒',bakery:'🍰',workshop:'🛠️',station:'🚂',park:'🎡'}[n.room]||'✨';$('#stubIc').textContent=ic;$('#stubTitle').textContent=n.nm;$('#stubTxt').textContent='Здесь скоро будут игры! Заходи позже ✨';show('stub');}$('#stubBack').onclick=goWorld;
 
   /* ---------- ПЕКАРНЯ: Создай свой десерт ---------- */
@@ -1463,7 +1513,7 @@
   const BLV=[{free:true},{fills:1},{fills:2},{fills:2,qty:true},{fills:2,qty:true,hide:true},{fills:2,qty:true,deco:1,hide:true}];
   const HAT_SVG='<svg viewBox="0 0 40 30" style="width:100%;height:100%"><ellipse cx="20" cy="25" rx="14" ry="4" fill="#fff" stroke="#e2e2e2"/><rect x="7" y="18" width="26" height="8" rx="2" fill="#fff" stroke="#e2e2e2"/><circle cx="11" cy="13" r="7" fill="#fff" stroke="#eee"/><circle cx="20" cy="9" r="8" fill="#fff" stroke="#eee"/><circle cx="29" cy="13" r="7" fill="#fff" stroke="#eee"/></svg>';
   let bkLevel=0,bkOrder=null,bkBase=null,bkFill={},bkDeco={},bkDecoList=[],bkTab='base',bkDrag=null,bkPhase='build';
-  $('#bkBack').onclick=goWorld;
+  $('#bkBack').onclick=function(){openBakeryMenu();};
   function openBakery(){bkLevel=0;show('bakery');$('#chefHat').innerHTML=HAT_SVG;wearHat();nextBake();}
   function wearHat(){const h=$('#chefHat');h.classList.remove('drop');void h.offsetWidth;h.classList.add('drop');blip();}
   function nextBake(){bkPhase='build';bkBase=null;bkFill={};bkDeco={};bkDecoList=[];bkTab='base';$('#bkCust').textContent=CUSTOMERS[Math.random()*CUSTOMERS.length|0];
@@ -3767,6 +3817,240 @@
 
   if(load()){ if(!introSeen){show('intro');} else {goWorld();} }else{ show('intro'); }
   updateHUD();
+  /* ---------- ПЕКАРНЯ: сцена локации ----------
+     Те же кирпичики, что в «Доме букв», «Мире чисел» и «Цирке», плюс своё: домик
+     с черепицей, вывеска с колпаком, доска-меню, лоток с выпечкой под зонтом.
+     Холст 1360x540 — под две кнопки внизу. */
+  function bkLoaf(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="0" rx="46" ry="27" fill="#C88A46"/>'
+    +'<ellipse cx="0" cy="-5" rx="46" ry="23" fill="#E0A75E"/>'
+    +'<path d="M-30 -14 q10 -12 18 -2 M-6 -18 q10 -12 18 -2 M18 -14 q8 -10 15 -3" fill="none" stroke="#C88A46" stroke-width="4" stroke-linecap="round"/></g>';}
+  function bkBun(x,y,s,c,cd){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="0" rx="24" ry="19" fill="'+cd+'"/>'
+    +'<ellipse cx="0" cy="-3" rx="24" ry="16" fill="'+c+'"/>'
+    +'<circle cx="-7" cy="-7" r="3" fill="#fff" opacity=".5"/></g>';}
+  function bkPretzel(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<path d="M-20 -14 q20 -20 40 0 q14 14 -6 22 q-14 6 -14 -10 q0 -16 -14 -12 q-14 4 -6 14" fill="none" stroke="#C88A46" stroke-width="9" stroke-linecap="round" stroke-linejoin="round"/></g>';}
+  /* вывеска ПЕКАРНЯ: доска в фигурной раме, сверху поварской колпак */
+  function bkSign(cx,y){let s='<g transform="translate('+cx+','+y+')">'
+    +'<ellipse cx="0" cy="24" rx="38" ry="21" fill="#FFF6E2"/>'
+    +'<ellipse cx="-29" cy="31" rx="22" ry="17" fill="#FFF6E2"/>'
+    +'<ellipse cx="29" cy="31" rx="22" ry="17" fill="#FFF6E2"/>'
+    +'<rect x="-33" y="34" width="66" height="17" rx="7" fill="#F3E7CE"/>'
+    +'<rect x="-190" y="46" width="380" height="80" rx="30" fill="#9B5DE5"/>'
+    +'<rect x="-178" y="56" width="356" height="60" rx="22" fill="#C08A52"/>'
+    +'<rect x="-178" y="56" width="356" height="22" rx="11" fill="#D3A06A"/>';
+    const NM=[['П','#E8433C'],['Е','#FF9F45'],['К','#FFD23F'],['А','#7BC950'],['Р','#4DB6E5'],['Н','#9B5DE5'],['Я','#F368C4']];
+    NM.forEach(function(a,i){s+='<text x="'+(-150+i*50)+'" y="102" text-anchor="middle" font-family="Fredoka,sans-serif" '
+      +'font-size="46" font-weight="700" fill="'+a[1]+'" stroke="#fff" stroke-width="7" paint-order="stroke">'+a[0]+'</text>';});
+    return s+starShape(-190,86,16,'#FFD23F')+starShape(190,86,16,'#FFD23F')+'</g>';}
+  /* «СВЕЖАЯ ВЫПЕЧКА» на кованом кронштейне: крепится к стене дома и уходит влево */
+  function bkHang(x,y){return '<g transform="translate('+x+','+y+')">'
+    +'<path d="M0 -14 v28" stroke="#4A4A6E" stroke-width="8" stroke-linecap="round"/>'
+    +'<path d="M0 0 h-104 M-8 0 q-26 2 -30 26" fill="none" stroke="#4A4A6E" stroke-width="7" stroke-linecap="round"/>'
+    +'<path d="M-100 4 v18" stroke="#4A4A6E" stroke-width="6" stroke-linecap="round"/>'
+    +'<rect x="-159" y="20" width="118" height="82" rx="14" fill="#B77A47"/>'
+    +'<rect x="-152" y="27" width="104" height="68" rx="10" fill="#FFF6E2"/>'
+    +'<text x="-100" y="56" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="20" font-weight="700" fill="#8B5E3C">СВЕЖАЯ</text>'
+    +'<text x="-100" y="82" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="20" font-weight="700" fill="#8B5E3C">ВЫПЕЧКА</text></g>';}
+  /* меловая доска у входа */
+  function bkBoard(x,y){return '<g transform="translate('+x+','+y+')">'
+    +'<ellipse cx="0" cy="4" rx="76" ry="13" fill="#000" opacity=".12"/>'
+    +'<path d="M44 -8 L64 -104" stroke="#8B5E3C" stroke-width="10" stroke-linecap="round"/>'
+    +'<rect x="-76" y="-142" width="152" height="140" rx="14" fill="#B77A47"/>'
+    +'<rect x="-64" y="-130" width="128" height="116" rx="8" fill="#3E5548"/>'
+    +'<text x="0" y="-98" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="21" font-weight="700" fill="#F4F7E8">ВКУСНО</text>'
+    +'<text x="0" y="-70" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="21" font-weight="700" fill="#F4F7E8">ПОЛЕЗНО</text>'
+    +'<text x="0" y="-42" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="19" font-weight="700" fill="#FFD23F">С ЛЮБОВЬЮ</text>'
+    +bkPretzel(0,-24,.5)+'</g>';}
+  /* лоток с выпечкой под полосатым зонтом */
+  function bkStall(x,y){let s='<g transform="translate('+x+','+y+')">'
+    +'<ellipse cx="0" cy="6" rx="104" ry="17" fill="#000" opacity=".12"/>';
+    /* зонт */
+    s+='<rect x="-5" y="-192" width="10" height="150" rx="5" fill="#8B5E3C"/>';
+    const UC=['#9B5DE5','#FFF6E2','#9B5DE5','#FFF6E2','#9B5DE5','#FFF6E2'];
+    for(let i=0;i<6;i++){const x1=-108+i*36,x2=x1+36;
+      s+='<path d="M0 -222 L'+x1+' -160 Q'+((x1+x2)/2)+' -146 '+x2+' -160 Z" fill="'+UC[i]+'"/>';}
+    s+='<path d="M-108 -160 Q-90 -146 -72 -160 Q-54 -146 -36 -160 Q-18 -146 0 -160 Q18 -146 36 -160 Q54 -146 72 -160 Q90 -146 108 -160" fill="none" stroke="#7B3FC4" stroke-width="5" stroke-linejoin="round"/>';
+    s+='<circle cx="0" cy="-226" r="8" fill="#FFD23F"/>';
+    /* прилавок */
+    s+='<rect x="-96" y="-52" width="192" height="56" rx="10" fill="#C08A52"/>';
+    s+='<rect x="-96" y="-52" width="192" height="16" rx="8" fill="#D3A06A"/>';
+    s+='<rect x="-88" y="-8" width="176" height="12" rx="6" fill="#A97440"/>';
+    /* корзина с багетами */
+    s+='<path d="M-84 -60 L-52 -132 M-64 -60 L-32 -132" stroke="#E0A75E" stroke-width="13" stroke-linecap="round"/>';
+    s+='<path d="M-74 -60 L-42 -132" stroke="#C88A46" stroke-width="13" stroke-linecap="round"/>';
+    s+='<path d="M-96 -76 h56 l-7 34 h-42 Z" fill="#B77A47"/>';
+    s+=bkLoaf(28,-70,.62)+bkBun(-6,-64,.9,'#E0A75E','#C88A46')+bkBun(62,-62,.8,'#F3C88A','#D9A45F');
+    return s+'</g>';}
+  function bkFence(x1,x2,y){let s='<g>';
+    for(let x=x1;x<=x2;x+=26)s+='<path d="M'+x+' '+y+' v-40 l6 -10 l6 10 v40 Z" fill="#FFF6E2"/>';
+    s+='<rect x="'+x1+'" y="'+(y-32)+'" width="'+(x2-x1+12)+'" height="8" rx="4" fill="#F3E7CE"/>';
+    return s+'</g>';}
+
+  function bkArt(){
+    let s='<svg class="nwart" viewBox="0 0 1360 540" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><linearGradient id="bkSky" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#BFE9F5"/><stop offset="1" stop-color="#E7F6FB"/></linearGradient></defs>';
+    s+='<rect width="1360" height="540" fill="url(#bkSky)"/>';
+    s+='<path d="M0 276 Q220 244 440 270 Q700 298 950 266 Q1180 240 1360 274 L1360 540 L0 540 Z" fill="#8FD46A"/>';
+    s+='<path d="M0 330 Q270 302 570 322 Q910 344 1360 312 L1360 540 L0 540 Z" fill="#7BC950"/>';
+    s+='<path d="M0 452 Q340 422 680 440 Q1020 458 1360 424 L1360 510 Q1020 540 680 522 Q340 504 0 536 Z" fill="#CDB07E"/>';
+    s+='<path d="M0 446 Q340 416 680 434 Q1020 452 1360 418 L1360 498 Q1020 528 680 510 Q340 492 0 524 Z" fill="#F6E7C6"/>';
+    [[40,288,.78],[214,266,.56],[1122,268,.58],[402,258,.5]].forEach(function(f){s+=nwFir(f[0],f[1],f[2]);});
+    s+=nwTree(96,352,.82)+nwTree(1188,344,.7);
+    s+=crClock(1300,392);
+    /* домик пекарни */
+    s+='<ellipse cx="650" cy="486" rx="252" ry="26" fill="#000" opacity=".12"/>';
+    s+='<rect x="470" y="272" width="360" height="212" rx="12" fill="#F0D5A8"/>';
+    s+='<rect x="470" y="272" width="360" height="18" rx="9" fill="#E2C089"/>';
+    /* кирпичики по низу стены */
+    for(let r=0;r<2;r++)for(let i=0;i<9;i++){const bw=40,bx=470+i*bw+(r%2?bw/2:0);
+      if(bx+bw>830)continue;
+      s+='<rect x="'+bx+'" y="'+(444+r*20)+'" width="'+(bw-4)+'" height="16" rx="4" fill="#E2C089"/>';}
+    /* труба и крыша с черепицей */
+    s+='<rect x="536" y="176" width="40" height="66" rx="6" fill="#C4342E"/>';
+    s+='<rect x="528" y="168" width="56" height="18" rx="8" fill="#A62B26"/>';
+    s+='<path d="M436 286 L650 148 L864 286 Z" fill="#C4342E"/>';
+    /* черепицу режем по скату: без обрезки ряды вылезают за край крыши */
+    s+='<clipPath id="bkRoofClip"><path d="M436 286 L650 148 L864 286 Z"/></clipPath>';
+    s+='<g clip-path="url(#bkRoofClip)">';
+    for(let r=0;r<5;r++){const yy=286-r*26,half=(214*(yy-148))/138;
+      for(let x=-half;x<half;x+=34)s+='<rect x="'+(650+x+4)+'" y="'+(yy-22)+'" width="28" height="18" rx="8" fill="#E8433C"/>';}
+    s+='</g>';
+    s+='<path d="M436 286 L650 148 L864 286 Z" fill="none" stroke="#A62B26" stroke-width="8" stroke-linejoin="round"/>';
+    s+='<rect x="428" y="278" width="444" height="18" rx="9" fill="#A62B26"/>';
+    /* круглое окно на чердаке */
+    s+='<circle cx="650" cy="228" r="27" fill="#B77A47"/><circle cx="650" cy="228" r="20" fill="#BFE3F5"/>';
+    s+='<path d="M650 208 v40 M630 228 h40" stroke="#fff" stroke-width="4"/>';
+    /* вывеска с хлебом на стене */
+    s+='<rect x="546" y="298" width="208" height="62" rx="26" fill="#9B5DE5"/>';
+    s+='<rect x="556" y="308" width="188" height="42" rx="19" fill="#F3E7CE"/>';
+    s+=bkLoaf(650,330,.82);
+    /* дверь */
+    s+='<path d="M568 484 L568 404 a44 44 0 0 1 88 0 L656 484 Z" fill="#B77A47"/>';
+    s+='<path d="M568 484 L568 404 a44 44 0 0 1 88 0 L656 484 Z" fill="none" stroke="#9C6437" stroke-width="7"/>';
+    s+='<path d="M580 420 a32 32 0 0 1 64 0 L644 442 L580 442 Z" fill="#BFE3F5"/>';
+    s+='<circle cx="640" cy="452" r="6" fill="#FFD23F"/>';
+    s+='<rect x="556" y="478" width="112" height="14" rx="7" fill="#9B5DE5"/>';
+    /* витрина с выпечкой под полосатой маркизой */
+    s+='<rect x="686" y="392" width="126" height="86" rx="10" fill="#B77A47"/>';
+    s+='<rect x="694" y="400" width="110" height="70" rx="7" fill="#FFF6E2"/>';
+    s+='<path d="M694 436 h110" stroke="#E2C089" stroke-width="5"/>';
+    s+=bkBun(716,420,.62,'#E0A75E','#C88A46')+bkBun(750,418,.6,'#F3C88A','#D9A45F')+bkBun(784,421,.58,'#E8B27A','#C88A46');
+    s+=bkPretzel(716,458,.44)+bkBun(752,454,.6,'#F5D9A8','#D9A45F')+bkBun(786,456,.55,'#E0A75E','#C88A46');
+    for(let i=0;i<6;i++)s+='<path d="M'+(682+i*22)+' 380 q11 22 22 0 Z" fill="'+(i%2?'#FFF6E2':'#E8433C')+'"/>';
+    s+='<rect x="678" y="366" width="142" height="16" rx="8" fill="#C4342E"/>';
+    /* цветы в ящике под окном чердака и у стены */
+    [[492,300],[806,300]].forEach(function(w){
+      s+='<rect x="'+(w[0]-4)+'" y="'+(w[1]-4)+'" width="72" height="60" rx="11" fill="#9B5DE5"/>'
+       +'<rect x="'+w[0]+'" y="'+w[1]+'" width="64" height="52" rx="8" fill="#BFE3F5"/>'
+       +'<path d="M'+(w[0]+32)+' '+w[1]+' v52 M'+w[0]+' '+(w[1]+26)+' h64" stroke="#fff" stroke-width="4"/>'
+       +'<rect x="'+(w[0]-8)+'" y="'+(w[1]+48)+'" width="80" height="15" rx="6" fill="#C08A52"/>';
+      for(let i=0;i<3;i++)s+=nwFlower(w[0]+12+i*20,w[1]+50,i,.7);});
+    s+=bkSign(650,10);
+    s+=bkHang(472,312);
+    s+=bkBoard(238,504);
+    s+=bkStall(1042,470);
+    s+=nwLamp(902,492,.9);
+    s+=pkBalloons(1180,470,.86);
+    s+=bkFence(24,180,516);
+    [[330,492,.72],[470,500,.6],[862,496,.66],[1270,486,.7]].forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    [[300,516,0],[382,508,1],[452,522,2],[880,514,3],[960,522,0],[540,516,1],[820,522,2],[1132,514,4],[1226,520,1]]
+      .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.05);});
+    return s+'</svg>';}
+
+  function openBakeryMenu(){const b=$('#bkScene');if(b&&!b.innerHTML)b.innerHTML=bkArt();show('bmenu');}
+  $('#bmBack').onclick=goWorld;
+  $('#bm1').onclick=function(){openBakery();};
+  $('#bm2').onclick=function(){startOdd();};
+
+  /* ---------- ПЕКАРНЯ: НАЙДИ ЛИШНЕЕ ----------
+     Все картинки в задании разные: лишнее ищется по смыслу, а не по повтору.
+     После ошибки правильный ответ не подсвечивается — карточка просто гаснет,
+     и ребёнок пробует ещё раз. Уровни: 4 / 6 / 9 картинок. */
+  const ODD_L1=[
+    {g:['🍰','🍩','🥐'],o:'☕',w:'кофе пьют, а остальное пекут'},
+    {g:['🍞','🥖','🥐'],o:'🍎',w:'яблоко растёт на дереве, а остальное пекут'},
+    {g:['🍩','🧁','🍪'],o:'🥛',w:'молоко пьют, а остальное едят'},
+    {g:['🍓','🍎','🍌'],o:'🥨',w:'крендель пекут, а остальное растёт'},
+    {g:['🥛','☕','🫖'],o:'🍪',w:'печенье едят, а остальное пьют'},
+    {g:['🥚','🧈','🌾'],o:'🚗',w:'машинка — не еда'},
+    {g:['🍽️','🥄','🍴'],o:'🥧',w:'пирог едят, а остальное — посуда'},
+    {g:['🐱','🐶','🐰'],o:'🍞',w:'хлеб — еда, а остальные — звери'},
+    {g:['🍇','🍊','🍐'],o:'🧁',w:'кекс пекут, а остальное — фрукты'},
+    {g:['🥧','🍰','🧁'],o:'🥦',w:'брокколи — овощ, а остальное сладкое'}
+  ];
+  const ODD_L2=[
+    {g:['🍞','🥐','🍩','🧁','🍪'],o:'🍎',w:'яблоко — фрукт, а остальное пекут'},
+    {g:['🍰','🍩','🧁','🍪','🍫'],o:'🥛',w:'молоко пьют, а остальное — сладости'},
+    {g:['🥛','☕','🫖','🧃','🥤'],o:'🥨',w:'крендель едят, а остальное пьют'},
+    {g:['🍎','🍌','🍓','🍇','🍐'],o:'🥖',w:'багет пекут, а остальное растёт'},
+    {g:['🥚','🧈','🌾','🍯','🧂'],o:'🧸',w:'мишка — игрушка, а остальное кладут в тесто'},
+    {g:['🍽️','🥄','🍴','🔪','🥣'],o:'🍪',w:'печенье едят, а остальное — посуда'},
+    {g:['🐱','🐶','🐰','🐻','🦊'],o:'🥐',w:'круассан — еда, а остальные — звери'},
+    {g:['🍰','🥧','🧁','🍩','🥐'],o:'🥕',w:'морковь — овощ, а остальное сладкое'},
+    {g:['🍓','🍒','🍇','🍎','🍐'],o:'☕',w:'кофе пьют, а остальное растёт'},
+    {g:['🥨','🍞','🥖','🥐','🥯'],o:'🍦',w:'мороженое холодное, а остальное пекут'}
+  ];
+  const ODD_L3=[
+    {g:['🍰','🍩','🧁','🍪','🥐','🥨','🍞','🥖'],o:'🍎',w:'яблоко растёт, а всё остальное пекут'},
+    {g:['🍎','🍌','🍓','🍇','🍐','🍒','🍊','🍑'],o:'🥐',w:'круассан пекут, а остальное растёт'},
+    {g:['🥛','☕','🫖','🧃','🥤','🍵','🧋','💧'],o:'🍪',w:'печенье едят, а остальное пьют'},
+    {g:['🍽️','🥄','🍴','🔪','🥣','🫖','🍳','🥢'],o:'🧁',w:'кекс едят, а остальное — посуда'},
+    {g:['🐱','🐶','🐰','🐻','🦊','🐷','🐮','🐔'],o:'🥖',w:'багет — еда, а остальные — звери'},
+    {g:['🥕','🥦','🌽','🥔','🍅','🥒','🧅','🫑'],o:'🍩',w:'пончик пекут, а остальное — овощи'},
+    {g:['🥚','🧈','🌾','🥛','🍯','🧂','🍫','🍓'],o:'🚗',w:'машинку в тесто не положишь'},
+    {g:['🍰','🍫','🍬','🍭','🍯','🧁','🍪','🍩'],o:'🧂',w:'соль солёная, а остальное сладкое'}
+  ];
+  const ODD_LV=[{n:4,pool:ODD_L1},{n:6,pool:ODD_L2},{n:9,pool:ODD_L3}];
+  const ODD_ROUNDS=4;
+  let odLevel=1,odQueue=[],odRound=0,odAnswer='',odBusy=false;
+
+  function odLevelBtns(){const box=$('#odLevels');box.innerHTML='';const open=Math.min(3,levels.odd||1);
+    for(let i=1;i<=3;i++){const b=document.createElement('button');
+      b.className='lvbtn'+(i===odLevel?' sel':'');b.textContent=i;b.disabled=i>open;b.style.opacity=i>open?'.35':'';
+      b.onclick=(function(k){return function(){odLevel=k;odStart();};})(i);box.appendChild(b);}}
+  function odCheer(){const h=$('#odHero');if(!h)return;h.classList.remove('cheer');void h.offsetWidth;h.classList.add('cheer');
+    setTimeout(function(){h.classList.remove('cheer');},700);}
+  function odStart(){odQueue=shuf(ODD_LV[odLevel-1].pool).slice(0,ODD_ROUNDS);odRound=0;odLevelBtns();odNext();}
+  function odNext(){const q=odQueue[odRound];odAnswer=q.o;odBusy=false;
+    $('#odProg').textContent='Уровень '+odLevel+' · '+(odRound+1)+' / '+ODD_ROUNDS;
+    $('#odAsk').textContent='Какая картинка лишняя?';
+    const g=$('#odGrid');g.className='odgrid n'+ODD_LV[odLevel-1].n;g.innerHTML='';
+    shuf(q.g.concat([q.o])).forEach(function(e){const b=document.createElement('button');
+      b.className='odcard';b.textContent=e;b.onclick=function(){odTap(b,e,q);};g.appendChild(b);});}
+  function odTap(el,e,q){if(odBusy||el.classList.contains('tried'))return;
+    if(e!==odAnswer){el.classList.add('tried','miss');chime(false);
+      $('#odAsk').textContent='Попробуй ещё раз!';
+      setTimeout(function(){el.classList.remove('miss');},320);return;}
+    odBusy=true;el.classList.add('hit');chime(true);odCheer();
+    $('#odAsk').textContent='Верно! '+q.w;speak('Верно! '+q.w);
+    odRound++;
+    setTimeout(function(){if(odRound>=ODD_ROUNDS)odWin();else odNext();},1800);}
+  function odWin(){confetti(screens.odd);
+    const id='bakery_odd_l'+odLevel,first=!games[id];const got=[];
+    if(first){stars+=2;coins+=1;markGame(id);got.push(['⭐','+2'],['🪙','+1']);
+      if(odLevel<3&&(levels.odd||1)<odLevel+1)levels.odd=odLevel+1;}
+    else{coins+=1;got.push(['🪙','+1']);}
+    const all=first&&odLevel>=3;
+    if(all)markGame('bakery_odd');
+    save();updateHUD();
+    speak(all?'Ты прошёл все уровни! Молодец!':'Молодец!');
+    $('#odWinTxt').textContent=all?'🔎 Все уровни пройдены!':'🎉 Уровень пройден!';
+    $('#odGifts').innerHTML=got.map(function(g,i){
+      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#odMore').textContent=(first&&odLevel<3)?'🔎 Следующий уровень':'🔎 Ещё раз';
+    $('#odPrize').classList.add('on');
+    if(first&&odLevel<3)odLevel++;}
+  function startOdd(){odLevel=Math.min(3,levels.odd||1);show('odd');
+    $('#odPrize').classList.remove('on');
+    if(heroSrc)$('#odImg').src=heroSrc;
+    odStart();}
+  $('#odMore').onclick=function(){$('#odPrize').classList.remove('on');odStart();};
+  $('#odOut').onclick=function(){$('#odPrize').classList.remove('on');openBakeryMenu();};
+  $('#odBack').onclick=function(){$('#odPrize').classList.remove('on');openBakeryMenu();};
+
 })();
 </script>
 </body>
