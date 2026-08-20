@@ -921,12 +921,13 @@
 
   <section id="cmenu" class="screen">
     <div class="topbar"><button class="backb" id="cmBack">← Карта</button><h2>🎪 Цирк</h2><div style="width:70px"></div></div>
-    <div class="lmwrap">
-      <button class="lbtn" id="cm1"><span class="lic">🎨</span>Раскраски</button>
-      <button class="lbtn" id="cm2"><span class="lic">🎯</span>Найди хитрость</button>
-      <button class="lbtn" id="cm5"><span class="lic">🥁</span>Повтори ритм</button>
-      <button class="lbtn" id="cm6"><span class="lic">🃏</span>Фокус памяти</button>
-      <button class="lbtn" id="cm7"><span class="lic">🔢</span>Запомни номер</button>
+    <div class="nwscene" id="crScene"></div>
+    <div class="lhbtns">
+      <button class="lhbtn" id="cm1"><span>🎨</span>Раскраски</button>
+      <button class="lhbtn" id="cm2"><span>🎯</span>Найди хитрость</button>
+      <button class="lhbtn" id="cm5"><span>🥁</span>Повтори ритм</button>
+      <button class="lhbtn" id="cm6"><span>🃏</span>Фокус памяти</button>
+      <button class="lhbtn" id="cm7"><span>🔢</span>Запомни номер</button>
     </div>
   </section>
 
@@ -2080,9 +2081,146 @@
     setTimeout(()=>{try{const u=new SpeechSynthesisUtterance('Ура! Все страницы вернулись в Волшебную книгу! Вирус знаний исчез. Теперь ты — настоящий Хранитель знаний!');voiceUp(u);speechSynthesis.cancel();speechSynthesis.speak(u);}catch(e){}},300);}
   $('#finalNext').onclick=goWorld;
 
+  /* ---------- ЦИРК: сцена локации ----------
+     Те же кирпичики, что в «Доме букв» и «Парке», плюс своё: шатёр, будка с билетами,
+     башенка с часами, афиша и лев на щите. Холст 1360x520 — выше соседних сцен:
+     шатру нужна высота, иначе купол выходит плоским и не читается. */
+  function crPole(x,by,h){return '<g transform="translate('+x+','+by+')">'
+    +'<ellipse cx="0" cy="2" rx="15" ry="6" fill="#000" opacity=".12"/>'
+    +'<rect x="-7" y="'+(-h)+'" width="14" height="'+h+'" rx="7" fill="#E9B21E"/>'
+    +'<rect x="-7" y="'+(-h)+'" width="5" height="'+h+'" rx="2.5" fill="#FFD23F"/>'
+    +'<circle cx="0" cy="'+(-h-11)+'" r="11" fill="#FFD23F"/>'
+    +'<circle cx="-3" cy="'+(-h-14)+'" r="4" fill="#fff" opacity=".55"/></g>';}
+  /* половина занавеса у входа; правая — та же фигура, отражённая по X.
+     Занавес подвязан посередине, поэтому внутренний край сначала сужается, потом расходится. */
+  function crDrape(){return '<path d="M-132 -106 L-58 -106 C-48 -80 -54 -58 -72 -46 C-56 -28 -52 -13 -54 0 L-132 0 Z" fill="#A8221F"/>'
+    +'<path d="M-132 -106 L-104 -106 C-110 -66 -112 -30 -106 0 L-132 0 Z" fill="#C4342E"/>'
+    +'<path d="M-90 -104 C-96 -68 -98 -30 -92 -2" fill="none" stroke="#8E1B18" stroke-width="3" stroke-linecap="round"/>'
+    +'<path d="M-72 -104 C-78 -76 -82 -58 -76 -46" fill="none" stroke="#8E1B18" stroke-width="3" stroke-linecap="round"/>'
+    +'<rect x="-130" y="-58" width="52" height="16" rx="8" fill="#E9B21E"/>'
+    +'<rect x="-130" y="-58" width="52" height="8" rx="4" fill="#FFD23F"/>';}
+  function crTent(cx,by,R){
+    /* полос нечётное число, иначе левый и правый край шатра выходят разного цвета */
+    const RT=-300,RB=-150,Rw=168,N=11,W=9,w=2*Rw/W,st=2*R/N;
+    let s='<g transform="translate('+cx+','+by+')">';
+    s+='<ellipse cx="0" cy="16" rx="'+(R+34)+'" ry="26" fill="#000" opacity=".12"/>';
+    /* подиум под шатром */
+    s+='<rect x="'+(-Rw-26)+'" y="-4" width="'+(2*Rw+52)+'" height="36" rx="17" fill="#7B3FC4"/>';
+    s+='<rect x="'+(-Rw-26)+'" y="-4" width="'+(2*Rw+52)+'" height="18" rx="9" fill="#9B5DE5"/>';
+    /* стены в вертикальную полоску */
+    for(let i=0;i<W;i++)s+='<rect x="'+(-Rw+i*w)+'" y="'+RB+'" width="'+w+'" height="'+(-RB)+'" fill="'+(i%2?'#FFF6E2':'#E8433C')+'"/>';
+    /* синий козырёк со звездой — идёт по верху стен, занавес висит уже под ним */
+    s+='<rect x="'+(-Rw-8)+'" y="-150" width="'+(2*Rw+16)+'" height="44" rx="14" fill="#2E93C4"/>';
+    s+='<rect x="'+(-Rw-8)+'" y="-150" width="'+(2*Rw+16)+'" height="24" rx="12" fill="#4DB6E5"/>';
+    s+=starShape(0,-128,17,'#FFD23F');
+    /* вход и занавес */
+    s+='<path d="M-76 0 L-76 -30 a76 76 0 0 1 152 0 L76 0 Z" fill="#46216E"/>';
+    s+=crDrape()+'<g transform="scale(-1,1)">'+crDrape()+'</g>';
+    /* ступенька: без неё тёмный вход сливается с фиолетовым подиумом */
+    s+='<rect x="-86" y="-14" width="172" height="20" rx="9" fill="#B07BEE"/>';
+    s+='<rect x="-86" y="-14" width="172" height="9" rx="4.5" fill="#CDA6F5"/>';
+    /* купол: клинья от макушки к нижней кромке */
+    for(let i=0;i<N;i++)s+='<path d="M0 '+RT+' L'+(-R+i*st)+' '+RB+' L'+(-R+(i+1)*st)+' '+RB+' Z" fill="'+(i%2?'#FFF6E2':'#E8433C')+'"/>';
+    /* золотая кромка с фестонами и лампочками */
+    let v='M'+(-R)+' '+RB;
+    for(let i=0;i<N;i++)v+=' Q'+(-R+(i+0.5)*st)+' '+(RB+26)+' '+(-R+(i+1)*st)+' '+RB;
+    s+='<path d="'+v+' L'+R+' '+(RB-8)+' L'+(-R)+' '+(RB-8)+' Z" fill="#FFD23F"/>';
+    s+='<path d="'+v+'" fill="none" stroke="#E9B21E" stroke-width="3"/>';
+    for(let i=0;i<=N;i++)s+='<circle cx="'+(-R+i*st)+'" cy="'+(RB-4)+'" r="5.5" fill="#FFF6E2"/>';
+    /* флаг на макушке */
+    s+='<rect x="-4" y="'+(RT-36)+'" width="8" height="40" rx="4" fill="#C9995C"/>';
+    s+='<path d="M4 '+(RT-32)+' L70 '+(RT-18)+' L4 '+(RT-4)+' Z" fill="#FFD23F"/>';
+    s+='<circle cx="0" cy="'+(RT-40)+'" r="7" fill="#FFD23F"/>';
+    return s+'</g>';}
+  function crBooth(x,by){return '<g transform="translate('+x+','+by+')">'
+    +'<ellipse cx="0" cy="6" rx="86" ry="16" fill="#000" opacity=".12"/>'
+    +'<rect x="-72" y="-152" width="144" height="152" rx="14" fill="#7B3FC4"/>'
+    +'<rect x="-72" y="-152" width="144" height="28" rx="14" fill="#9B5DE5"/>'
+    +'<path d="M-90 -150 L0 -208 L90 -150 Z" fill="#9B5DE5"/>'
+    +'<path d="M-90 -150 L0 -208 L90 -150 Z" fill="none" stroke="#6B2FB0" stroke-width="6" stroke-linejoin="round"/>'
+    +starShape(0,-176,13,'#FFD23F')
+    +'<rect x="-64" y="-142" width="128" height="42" rx="13" fill="#E9B21E"/>'
+    +'<rect x="-59" y="-137" width="118" height="32" rx="9" fill="#FFF6E2"/>'
+    +'<text x="0" y="-112" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="23" font-weight="700" fill="#7B3FC4">БИЛЕТЫ</text>'
+    +'<path d="M-40 -8 L-40 -58 a40 40 0 0 1 80 0 L40 -8 Z" fill="#5B2E8F"/>'
+    +'<path d="M-40 -8 L-40 -58 a40 40 0 0 1 80 0 L40 -8 Z" fill="none" stroke="#FFD23F" stroke-width="5"/>'
+    +'<rect x="-48" y="-12" width="96" height="14" rx="7" fill="#FFD23F"/></g>';}
+  function crSign(cx,y){let s='<g transform="translate('+cx+','+y+')">'
+    +'<rect x="-190" y="0" width="380" height="84" rx="30" fill="#7B3FC4"/>'
+    +'<rect x="-178" y="11" width="356" height="62" rx="22" fill="#C08A52"/>'
+    +'<rect x="-178" y="11" width="356" height="24" rx="12" fill="#D3A06A"/>';
+    const NM=[['Ц','#E8433C'],['И','#FFD23F'],['Р','#4DB6E5'],['К','#7BC950']];
+    NM.forEach(function(a,i){s+='<text x="'+(-105+i*70)+'" y="62" text-anchor="middle" font-family="Fredoka,sans-serif" '
+      +'font-size="58" font-weight="700" fill="'+a[1]+'" stroke="#fff" stroke-width="8" paint-order="stroke">'+a[0]+'</text>';});
+    return s+starShape(-190,42,19,'#FFD23F')+starShape(190,42,19,'#FFD23F')+starShape(0,3,15,'#FFD23F')+'</g>';}
+  function crClock(x,by){return '<g transform="translate('+x+','+by+')">'
+    +'<ellipse cx="0" cy="4" rx="46" ry="12" fill="#000" opacity=".12"/>'
+    +'<rect x="-38" y="-150" width="76" height="150" rx="10" fill="#E8C79A"/>'
+    +'<rect x="-38" y="-150" width="76" height="18" rx="9" fill="#D3A06A"/>'
+    +'<path d="M-52 -150 L0 -218 L52 -150 Z" fill="#E8433C"/>'
+    +'<path d="M-52 -150 L0 -218 L52 -150 Z" fill="none" stroke="#C4342E" stroke-width="5" stroke-linejoin="round"/>'
+    +'<rect x="-4" y="-248" width="8" height="32" rx="4" fill="#C9995C"/>'
+    +'<path d="M4 -246 L44 -234 L4 -222 Z" fill="#FFD23F"/>'
+    +'<circle cx="0" cy="-102" r="30" fill="#FFF6E2" stroke="#C08A52" stroke-width="5"/>'
+    +'<path d="M0 -102 L0 -122 M0 -102 L15 -94" fill="none" stroke="#4A4A6E" stroke-width="5" stroke-linecap="round"/>'
+    +'<circle cx="0" cy="-102" r="3.5" fill="#4A4A6E"/>'
+    +'<path d="M-22 -50 L-22 -22 a22 22 0 0 1 44 0 L22 -50 Z" fill="#7B3FC4"/></g>';}
+  function crPoster(x,by){return '<g transform="translate('+x+','+by+')">'
+    +'<ellipse cx="0" cy="6" rx="62" ry="12" fill="#000" opacity=".12"/>'
+    +'<rect x="-58" y="-146" width="116" height="150" rx="16" fill="#E9B21E"/>'
+    +'<rect x="-48" y="-136" width="96" height="126" rx="10" fill="#BFE3F5"/>'
+    +'<circle cx="-30" cy="-82" r="15" fill="#E8433C"/><circle cx="30" cy="-82" r="15" fill="#E8433C"/>'
+    +'<circle cx="0" cy="-80" r="31" fill="#FFE1C4"/>'
+    +'<path d="M-26 -100 q26 -20 50 -2 l-8 -22 q-22 -8 -42 24 Z" fill="#7BC950"/>'
+    +'<circle cx="-12" cy="-84" r="4" fill="#4A4A6E"/><circle cx="12" cy="-84" r="4" fill="#4A4A6E"/>'
+    +'<circle cx="0" cy="-73" r="8.5" fill="#E8433C"/>'
+    +'<path d="M-14 -62 q14 13 28 0" fill="none" stroke="#C4342E" stroke-width="4" stroke-linecap="round"/>'
+    +'<path d="M-24 -44 q24 13 48 0 L24 -10 L-24 -10 Z" fill="#4DB6E5"/>'
+    +'<path d="M-14 -44 l-16 -9 l0 20 Z" fill="#F368C4"/><path d="M14 -44 l16 -9 l0 20 Z" fill="#F368C4"/>'
+    +'<circle cx="0" cy="-43" r="6" fill="#FFD23F"/>'
+    +'<circle cx="-46" cy="-134" r="5" fill="#FFF6E2"/><circle cx="46" cy="-134" r="5" fill="#FFF6E2"/>'
+    +'<circle cx="-46" cy="-8" r="5" fill="#FFF6E2"/><circle cx="46" cy="-8" r="5" fill="#FFF6E2"/></g>';}
+  function crLion(x,by){let s='<g transform="translate('+x+','+by+')">'
+    +'<rect x="-7" y="-34" width="14" height="38" rx="6" fill="#8B5E3C"/>'
+    +'<rect x="-52" y="-112" width="104" height="84" rx="15" fill="#E9B21E"/>'
+    +'<rect x="-44" y="-104" width="88" height="68" rx="11" fill="#FFF6E2"/>';
+    for(let i=0;i<11;i++){const a=i*2*Math.PI/11;
+      s+='<circle cx="'+(26*Math.cos(a)).toFixed(1)+'" cy="'+(-70+26*Math.sin(a)).toFixed(1)+'" r="9" fill="#E9962E"/>';}
+    return s+'<circle cx="0" cy="-70" r="21" fill="#FFD9A0"/>'
+    +'<circle cx="-8" cy="-75" r="3.2" fill="#4A3728"/><circle cx="8" cy="-75" r="3.2" fill="#4A3728"/>'
+    +'<path d="M-5 -66 h10 l-5 6 Z" fill="#C4342E"/>'
+    +'<path d="M-13 -59 q13 9 26 0" fill="none" stroke="#8B5E3C" stroke-width="3" stroke-linecap="round"/></g>';}
+
+  function crArt(){
+    let s='<svg class="nwart" viewBox="0 0 1360 520" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><linearGradient id="crSky" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#BFE9F5"/><stop offset="1" stop-color="#E7F6FB"/></linearGradient></defs>';
+    s+='<rect width="1360" height="520" fill="url(#crSky)"/>';
+    s+='<path d="M0 262 Q220 230 440 256 Q700 284 950 252 Q1180 226 1360 260 L1360 520 L0 520 Z" fill="#8FD46A"/>';
+    s+='<path d="M0 316 Q270 288 570 308 Q910 330 1360 298 L1360 520 L0 520 Z" fill="#7BC950"/>';
+    s+='<path d="M0 430 Q340 400 680 418 Q1020 436 1360 402 L1360 490 Q1020 520 680 502 Q340 484 0 516 Z" fill="#CDB07E"/>';
+    s+='<path d="M0 424 Q340 394 680 412 Q1020 430 1360 396 L1360 478 Q1020 508 680 490 Q340 472 0 504 Z" fill="#F6E7C6"/>';
+    [[42,272,.78],[236,252,.58],[1148,254,.6],[454,246,.5]].forEach(function(f){s+=nwFir(f[0],f[1],f[2]);});
+    s+=nwTree(104,334,.8);
+    s+=crClock(1300,368);
+    /* мачты держат гирлянды, поэтому стоят раньше шатра — верёвки лягут поверх */
+    s+=crPole(372,462,172)+crPole(988,462,172);
+    s+=crTent(680,446,200);
+    s+=lhBunt(380,600,282,7)+lhBunt(760,980,282,7);
+    s+=crSign(680,2);
+    s+=crBooth(186,472);
+    s+=nwLamp(302,478,.92);
+    s+=pkBalloons(1076,438,.95);
+    s+=crPoster(1234,496);
+    s+=crLion(74,508);
+    [[240,486,.8],[452,478,.62],[906,476,.66],[1146,470,.7]].forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    [[196,500,0],[336,492,1],[420,506,2],[860,498,3],[1000,504,0],[560,500,1],[790,506,2],[36,494,4],[1156,498,1]]
+      .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.05);});
+    return s+'</svg>';}
+
   /* ---------- ЦИРК: меню + игры ---------- */
   const CIRCUS_OBJ=['🤡','🎈','🎪','🦁','🐘','🎠','🍿','🎩','🐎','🎯','🥁','🎺','⭐','🎁','🐒','🦊','🐰','🐻','🍭','🎡'];
-  function openCircusMenu(){show('cmenu');}
+  function openCircusMenu(){const b=$('#crScene');if(b&&!b.innerHTML)b.innerHTML=crArt();show('cmenu');}
   $('#cmBack').onclick=goWorld;
   $('#cm1').onclick=openThemes;
   $('#cm2').onclick=startDiff;
