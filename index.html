@@ -688,6 +688,17 @@
   .vnopt:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.14);}
   .vnopt.ok{opacity:.35;box-shadow:0 3px 0 rgba(0,0,0,.1);}
   #vanReady{font-size:28px;}
+
+  /* ---------- ДОМ БУКВ: экран локации ----------
+     Игр здесь пять, поэтому кнопки уже, чем в «Мире чисел», и текст под значком. */
+  #lmenu{background:linear-gradient(180deg,#BFE9F5 0%,#DFF3FB 34%,#8FD46A 34%,#7BC950 100%);padding:0;}
+  .lhbtns{display:flex;justify-content:center;gap:14px;padding:8px 18px 12px;}
+  .lhbtn{width:254px;height:106px;border:none;border-radius:24px;background:#fff;cursor:pointer;padding:6px 8px;
+         font-family:'Fredoka';font-weight:600;font-size:19px;line-height:1.15;color:var(--ink);text-align:center;
+         display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;
+         box-shadow:0 6px 0 rgba(0,0,0,.15);transition:transform .07s,box-shadow .07s;}
+  .lhbtn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.15);}
+  .lhbtn span{font-size:38px;line-height:1;}
 </style>
 </head>
 <body>
@@ -740,13 +751,14 @@
   </section>
 
   <section id="lmenu" class="screen">
-    <div class="topbar"><button class="backb" id="lmBack">← Карта</button><h2>🏠 Дом букв</h2><div style="width:70px"></div></div>
-    <div class="lmwrap">
-      <button class="lbtn" id="lm1"><span class="lic">🎯</span>Поймай букву</button>
-      <button class="lbtn" id="lm2"><span class="lic">🧩</span>Собери слово</button>
-      <button class="lbtn" id="lm4"><span class="lic">🧱</span>Составь из слогов</button>
-      <button class="lbtn" id="lm5"><span class="lic">🔡</span>Собери слог</button>
-      <button class="lbtn" id="lm6"><span class="lic">🔤</span>Какой буквы не хватает?</button>
+    <div class="topbar"><button class="backb" id="lmBack">← Карта</button><h2>🔤 Дом букв</h2><div style="width:70px"></div></div>
+    <div class="nwscene" id="lhScene"></div>
+    <div class="lhbtns">
+      <button class="lhbtn" id="lm1"><span>🎯</span>Поймай букву</button>
+      <button class="lhbtn" id="lm2"><span>🧩</span>Собери слово</button>
+      <button class="lhbtn" id="lm4"><span>🧱</span>Составь из слогов</button>
+      <button class="lhbtn" id="lm5"><span>🔡</span>Собери слог</button>
+      <button class="lhbtn" id="lm6"><span>🔤</span>Какой буквы<br>не хватает?</button>
     </div>
   </section>
 
@@ -1417,7 +1429,7 @@
     return '<svg width="28" height="30" viewBox="0 0 40 40"><rect x="16" y="24" width="8" height="12" rx="3" fill="#FFF3E0"/><path d="M6 26 Q20 6 34 26 Z" fill="#E4573B"/><circle cx="15" cy="19" r="2.5" fill="#fff"/><circle cx="25" cy="22" r="2.5" fill="#fff"/></svg>';}
   function buildingSVG(k){const S='<svg viewBox="0 0 80 80" style="width:100%;height:100%">',E='</svg>';
     if(k==='home')return S+'<rect x="22" y="42" width="36" height="28" rx="4" fill="#FFE1B0"/><path d="M17 44 L40 24 L63 44 Z" fill="#E4573B"/><rect x="34" y="54" width="12" height="16" rx="2" fill="#B77A47"/><rect x="25" y="47" width="9" height="8" rx="1.5" fill="#BFE3F5" stroke="#fff" stroke-width="1.5"/><rect x="50" y="28" width="6" height="12" fill="#C0645A"/>'+E;
-    if(k==='letters')return S+'<rect x="20" y="42" width="40" height="28" rx="4" fill="#FFD98A"/><path d="M15 44 L40 26 L65 44 Z" fill="#C0553F"/><rect x="34" y="56" width="12" height="14" rx="2" fill="#B77A47"/><rect x="27" y="48" width="26" height="12" rx="3" fill="#fff"/><text x="40" y="57" font-family="Fredoka" font-size="11" font-weight="700" fill="#9B5DE5" text-anchor="middle">АБВ</text>'+E;
+    if(k==='letters')return S+'<rect x="20" y="42" width="40" height="28" rx="4" fill="#FFE1B0"/><path d="M15 44 L40 26 L65 44 Z" fill="#9B5DE5"/><rect x="34" y="56" width="12" height="14" rx="2" fill="#B77A47"/><rect x="27" y="48" width="26" height="12" rx="3" fill="#fff"/><text x="40" y="57" font-family="Fredoka" font-size="11" font-weight="700" fill="#9B5DE5" text-anchor="middle">АБВ</text>'+E;
     if(k==='circus')return S+'<path d="M40 20 L20 66 L60 66 Z" fill="#fff"/><path d="M40 20 L27 66 L35 66 Z" fill="#E4573B"/><path d="M40 20 L45 66 L53 66 Z" fill="#E4573B"/><path d="M34 66 L40 50 L46 66 Z" fill="#B23A3A"/><rect x="39" y="10" width="2" height="11" fill="#8B5E3C"/><path d="M41 11 L50 14 L41 17 Z" fill="#FFD23F"/>'+E;
     if(k==='shop')return S+'<rect x="18" y="42" width="44" height="28" rx="4" fill="#FFE1B0"/><path d="M14 44 L40 26 L66 44 Z" fill="#E4573B"/><g><rect x="16" y="44" width="8" height="9" fill="#E4573B"/><rect x="24" y="44" width="8" height="9" fill="#FFF6E2"/><rect x="32" y="44" width="8" height="9" fill="#E4573B"/><rect x="40" y="44" width="8" height="9" fill="#FFF6E2"/><rect x="48" y="44" width="8" height="9" fill="#E4573B"/><rect x="56" y="44" width="8" height="9" fill="#FFF6E2"/></g><rect x="34" y="56" width="12" height="14" rx="2" fill="#3E97C0"/><rect x="22" y="56" width="9" height="8" rx="2" fill="#BFE3F5"/><rect x="49" y="56" width="9" height="8" rx="2" fill="#BFE3F5"/><circle cx="40" cy="30" r="7" fill="#FFD23F" stroke="#E9B21E" stroke-width="2"/><text x="40" y="34" text-anchor="middle" font-family="Fredoka" font-size="9" font-weight="700" fill="#fff">+</text>'+E;
     if(k==='bakery')return S+'<rect x="20" y="44" width="40" height="26" rx="3" fill="#F7E0C0"/><path d="M16 45 L40 28 L64 45 Z" fill="#B5764A"/><rect x="34" y="56" width="12" height="14" rx="2" fill="#8B5E3C"/><path d="M33 40 h14 l-2 8 h-10 Z" fill="#E7B98C"/><path d="M32 40 q8 -9 16 0 Z" fill="#F5A6C0"/><circle cx="40" cy="33" r="2.4" fill="#E4573B"/>'+E;
@@ -1527,7 +1539,7 @@
 
   /* ---------- ДОМ БУКВ: меню + игры ---------- */
   function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;const t=a[i];a[i]=a[j];a[j]=t;}return a;}
-  function openLettersMenu(){show('lmenu');}
+  function openLettersMenu(){const b=$('#lhScene');if(b&&!b.innerHTML)b.innerHTML=lhArt();show('lmenu');}
   $('#lmBack').onclick=goWorld;
   $('#lm1').onclick=()=>openPicker();
   $('#lm2').onclick=()=>startAssemble('letters');
@@ -2128,8 +2140,8 @@
     +'<rect x="-28" y="-30" width="56" height="14" rx="7" fill="#fff" opacity=".28"/>'
     +'<text x="0" y="16" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="46" font-weight="700" fill="#fff">'+t+'</text></g>';}
   /* доска с примерами: ребёнок видит, чем тут занимаются, ещё не заходя в игру */
-  function nwBoard(x,y){const L=['2 + 3','5 − 1','4 + 2'];let t='';
-    L.forEach(function(s,i){t+='<text x="0" y="'+(-28+i*40)+'" text-anchor="middle" font-family="Fredoka,sans-serif" '
+  function nwBoard(x,y,lines){const L=lines||["2 + 3","5 − 1","4 + 2"];const st=-(L.length-1)*20;let t="";
+    L.forEach(function(s,i){t+='<text x="0" y="'+(st+i*40+10)+'" text-anchor="middle" font-family="Fredoka,sans-serif" '
       +'font-size="34" font-weight="700" fill="#F4F7E8">'+s+'</text>';});
     return '<g transform="translate('+x+','+y+')">'
       +'<path d="M-46 96 L-16 22 M46 96 L16 22" stroke="#8B5E3C" stroke-width="11" stroke-linecap="round"/>'
@@ -2212,6 +2224,124 @@
     [[112,404,1],[1206,430,.9],[404,452,.68],[962,428,.78]].forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
     [[172,452,0],[204,436,1],[300,466,2],[1000,458,3],[1044,442,0],[892,452,1],[640,452,2],[720,458,3],[68,442,4],[1304,452,1]]
       .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.1);});
+    return s+'</svg>';}
+  /* ---------- ДОМ БУКВ: сцена локации ----------
+     Собрана из тех же кирпичиков, что и «Мир чисел» (ёлки, кусты, цветы, фонари, доска),
+     поэтому локации выглядят частями одного города. Своё здесь — домик с буквами,
+     флажки, стопка книг, почтовый ящик, стакан с карандашами и указатель. */
+  function lhTile(x,y,s,c,cd,ch,rot){return '<g transform="translate('+x+','+y+') rotate('+(rot||0)+')">'
+    +'<rect x="'+(-s/2)+'" y="'+(-s/2)+'" width="'+s+'" height="'+s+'" rx="'+(s*0.22).toFixed(1)+'" fill="'+cd+'"/>'
+    +'<rect x="'+(-s/2)+'" y="'+(-s/2)+'" width="'+s+'" height="'+(s*0.85).toFixed(1)+'" rx="'+(s*0.22).toFixed(1)+'" fill="'+c+'"/>'
+    +'<text x="0" y="'+(s*0.2).toFixed(1)+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="'
+    +(s*0.6).toFixed(0)+'" font-weight="700" fill="#fff">'+ch+'</text></g>';}
+  /* гирлянда флажков: точки считаем по той же кривой, по которой висит верёвка */
+  function lhBunt(x1,x2,y,n){const C=['#FF6B6B','#FFD23F','#4DB6E5','#7BC950','#F368C4','#9B5DE5'];
+    const mx=(x1+x2)/2,my=y+26;
+    let s='<path d="M'+x1+' '+y+' Q'+mx+' '+my+' '+x2+' '+y+'" fill="none" stroke="#8B5E3C" stroke-width="3"/>';
+    for(let i=0;i<n;i++){const t=(i+0.5)/n,u=1-t;
+      const px=u*u*x1+2*u*t*mx+t*t*x2,py=u*u*y+2*u*t*my+t*t*y;
+      s+='<path d="M'+(px-12).toFixed(1)+' '+py.toFixed(1)+' L'+(px+12).toFixed(1)+' '+py.toFixed(1)
+        +' L'+px.toFixed(1)+' '+(py+28).toFixed(1)+' Z" fill="'+C[i%C.length]+'"/>';}
+    return s;}
+  function lhBook(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<path d="M-42 -24 Q-21 -32 0 -24 L0 20 Q-21 12 -42 20 Z" fill="#FFF6E2" stroke="#B77A47" stroke-width="3.5" stroke-linejoin="round"/>'
+    +'<path d="M42 -24 Q21 -32 0 -24 L0 20 Q21 12 42 20 Z" fill="#FFF6E2" stroke="#B77A47" stroke-width="3.5" stroke-linejoin="round"/>'
+    +'<text x="-21" y="6" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="24" font-weight="700" fill="#E4573B">А</text>'
+    +'<text x="21" y="6" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="24" font-weight="700" fill="#4DB6E5">Б</text></g>';}
+  function lhBooks(x,y){const B=[['#4DB6E5','#2E93C4',100],['#7BC950','#5CA836',88],['#FF6B6B','#E24B4B',96],['#FFD23F','#E9B21E',82]];
+    let s='<g transform="translate('+x+','+y+')">',yy=2;
+    B.forEach(function(b){yy-=25;
+      s+='<rect x="'+(-b[2]/2)+'" y="'+yy+'" width="'+b[2]+'" height="23" rx="6" fill="'+b[1]+'"/>'
+       +'<rect x="'+(-b[2]/2)+'" y="'+yy+'" width="'+b[2]+'" height="16" rx="6" fill="'+b[0]+'"/>'
+       +'<rect x="'+(-b[2]/2+6)+'" y="'+(yy+18)+'" width="'+(b[2]-12)+'" height="4" rx="2" fill="#FFF6E2"/>';});
+    return s+'</g>';}
+  function lhMail(x,y){return '<g transform="translate('+x+','+y+')">'
+    +'<rect x="-8" y="-48" width="16" height="50" rx="6" fill="#8B5E3C"/>'
+    +'<path d="M-30 -48 v-30 a30 26 0 0 1 60 0 v30 Z" fill="#4DB6E5"/>'
+    +'<path d="M-30 -78 a30 26 0 0 1 60 0" fill="#5AC0F0"/>'
+    +'<rect x="-22" y="-72" width="34" height="24" rx="4" fill="#FFF6E2"/>'
+    +'<path d="M-22 -72 L-5 -58 L12 -72" fill="none" stroke="#B77A47" stroke-width="3" stroke-linejoin="round"/>'
+    +'<rect x="30" y="-86" width="7" height="30" rx="3.5" fill="#E4573B"/>'
+    +'<path d="M37 -84 h18 l-5 8 l5 8 h-18 Z" fill="#FFD23F"/></g>';}
+  function lhPens(x,y){const P=[[-17,-98,'#FF6B6B'],[0,-112,'#4DB6E5'],[17,-100,'#7BC950']];
+    let s='<g transform="translate('+x+','+y+')">';
+    P.forEach(function(p){s+='<rect x="'+(p[0]-7)+'" y="'+p[1]+'" width="14" height="76" rx="3" fill="'+p[2]+'"/>'
+      +'<path d="M'+(p[0]-7)+' '+p[1]+' L'+p[0]+' '+(p[1]-17)+' L'+(p[0]+7)+' '+p[1]+' Z" fill="#F3D9B0"/>'
+      +'<path d="M'+(p[0]-3.2)+' '+(p[1]-8.5)+' L'+p[0]+' '+(p[1]-17)+' L'+(p[0]+3.2)+' '+(p[1]-8.5)+' Z" fill="#4A3728"/>';});
+    s+='<path d="M-30 -36 h60 l-7 38 h-46 Z" fill="#9B5DE5"/>'
+      +'<rect x="-33" y="-43" width="66" height="12" rx="6" fill="#B07BEE"/>'
+      +starShape(0,-14,10,'#FFD23F');
+    return s+'</g>';}
+  function lhSign(x,y){const L=[['ЧИТАЙ','#F368C4'],['ИГРАЙ','#4DB6E5'],['УЧИСЬ','#7BC950']];
+    let s='<g transform="translate('+x+','+y+')">'
+      +'<ellipse cx="0" cy="118" rx="26" ry="9" fill="#000" opacity=".10"/>'
+      +'<rect x="-10" y="-8" width="20" height="126" rx="6" fill="#B77A47"/>'
+      +'<rect x="-10" y="-8" width="8" height="126" fill="#9C6437"/>';
+    L.forEach(function(a,i){const yy=-i*46;
+      s+='<path d="M-70 '+(yy-21)+' L38 '+(yy-21)+' L62 '+yy+' L38 '+(yy+21)+' L-70 '+(yy+21)+' Z" fill="'+a[1]+'"/>'
+       +'<path d="M-70 '+(yy-21)+' L38 '+(yy-21)+' L62 '+yy+' L38 '+(yy+21)+' L-70 '+(yy+21)+' Z" fill="none" stroke="#fff" stroke-width="3" stroke-linejoin="round" opacity=".55"/>'
+       +'<text x="-10" y="'+(yy+9)+'" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="22" font-weight="700" fill="#fff">'+a[0]+'</text>';});
+    return s+'</g>';}
+  function lhBalloon(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="0" rx="44" ry="52" fill="#FFD23F"/>'
+    +'<path d="M0 -52 C-19 -30 -25 0 -19 28 C-11 44 -5 50 0 52 Z" fill="#FF6B6B"/>'
+    +'<path d="M0 -52 C19 -30 25 0 19 28 C11 44 5 50 0 52 Z" fill="#F368C4"/>'
+    +'<path d="M-44 2 a44 52 0 0 0 88 0" fill="none" stroke="#E9B21E" stroke-width="3"/>'
+    +'<path d="M-15 47 L-9 66 M15 47 L9 66" stroke="#8B5E3C" stroke-width="3" stroke-linecap="round"/>'
+    +'<rect x="-14" y="64" width="28" height="21" rx="6" fill="#B77A47"/>'
+    +'<rect x="-14" y="64" width="28" height="7" rx="3" fill="#C99457"/></g>';}
+
+  function lhArt(){
+    let s='<svg class="nwart" viewBox="0 0 1360 470" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><linearGradient id="lhSky" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#BFE9F5"/><stop offset="1" stop-color="#E7F6FB"/></linearGradient></defs>';
+    s+='<rect width="1360" height="470" fill="url(#lhSky)"/>';
+    s+='<path d="M0 244 Q220 212 440 238 Q700 266 950 234 Q1180 208 1360 242 L1360 470 L0 470 Z" fill="#8FD46A"/>';
+    s+='<path d="M0 292 Q270 264 570 284 Q910 306 1360 274 L1360 470 L0 470 Z" fill="#7BC950"/>';
+    s+='<path d="M0 382 Q340 352 680 370 Q1020 388 1360 354 L1360 432 Q1020 464 680 446 Q340 428 0 460 Z" fill="#CDB07E"/>';
+    s+='<path d="M0 376 Q340 346 680 364 Q1020 382 1360 348 L1360 420 Q1020 452 680 434 Q340 416 0 448 Z" fill="#F6E7C6"/>';
+    [[64,258,.82],[168,242,.66],[1250,246,.78],[1316,262,.82],[264,234,.54]].forEach(function(f){s+=nwFir(f[0],f[1],f[2]);});
+    s+=lhBalloon(1116,92,.82);
+    /* домик с буквами. Крыша нарочно пологая: под вывеской должна остаться стена,
+       где помещаются флажки, буквы, окна и дверь, ничего не налезая друг на друга. */
+    s+='<ellipse cx="680" cy="394" rx="262" ry="25" fill="#000" opacity=".10"/>';
+    s+='<rect x="454" y="228" width="452" height="164" rx="16" fill="#FFE1B0"/>';
+    s+='<rect x="454" y="228" width="452" height="18" rx="9" fill="#F3CE97"/>';
+    s+='<rect x="782" y="112" width="34" height="52" rx="6" fill="#E4573B"/><rect x="776" y="106" width="46" height="14" rx="6" fill="#C0553F"/>';
+    s+='<path d="M424 236 L680 96 L936 236 Z" fill="#9B5DE5"/>';
+    s+='<path d="M424 236 L680 96 L936 236 Z" fill="none" stroke="#7B3FC4" stroke-width="7" stroke-linejoin="round"/>';
+    for(let i=0;i<4;i++){const y=236-i*26,w=(452-i*94)/2;
+      s+='<path d="M'+(680-w)+' '+y+' L'+(680+w)+' '+y+'" stroke="#8450CE" stroke-width="5" opacity=".7"/>';}
+    s+=lhBook(680,86,.92);
+    /* вывеска лежит на крыше, конёк остаётся виден над ней */
+    s+='<rect x="490" y="140" width="380" height="86" rx="26" fill="#B77A47"/>';
+    s+='<rect x="498" y="148" width="364" height="70" rx="21" fill="#FFF6E2"/>';
+    const NM=[['Д','#E4573B'],['О','#FFD23F'],['М','#4DB6E5'],[' ',''],['Б','#7BC950'],['У','#F368C4'],['К','#FF9F45'],['В','#9B5DE5']];
+    let tx=536;NM.forEach(function(a){if(a[0]===' '){tx+=18;return;}
+      s+='<text x="'+tx+'" y="200" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="44" font-weight="700" '
+        +'fill="'+a[1]+'" stroke="#fff" stroke-width="6" paint-order="stroke">'+a[0]+'</text>';tx+=41;});
+    s+=lhBunt(470,890,246,9);
+    /* буквы на стенах, окна, дверь — расставлены так, чтобы между ними были просветы */
+    s+=lhTile(496,318,44,'#FF6B6B','#E24B4B','А',-6)+lhTile(496,368,44,'#4DB6E5','#2E93C4','Б',5);
+    s+=lhTile(864,318,44,'#7BC950','#5CA836','Ж',6)+lhTile(864,368,44,'#FFD23F','#E9B21E','И',-5);
+    s+='<path d="M632 392 L632 326 a48 48 0 0 1 96 0 L728 392 Z" fill="#B77A47"/>';
+    s+='<path d="M632 392 L632 326 a48 48 0 0 1 96 0 L728 392 Z" fill="none" stroke="#9C6437" stroke-width="7"/>';
+    s+='<circle cx="710" cy="356" r="5" fill="#FFD23F"/>';
+    [[540,300],[744,300]].forEach(function(w){
+      s+='<rect x="'+(w[0]-4)+'" y="'+(w[1]-4)+'" width="84" height="70" rx="12" fill="#7B3FC4"/>'
+       +'<rect x="'+w[0]+'" y="'+w[1]+'" width="76" height="62" rx="9" fill="#BFE3F5"/>'
+       +'<path d="M'+(w[0]+38)+' '+w[1]+' v62 M'+w[0]+' '+(w[1]+31)+' h76" stroke="#fff" stroke-width="4"/>'
+       +'<rect x="'+(w[0]-8)+'" y="'+(w[1]+58)+'" width="92" height="16" rx="6" fill="#C08A52"/>';
+      for(let i=0;i<3;i++)s+=nwFlower(w[0]+14+i*24,w[1]+60,i,.75);});
+    /* реквизит вокруг */
+    s+=lhBooks(220,396)+lhMail(112,392)+lhPens(950,392);
+    s+=nwBoard(1080,318,['А Б В']);
+    s+=lhSign(1256,286);
+    s+=nwTree(76,330,.9);
+    s+=nwLamp(348,398,.98);   /* второй фонарь убран: он перечёркивал указатель */
+    [[150,420,.85],[416,436,.66],[930,432,.7],[1308,424,.76]].forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    [[262,444,0],[300,428,1],[352,452,2],[884,444,3],[1000,450,0],[640,444,1],[726,450,2],[62,438,4],[1044,428,1]]
+      .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.05);});
     return s+'</svg>';}
   function openShopMenu(){const b=$('#nwScene');if(b&&!b.innerHTML)b.innerHTML=nwArt();show('shmenu');}
   $('#shmBack').onclick=goWorld;$('#vanBack').onclick=openShopMenu;
