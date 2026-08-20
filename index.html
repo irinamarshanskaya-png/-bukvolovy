@@ -660,6 +660,34 @@
          justify-content:center;gap:16px;box-shadow:0 7px 0 rgba(0,0,0,.15);transition:transform .07s,box-shadow .07s;}
   .nwbtn:active{transform:translateY(4px);box-shadow:0 3px 0 rgba(0,0,0,.15);}
   .nwbtn span{font-size:46px;line-height:1;}
+
+  /* ---------- ЧТО ИСЧЕЗЛО: крупная полка ----------
+     Размер карточки считает скрипт под число товаров, поэтому здесь только вид.
+     Правила идут после общего блока масштаба мини-игр и перебивают старые .vrow/.vcell. */
+  .vnbody{flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:10px;padding:0 24px 8px;}
+  .vnhead{display:flex;align-items:center;gap:20px;}
+  .vntime{width:400px;height:16px;background:#fff;border-radius:9px;overflow:hidden;
+          box-shadow:inset 0 2px 5px rgba(0,0,0,.14);}
+  .vntime i{display:block;height:100%;width:100%;background:linear-gradient(90deg,#7BC950,#FFD23F);
+            transition:width .1s linear;}
+  .vnshelf{display:grid;gap:14px;justify-content:center;align-content:center;}
+  .vncell{display:flex;align-items:center;justify-content:center;background:#fff;border-radius:22px;
+          box-shadow:0 6px 0 rgba(0,0,0,.12);line-height:1;}
+  .vncell.gap{background:#E6DAF5;color:#BCA6DA;box-shadow:inset 0 5px 12px rgba(90,60,120,.16);}
+  .vncell.pop{animation:vnpop .42s ease-out;}
+  @keyframes vnpop{0%{transform:scale(.3);}60%{transform:scale(1.18);}100%{transform:scale(1);}}
+  .vnshelf.puff{animation:vnpuff .42s ease-in forwards;}
+  @keyframes vnpuff{to{transform:scale(.94);opacity:.15;}}
+  .vnshelf.back{animation:vnback .42s ease-out;}
+  @keyframes vnback{from{transform:scale(.94);opacity:.15;}to{transform:scale(1);opacity:1;}}
+  .vnask{font-family:'Fredoka';font-weight:700;font-size:27px;color:#7a4a86;min-height:34px;}
+  .vnslot{min-height:126px;display:flex;align-items:center;justify-content:center;}
+  .vnopts{display:flex;gap:12px;justify-content:center;flex-wrap:wrap;}
+  .vnopt{width:112px;height:112px;font-size:60px;line-height:1;background:#fff;border:none;border-radius:24px;
+         cursor:pointer;padding:0;box-shadow:0 6px 0 rgba(0,0,0,.14);transition:transform .07s,box-shadow .07s;}
+  .vnopt:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.14);}
+  .vnopt.ok{opacity:.35;box-shadow:0 3px 0 rgba(0,0,0,.1);}
+  #vanReady{font-size:28px;}
 </style>
 </head>
 <body>
@@ -896,14 +924,26 @@
   </section>
 
   <section id="vanish" class="screen">
-    <div class="topbar"><button class="backb" id="vanBack">← Карта</button><h2>🛒 Что исчезло?</h2><div class="prog" id="vanProg"></div></div>
-    <div class="gwrap">
-      <div class="vrow" id="vanRow"></div>
-      <div class="prog" id="vanAsk"></div>
-      <div class="vopts" id="vanOpts"></div>
-      <button class="btn small" id="vanReady" style="display:none">Запомнил! 👀</button>
+    <div class="topbar"><button class="backb" id="vanBack">← Мир чисел</button><h2>🧠 Что исчезло?</h2><div class="prog" id="vanProg"></div></div>
+    <div class="vnbody">
+      <div class="vnhead">
+        <div class="lvsel" id="vanLevels"></div>
+        <div class="vntime" id="vanTime"><i id="vanBar"></i></div>
+      </div>
+      <div class="vnshelf" id="vanRow"></div>
+      <div class="vnask" id="vanAsk"></div>
+      <div class="vnslot">
+        <div class="vnopts" id="vanOpts"></div>
+        <button class="btn" id="vanReady">Запомнил! 👀</button>
+      </div>
     </div>
     <div class="hero chero" id="vanHero"><img id="vanImg" alt="герой"></div>
+    <div class="wkprize" id="vanPrize"><div class="wkcard">
+      <div class="wkwin" id="vanWinTxt">🎉 Верно!</div>
+      <div class="wkgifts" id="vanGifts"></div>
+      <button class="btn small" id="vanMore">🧠 Дальше</button>
+      <button class="btn small coral" id="vanOut">← В Мир чисел</button>
+    </div></div>
   </section>
 
   <section id="seq" class="screen">
@@ -2049,11 +2089,6 @@
     if(isDiff){el.classList.add('found');blip();diffFound++;$('#diffProg').textContent=diffFound+' / '+diffNeed;if(diffFound>=diffNeed)awardStars(3,screens.diff,openCircusMenu);}
     else{chime(false);try{el.animate([{transform:'scale(1)'},{transform:'scale(.88)'},{transform:'scale(1)'}],{duration:200});}catch(e){}}}
 
-  /* Что исчезло */
-  let vanRound=0,vanSet=[];
-  const SHOP_ITEMS=['🍎','🍌','🥛','🍞','🧃','🧀','🥚','🍓','🍇','🥕','🍅','🍪','🍫','🥐','🍊','🥦','🍐','🍋'];
-  let vanMissing=[],vanFound=0,vanRoundMiss=0;
-  const VAN_CFG=[[3,1],[4,1],[6,1],[5,2],[6,2]];
   /* ---------- МИР ЧИСЕЛ: сцена локации ----------
      Рисуется скриптом, а не разметкой: полоски маркизы, деревья и кусты — это циклы,
      руками такое писать долго и легко ошибиться. Поле сцены 1360x486, ширина совпадает
@@ -2181,21 +2216,134 @@
   function openShopMenu(){const b=$('#nwScene');if(b&&!b.innerHTML)b.innerHTML=nwArt();show('shmenu');}
   $('#shmBack').onclick=goWorld;$('#vanBack').onclick=openShopMenu;
   $('#sh1').onclick=startVanish;$('#sh2').onclick=startCart;$('#sh3').onclick=startCash;
-  function startVanish(){vanRound=0;vanRoundMiss=0;show('vanish');setTimeout(()=>speak('Запомни, что лежит на полке!'),350);loadShop();}
-  function loadShop(){const N=VAN_CFG[vanRound][0];vanSet=shuf(SHOP_ITEMS).slice(0,N);$('#vanProg').textContent='Полка '+(vanRound+1)+' / 5';
-    $('#vanRow').innerHTML=vanSet.map(e=>'<div class="vcell">'+e+'</div>').join('');
-    $('#vanAsk').textContent='Запомни, что на полке!';$('#vanOpts').innerHTML='';const r=$('#vanReady');r.style.display='inline-block';r.textContent='Запомнил! 👀';r.onclick=doShop;}
-  function doShop(){$('#vanReady').style.display='none';const k=VAN_CFG[vanRound][1];const idxs=shuf(vanSet.map((_,i)=>i)).slice(0,k);vanMissing=idxs.map(i=>vanSet[i]);vanFound=0;
-    const shelf=vanSet.slice();idxs.forEach(i=>shelf[i]='❓');
-    $('#vanRow').innerHTML=shelf.map(e=>'<div class="vcell'+(e==='❓'?' hidden':'')+'">'+e+'</div>').join('');
-    $('#vanAsk').textContent=k>1?'Что исчезло? Найди всё! 🔎':'Что исчезло? 🔎';setTimeout(()=>speak('Что исчезло?'),250);
-    const pool=SHOP_ITEMS.filter(x=>vanSet.indexOf(x)<0);const distract=shuf(pool).slice(0,2);
-    const box=$('#vanOpts');box.innerHTML='';shuf(vanMissing.concat(distract)).forEach(e=>{const b=document.createElement('button');b.className='vopt';b.textContent=e;b.onclick=()=>tapShop(e,b);box.appendChild(b);});}
-  function tapShop(e,b){if(b.disabled)return;if(vanMissing.indexOf(e)>=0){b.disabled=true;b.style.opacity='.35';blip();
-      const cells=$('#vanRow').children;for(let i=0;i<cells.length;i++){if(cells[i].classList.contains('hidden')){cells[i].classList.remove('hidden');cells[i].textContent=e;try{cells[i].animate([{transform:'scale(0.3)'},{transform:'scale(1.2)'},{transform:'scale(1)'}],{duration:350});}catch(x){}break;}}
-      vanFound++;if(vanFound>=vanMissing.length){vanRound++;if(vanRound>=5)shopDone();else{flash(screens.vanish,'✓');setTimeout(loadShop,800);}}}
-    else{chime(false);vanRoundMiss++;$('#vanAsk').textContent='Попробуй вспомнить ещё раз! 🙂';try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(x){}}}
-  function shopDone(){markGame('shop_vanish');const st=vanRoundMiss===0?3:vanRoundMiss<=2?2:1;flash(screens.vanish,'Молодец! 🎉');confetti(screens.vanish);giveReward('star',st,screens.vanish,null);const H=screens.vanish.clientHeight;pieEat(screens.vanish,54,H-8-126,$('#vanHero'),openShopMenu);}
+  /* ---------- ЧТО ИСЧЕЗЛО: игра на память ----------
+     Механика прежняя: запомнил полку → часть товара пропала → вспомни, что именно.
+     Поле теперь крупное, на весь экран; варианты ответа лежат отдельной перемешанной
+     кучкой, а не «тремя кнопками, где ответ очевиден». */
+  const VAN_POOL=['🍎','🍏','🍐','🍊','🍋','🍌','🍉','🍇','🍓','🍒','🥝','🍑','🥕','🍅','🥦','🌽','🥒',
+                  '🍞','🥐','🥖','🧀','🥛','🧃','🥚','🍪','🍫','🍬','🧁','🍰','🍯'];
+  /* похожие товары: на старших уровнях в варианты подсовываем именно их — «яблоко или помидор?» */
+  const VAN_SIM={'🍎':['🍏','🍅','🍒'],'🍏':['🍎','🍐','🥝'],'🍐':['🍏','🍋','🍎'],'🍊':['🍋','🍑','🍎'],
+    '🍋':['🍊','🍐','🌽'],'🍌':['🌽','🥐','🍋'],'🍉':['🍓','🥝','🍅'],'🍇':['🍒','🍓','🍆'],
+    '🍓':['🍒','🍅','🍎'],'🍒':['🍓','🍇','🍎'],'🥝':['🍏','🥒','🍐'],'🍑':['🍊','🍅','🍎'],
+    '🥕':['🌽','🍊','🥒'],'🍅':['🍎','🍓','🍒'],'🥦':['🥒','🥝','🌽'],'🌽':['🍌','🥕','🍋'],
+    '🥒':['🥝','🥦','🌽'],'🍞':['🥐','🥖','🧀'],'🥐':['🍞','🥖','🍌'],'🥖':['🍞','🥐','🌽'],
+    '🧀':['🍞','🥚','🧁'],'🥛':['🧃','🥚','🍶'],'🧃':['🥛','🍫','🧁'],'🥚':['🧀','🥛','🍮'],
+    '🍪':['🍫','🥐','🧁'],'🍫':['🍪','🍬','🧃'],'🍬':['🍫','🍪','🧁'],'🧁':['🍰','🍪','🧀'],
+    '🍰':['🧁','🍪','🍞'],'🍯':['🧃','🥛','🍮']};
+  /* n — сколько товара на полке, k — сколько пропадёт, t — секунд на запоминание,
+     mix — товар перемешивается (пустых мест не остаётся), sim — похожие обманки */
+  const VAN_LV=[{n:4,k:1,t:14,opts:6},{n:6,k:1,t:12,opts:6},{n:9,k:1,t:11,opts:6},
+                {n:12,k:2,t:10,opts:8,mix:true},{n:15,k:2,t:9,opts:8,mix:true,sim:true},
+                {n:15,k:3,t:7,opts:8,mix:true,sim:true}];
+  const VAN_GAP=14,VAN_AW=1180,VAN_AH=448;
+  let vanLevel=1,vanSet=[],vanMissing=[],vanFound=0,vanMiss=0,vanBusy=true,vanT=[],vanTick=0;
+  function vanLater(fn,ms){const id=setTimeout(fn,ms);vanT.push(id);return id;}
+  function vanClear(){vanT.forEach(clearTimeout);vanT=[];if(vanTick){clearInterval(vanTick);vanTick=0;}}
+  function vanGrid(n){return n<=4?[2,2]:n<=6?[3,2]:n<=9?[3,3]:n<=12?[4,3]:[5,3];}
+  function vanSize(n){const g=vanGrid(n);
+    return Math.min(196,Math.floor((VAN_AH-(g[1]-1)*VAN_GAP)/g[1]),Math.floor((VAN_AW-(g[0]-1)*VAN_GAP)/g[0]));}
+  /* полка рисуется одной функцией: и когда запоминаем, и когда товар уже пропал */
+  function vanShelf(list){const n=VAN_LV[vanLevel-1].n,g=vanGrid(n),s=vanSize(n);
+    const box=$('#vanRow');
+    box.style.gridTemplateColumns='repeat('+g[0]+','+s+'px)';
+    box.innerHTML=list.map(function(e){
+      return '<div class="vncell'+(e?'':' gap')+'" style="width:'+s+'px;height:'+s+'px;font-size:'+Math.round(s*0.56)+'px">'
+        +(e||'?')+'</div>';}).join('');}
+  function vanLevels(){const box=$('#vanLevels');box.innerHTML='';const open=Math.min(6,levels.van||1);
+    for(let i=1;i<=6;i++){const b=document.createElement('button');
+      b.className='lvbtn'+(i===vanLevel?' sel':'');b.textContent=i;b.disabled=i>open;b.style.opacity=i>open?'.35':'';
+      b.onclick=(function(k){return function(){vanLevel=k;vanLoad();};})(i);box.appendChild(b);}}
+  function vanBar(p){$('#vanBar').style.width=Math.max(0,Math.min(100,p))+'%';}
+
+  function vanLoad(){vanClear();
+    const L=VAN_LV[vanLevel-1];
+    vanSet=shuf(VAN_POOL).slice(0,L.n);vanFound=0;vanBusy=false;
+    $('#vanProg').textContent='Уровень '+vanLevel+' / 6';
+    vanLevels();vanShelf(vanSet);
+    $('#vanAsk').textContent='Запомни, что на полке!';
+    $('#vanOpts').innerHTML='';
+    const r=$('#vanReady');r.style.display='inline-block';r.onclick=vanHide;
+    $('#vanTime').style.visibility='visible';vanBar(100);
+    /* время на запоминание: полоска тает, но ребёнок может нажать «Запомнил!» раньше */
+    const total=L.t*1000;let left=total;
+    vanTick=setInterval(function(){left-=100;vanBar(left/total*100);
+      if(left<=0){clearInterval(vanTick);vanTick=0;vanHide();}},100);
+    vanLater(function(){speak('Запомни, что на полке!');},350);}
+
+  function vanHide(){if(vanBusy)return;vanBusy=true;vanClear();
+    const L=VAN_LV[vanLevel-1];
+    $('#vanReady').style.display='none';$('#vanTime').style.visibility='hidden';
+    const idx=shuf(vanSet.map(function(_,i){return i;})).slice(0,L.k);
+    vanMissing=idx.map(function(i){return vanSet[i];});vanFound=0;
+    $('#vanAsk').textContent='';
+    const box=$('#vanRow');box.classList.add('puff');
+    tone(420,160,'triangle',.14,.4);
+    vanLater(function(){
+      /* на старших уровнях товар ещё и перемешивается: пустое место больше не подсказывает */
+      let rest;
+      if(L.mix)rest=shuf(vanSet.filter(function(e){return vanMissing.indexOf(e)<0;}));
+      else rest=vanSet.map(function(e){return vanMissing.indexOf(e)>=0?null:e;});
+      vanShelf(rest);box.classList.remove('puff');box.classList.add('back');
+      vanLater(function(){box.classList.remove('back');},420);
+      $('#vanAsk').textContent=L.k>1?'Что исчезло? Найди всё!':'Что исчезло?';
+      speak('Что исчезло?');
+      vanOpts(L);vanBusy=false;},420);}
+
+  /* варианты: пропавшее + обманки, которых на полке не было. На старших уровнях
+     обманки берём похожие на пропавшее, иначе ответ виден без всякой памяти */
+  function vanOpts(L){
+    let pool=VAN_POOL.filter(function(x){return vanSet.indexOf(x)<0;});
+    let dist=[];
+    if(L.sim){vanMissing.forEach(function(m){
+        (VAN_SIM[m]||[]).forEach(function(s){if(pool.indexOf(s)>=0&&dist.indexOf(s)<0)dist.push(s);});});
+      dist=shuf(dist).slice(0,L.opts-vanMissing.length);}
+    const need=L.opts-vanMissing.length-dist.length;
+    if(need>0)dist=dist.concat(shuf(pool.filter(function(x){return dist.indexOf(x)<0;})).slice(0,need));
+    const box=$('#vanOpts');box.innerHTML='';
+    shuf(vanMissing.concat(dist)).forEach(function(e){
+      const b=document.createElement('button');b.className='vnopt';b.textContent=e;
+      b.onclick=function(){vanTap(e,b);};box.appendChild(b);});}
+
+  function vanTap(e,b){if(vanBusy||b.disabled)return;
+    if(vanMissing.indexOf(e)<0){chime(false);vanMiss++;
+      $('#vanAsk').textContent='Не это. Вспоминай ещё! 🙂';
+      try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-6px)'},{transform:'translateX(6px)'},{transform:'translateX(0)'}],{duration:220});}catch(x){}
+      return;}
+    b.disabled=true;b.classList.add('ok');blip();vanFound++;
+    /* найденный товар возвращается на полку — видно, что вспомнил правильно */
+    const cells=$('#vanRow').children;let put=false;
+    for(let i=0;i<cells.length;i++)if(cells[i].classList.contains('gap')){
+      cells[i].classList.remove('gap');cells[i].textContent=e;cells[i].classList.add('pop');put=true;break;}
+    if(!put){const c=document.createElement('div');const n=VAN_LV[vanLevel-1].n,s=vanSize(n);
+      c.className='vncell pop';c.style.width=c.style.height=s+'px';c.style.fontSize=Math.round(s*0.56)+'px';
+      c.textContent=e;$('#vanRow').appendChild(c);}
+    if(vanFound>=vanMissing.length){vanBusy=true;
+      $('#vanAsk').textContent='Верно! 🎉';flash(screens.vanish,'✓');
+      vanLater(vanWin,900);}
+    else $('#vanAsk').textContent='Есть! Что ещё исчезло?';}
+
+  function vanWin(){confetti(screens.vanish);
+    const id='shop_van_l'+vanLevel,first=!games[id];
+    const got=[];
+    if(first){stars+=1;coins+=3;keys+=1;markGame(id);got.push(['⭐','+1'],['🪙','+3'],['🔑','+1']);
+      if(vanLevel<6&&(levels.van||1)<vanLevel+1)levels.van=vanLevel+1;}
+    else{coins+=2;got.push(['🪙','+2']);}
+    const all=first&&vanLevel>=6;
+    if(all){markGame('shop_vanish');earnPage('shop_vanish');got.push(['📖','+1']);}
+    save();updateHUD();
+    speak(all?'Ты вспомнил всё! Страница книги твоя!':'Молодец!');
+    $('#vanWinTxt').textContent=all?'📖 Вся серия пройдена!':'🎉 Верно!';
+    $('#vanGifts').innerHTML=got.map(function(g,i){
+      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#vanMore').textContent=(first&&vanLevel<6)?'🧠 Следующий уровень':'🧠 Ещё раз';
+    $('#vanPrize').classList.add('on');
+    if(first&&vanLevel<6)vanLevel++;}
+
+  function startVanish(){vanLevel=Math.min(6,levels.van||1);vanMiss=0;show('vanish');
+    $('#vanPrize').classList.remove('on');vanLoad();}
+  $('#vanMore').onclick=function(){$('#vanPrize').classList.remove('on');vanLoad();};
+  $('#vanOut').onclick=function(){vanClear();vanBusy=true;openShopMenu();};
 
   /* МАГАЗИННЫЙ КВЕСТ */
   const QDEPTS=[['Фрукты','🍎'],['Овощи','🥦'],['Молочное','🥛'],['Выпечка','🍞'],['Сладости','🍫'],['Игрушки','🧸'],['Напитки','🥤']];
