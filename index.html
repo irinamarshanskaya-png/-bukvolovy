@@ -833,11 +833,12 @@
 
   <section id="fmenu" class="screen">
     <div class="topbar"><button class="backb" id="fmBack">← Карта</button><h2>🌳 Лес</h2><div style="width:70px"></div></div>
-    <div class="lmwrap">
-      <button class="lbtn" id="fm1"><span class="lic">🦊</span>Чей это хвост?</button>
-      <button class="lbtn" id="fm2"><span class="lic">🐾</span>Чьи следы?</button>
-      <button class="lbtn" id="fm3"><span class="lic">🍽️</span>Кто что ест</button>
-      <button class="lbtn" id="fm4"><span class="lic">🍂</span>Времена года</button>
+    <div class="nwscene" id="flScene"></div>
+    <div class="lhbtns">
+      <button class="lhbtn" id="fm1"><span>🦊</span>Чей это хвост?</button>
+      <button class="lhbtn" id="fm2"><span>🐾</span>Чьи следы?</button>
+      <button class="lhbtn" id="fm3"><span>🍽️</span>Кто что ест</button>
+      <button class="lhbtn" id="fm4"><span>🍂</span>Времена года</button>
     </div>
   </section>
 
@@ -2936,7 +2937,142 @@
     const em=kind==='star'?'⭐':kind==='coin'?'🪙':'🔑';flash(container,'+'+n+' '+em);
     for(let i=0;i<n;i++){setTimeout(()=>{popText(container,container.clientWidth/2-16+(Math.random()*50-25),container.clientHeight*0.42,em,'#FFB800');blip();},i*160);}
     if(onEnd)setTimeout(onEnd,n*160+800);}
-  function openForestMenu(){show('fmenu');}
+  /* ---------- ЛЕС: сцена локации ----------
+     Те же кирпичики, что в «Доме букв» и «Мире чисел», плюс своё: дерево с дуплом,
+     пенёк, бревно, папоротник, грибы и звериные следы на тропинке — намёк на игры
+     локации («Чьи следы?», «Кто что ест»). Холст 1360x520. */
+  function flLeaf(x,y,rot,s,c){return '<g transform="translate('+x+','+y+') rotate('+rot+') scale('+s+')">'
+    +'<path d="M0 0 C13 -14 32 -12 37 3 C24 19 7 17 0 0 Z" fill="'+c+'"/>'
+    +'<path d="M2 2 L33 4" fill="none" stroke="#4E9E37" stroke-width="2.4"/></g>';}
+  function flMush(x,y,s,c){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="2" rx="20" ry="6" fill="#000" opacity=".10"/>'
+    +'<path d="M-9 2 q0 -23 9 -23 q9 0 9 23 Z" fill="#F6EFDD"/>'
+    +'<path d="M-28 -17 a28 23 0 0 1 56 0 Z" fill="'+c+'"/>'
+    +'<circle cx="-14" cy="-25" r="4.6" fill="#fff" opacity=".85"/>'
+    +'<circle cx="4" cy="-31" r="5.2" fill="#fff" opacity=".85"/>'
+    +'<circle cx="17" cy="-23" r="3.8" fill="#fff" opacity=".85"/></g>';}
+  function flStump(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="6" rx="52" ry="14" fill="#000" opacity=".12"/>'
+    +'<path d="M-40 -6 q-16 4 -20 10 q18 6 24 2 Z" fill="#8B5E3C"/>'
+    +'<path d="M40 -6 q16 4 20 10 q-18 6 -24 2 Z" fill="#8B5E3C"/>'
+    +'<path d="M-38 -48 L-36 6 q36 11 72 0 L34 -48 Z" fill="#8B5E3C"/>'
+    +'<path d="M-38 -48 L-36 6 q10 3 20 4 L-24 -48 Z" fill="#7A5133"/>'
+    +'<ellipse cx="-2" cy="-48" rx="38" ry="14" fill="#C9995C"/>'
+    +'<ellipse cx="-2" cy="-48" rx="26" ry="9.5" fill="#B77A47"/>'
+    +'<ellipse cx="-2" cy="-48" rx="13" ry="4.6" fill="#C9995C"/></g>';}
+  function flLog(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="20" rx="76" ry="12" fill="#000" opacity=".12"/>'
+    +'<rect x="-72" y="-22" width="144" height="42" rx="21" fill="#8B5E3C"/>'
+    +'<rect x="-72" y="-22" width="144" height="17" rx="8.5" fill="#9C6437"/>'
+    +'<ellipse cx="-72" cy="-1" rx="13" ry="21" fill="#B77A47"/>'
+    +'<ellipse cx="-72" cy="-1" rx="7.5" ry="13" fill="#C9995C"/>'
+    +'<path d="M-30 -22 q18 -12 40 -2 q-16 8 -40 2 Z" fill="#6FBF52"/>'
+    +'<path d="M22 -21 q14 -9 30 -1 q-13 7 -30 1 Z" fill="#5CA836"/></g>';}
+  function flFern(x,y,s){let o='<g transform="translate('+x+','+y+') scale('+s+')">';
+    [[-56,-50],[-30,-64],[0,-72],[30,-64],[56,-50]].forEach(function(p){
+      o+='<path d="M0 0 Q'+(p[0]*0.4)+' '+(p[1]*0.72)+' '+p[0]+' '+p[1]+'" fill="none" stroke="#4E9E37" stroke-width="6" stroke-linecap="round"/>';
+      for(let t=0.42;t<1.02;t+=0.29){
+        const px=(2*(1-t)*t*(p[0]*0.4)+t*t*p[0]),py=(2*(1-t)*t*(p[1]*0.72)+t*t*p[1]);
+        o+='<circle cx="'+px.toFixed(1)+'" cy="'+py.toFixed(1)+'" r="5.2" fill="#5CA836"/>';}});
+    return o+'</g>';}
+  /* дерево с дуплом: в него смотрит ребёнок, когда ищет, кто где живёт */
+  function flHollow(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="8" rx="54" ry="15" fill="#000" opacity=".12"/>'
+    +'<path d="M-30 8 q-18 2 -26 8 q22 8 30 2 Z" fill="#8B5E3C"/>'
+    +'<path d="M30 8 q18 2 26 8 q-22 8 -30 2 Z" fill="#8B5E3C"/>'
+    +'<path d="M-28 -96 L-32 8 q32 10 64 0 L28 -96 Z" fill="#8B5E3C"/>'
+    +'<path d="M-28 -96 L-32 8 q10 3 18 4 L-12 -96 Z" fill="#7A5133"/>'
+    +'<ellipse cx="2" cy="-44" rx="17" ry="22" fill="#4A3728"/>'
+    +'<ellipse cx="2" cy="-40" rx="11" ry="15" fill="#3A2A1E"/>'
+    +'<circle cx="0" cy="-116" r="52" fill="#5CA836"/>'
+    +'<circle cx="-40" cy="-88" r="34" fill="#6FBF52"/><circle cx="40" cy="-88" r="34" fill="#6FBF52"/>'
+    +'<circle cx="-4" cy="-152" r="33" fill="#7BC950"/>'
+    +'<circle cx="34" cy="-136" r="26" fill="#6FBF52"/></g>';}
+  /* следы лап на тропинке */
+  function flPaw(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="0" rx="11" ry="9" fill="#B08858" opacity=".55"/>'
+    +'<circle cx="-9" cy="-11" r="3.6" fill="#B08858" opacity=".55"/>'
+    +'<circle cx="-2" cy="-14" r="3.9" fill="#B08858" opacity=".55"/>'
+    +'<circle cx="6" cy="-13" r="3.7" fill="#B08858" opacity=".55"/>'
+    +'<circle cx="12" cy="-7" r="3.3" fill="#B08858" opacity=".55"/></g>';}
+  function flBerry(x,y,s){let o='<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="0" rx="44" ry="23" fill="#4E9E37"/>'
+    +'<circle cx="-21" cy="-11" r="21" fill="#5CA836"/><circle cx="17" cy="-15" r="24" fill="#6FBF52"/>';
+    [[-26,-20],[-8,-28],[12,-24],[26,-12],[-14,-6],[6,-8]].forEach(function(b){
+      o+='<circle cx="'+b[0]+'" cy="'+b[1]+'" r="6" fill="#E24B4B"/>'
+       +'<circle cx="'+(b[0]-2)+'" cy="'+(b[1]-2)+'" r="2" fill="#fff" opacity=".5"/>';});
+    return o+'</g>';}
+  function flBird(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="0" rx="17" ry="14" fill="#4DB6E5"/>'
+    +'<circle cx="-13" cy="-9" r="10" fill="#5AC0F0"/>'
+    +'<path d="M4 -2 q14 -6 20 4 q-12 6 -20 -4 Z" fill="#2E93C4"/>'
+    +'<path d="M15 2 l14 -4 l-2 10 Z" fill="#2E93C4"/>'
+    +'<circle cx="-16" cy="-11" r="2.4" fill="#2B2B3A"/>'
+    +'<path d="M-22 -8 l-8 3 l8 3 Z" fill="#FFD23F"/></g>';}
+  /* дерево у самого края кадра: обрезанное рамкой, оно даёт ощущение,
+     что ребёнок стоит внутри леса, а не смотрит на поле с ёлками */
+  function flEdgeTree(x,by,s,dir){return '<g transform="translate('+x+','+by+') scale('+(s*dir)+','+s+')">'
+    +'<path d="M-44 0 L-32 -300 L32 -300 L44 0 Z" fill="#8B5E3C"/>'
+    +'<path d="M-44 0 L-32 -300 L-8 -300 L-16 0 Z" fill="#7A5133"/>'
+    +'<path d="M-36 -128 q-38 -20 -64 -8 q26 22 64 16 Z" fill="#6FBF52"/>'
+    +'<circle cx="-18" cy="-318" r="84" fill="#5CA836"/>'
+    +'<circle cx="58" cy="-284" r="60" fill="#6FBF52"/>'
+    +'<circle cx="-88" cy="-280" r="56" fill="#6FBF52"/>'
+    +'<circle cx="8" cy="-378" r="58" fill="#7BC950"/></g>';}
+  function flSign(cx,y){let s='<g transform="translate('+cx+','+y+')">'
+    +'<rect x="-172" y="0" width="344" height="90" rx="32" fill="#5CA836"/>'
+    +'<rect x="-160" y="11" width="320" height="68" rx="24" fill="#C08A52"/>'
+    +'<rect x="-160" y="11" width="320" height="25" rx="12" fill="#D3A06A"/>'
+    +'<path d="M-160 45 h320 M-160 60 h320" fill="none" stroke="#B07C46" stroke-width="2.5" opacity=".55"/>';
+    const NM=[['Л','#E8433C'],['Е','#FFD23F'],['С','#4DB6E5']];
+    NM.forEach(function(a,i){s+='<text x="'+(-82+i*82)+'" y="66" text-anchor="middle" font-family="Fredoka,sans-serif" '
+      +'font-size="56" font-weight="700" fill="'+a[1]+'" stroke="#fff" stroke-width="8" paint-order="stroke">'+a[0]+'</text>';});
+    return s+flLeaf(-168,6,-148,1.05,'#7BC950')+flLeaf(166,6,-32,1.05,'#6FBF52')
+      +flLeaf(-146,80,152,.85,'#6FBF52')+'</g>';}
+
+  function flArt(){
+    let s='<svg class="nwart" viewBox="0 0 1360 520" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><linearGradient id="flSky" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#BFE9F5"/><stop offset="1" stop-color="#E7F6FB"/></linearGradient></defs>';
+    s+='<rect width="1360" height="520" fill="url(#flSky)"/>';
+    s+='<path d="M0 236 Q220 206 440 230 Q700 256 950 226 Q1180 202 1360 234 L1360 520 L0 520 Z" fill="#8FD46A"/>';
+    s+='<path d="M0 290 Q270 264 570 282 Q910 302 1360 272 L1360 520 L0 520 Z" fill="#7BC950"/>';
+    /* дальний ряд ёлок — лес должен читаться густым, поэтому их много и они мелкие.
+       Полупрозрачность работает как дымка: дальние ёлки светлее ближних, и появляется глубина. */
+    s+='<g opacity=".5">';
+    [[26,246,.5],[96,240,.42],[168,250,.46],[248,242,.4],[318,248,.44],[404,240,.38],
+     [486,246,.42],[566,240,.36],[648,244,.4],[730,238,.36],[812,244,.4],[894,240,.42],
+     [972,248,.46],[1050,242,.4],[1128,248,.44],[1206,240,.4],[1286,246,.48],[1344,240,.42]]
+      .forEach(function(f){s+=nwFir(f[0],f[1],f[2]);});
+    s+='</g>';
+    /* второй ряд: без него между ёлками и тропинкой остаётся пустое поле */
+    [[54,338,.72],[152,330,.6],[246,342,.66],[352,332,.58],[458,340,.62],[556,330,.55],
+     [664,338,.6],[770,332,.56],[872,342,.64],[974,330,.58],[1076,340,.66],[1178,332,.6],
+     [1282,344,.74],[1348,334,.62]].forEach(function(f){s+=nwFir(f[0],f[1],f[2]);});
+    s+=nwTree(1240,356,.98)+nwTree(430,330,.68)+nwTree(818,342,.6);
+    /* подлесок: закрывает стык второго ряда ёлок с тропинкой */
+    [[112,378,.62],[318,384,.56],[512,378,.6],[706,384,.54],[900,378,.58],[1090,384,.6],[1300,378,.56]]
+      .forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    s+='<path d="M0 408 Q340 380 680 396 Q1020 412 1360 382 L1360 466 Q1020 494 680 478 Q340 460 0 492 Z" fill="#CDB07E"/>';
+    s+='<path d="M0 402 Q340 374 680 390 Q1020 406 1360 376 L1360 456 Q1020 484 680 468 Q340 450 0 482 Z" fill="#F6E7C6"/>';
+    s+=flEdgeTree(24,520,.9,1)+flEdgeTree(1340,520,.95,-1);
+    s+=flHollow(292,376,1.0);
+    s+=flBird(214,222,1.05);
+    s+=flSign(680,16);
+    /* передний план */
+    s+=flStump(576,452,1)+flMush(624,458,.9,'#E8433C')+flMush(652,466,.7,'#FF9F45');
+    s+=flLog(1040,452,1.0);
+    s+=flBerry(860,458,.95);
+    s+=flFern(150,492,.95)+flFern(746,482,.8)+flFern(1170,476,.85)+flFern(498,494,.7);
+    s+=flMush(456,488,.8,'#E8433C')+flMush(1118,480,.75,'#F368C4')+flMush(208,502,.7,'#FF9F45');
+    /* следы уходят по тропинке вглубь леса */
+    [[322,440,1],[386,434,1],[450,428,.95],[516,424,.9],[582,420,.85]].forEach(function(p){s+=flPaw(p[0],p[1],p[2]);});
+    [[692,452,.7],[964,448,.66],[1294,444,.72]].forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    [[270,500,0],[354,492,1],[422,506,2],[824,498,3],[932,504,0],[664,500,1],[1046,504,2],[38,490,4],[1244,498,1]]
+      .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.05);});
+    return s+'</svg>';}
+
+  function openForestMenu(){const b=$('#flScene');if(b&&!b.innerHTML)b.innerHTML=flArt();show('fmenu');}
   $('#fmBack').onclick=goWorld;$('#fqBack').onclick=openForestMenu;$('#ftBack').onclick=openForestMenu;$('#fsBack').onclick=openForestMenu;
   $('#fm1').onclick=startTails;$('#fm2').onclick=openTracksMenu;$('#fm3').onclick=startFeed;$('#fm4').onclick=startSeasonDress;
   $('#tlBack').onclick=openForestMenu;
