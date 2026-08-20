@@ -725,6 +725,44 @@
   @keyframes odpop{40%{transform:scale(1.12) rotate(-3deg);}}
   @keyframes odshake{25%{transform:translateX(-9px);}75%{transform:translateX(9px);}}
 
+  /* ---------- ЛЕС: живность на сцене ----------
+     Анимация висит на ВНЕШНЕЙ группе, у которой нет своего атрибута transform:
+     CSS-transform перебивает атрибут, и фигура с translate уехала бы в угол сцены.
+     transform-origin в координатах вьюбокса — вокруг него зайка разворачивается. */
+  .flbun{transform-box:view-box;transform-origin:330px 462px;animation:flhop 5.4s ease-in-out infinite;}
+  .flsq{transform-box:view-box;transform-origin:302px 378px;animation:flclimb 7s ease-in-out infinite;}
+  @keyframes flhop{
+    0%{transform:translate(0px,0px) scaleX(1);}
+    7.5%{transform:translate(33px,-30px) scaleX(1);}
+    15%{transform:translate(66px,0px) scaleX(1);}
+    22.5%{transform:translate(99px,-30px) scaleX(1);}
+    30%{transform:translate(132px,0px) scaleX(1);}
+    37.5%{transform:translate(165px,-30px) scaleX(1);}
+    45%{transform:translate(198px,0px) scaleX(1);}
+    52%{transform:translate(198px,0px) scaleX(-1);}
+    59.5%{transform:translate(165px,-30px) scaleX(-1);}
+    67%{transform:translate(132px,0px) scaleX(-1);}
+    74.5%{transform:translate(99px,-30px) scaleX(-1);}
+    82%{transform:translate(66px,0px) scaleX(-1);}
+    89.5%{transform:translate(33px,-30px) scaleX(-1);}
+    97%{transform:translate(0px,0px) scaleX(-1);}
+    100%{transform:translate(0px,0px) scaleX(1);}
+  }
+  /* белка: вверх по стволу с дуплом, прыжок на соседнее дерево и обратно.
+     scaleX(-1) считается от transform-origin, поэтому фигура разворачивается
+     на месте, а translate уже уносит её на второе дерево. */
+  @keyframes flclimb{
+    0%,8%{transform:translate(0px,0px) scaleX(1);}
+    22%{transform:translate(-6px,-58px) scaleX(1);}
+    30%{transform:translate(60px,-96px) scaleX(1);}
+    38%,58%{transform:translate(128px,-80px) scaleX(1);}
+    62%{transform:translate(128px,-80px) scaleX(-1);}
+    70%{transform:translate(60px,-96px) scaleX(-1);}
+    78%{transform:translate(-6px,-58px) scaleX(-1);}
+    92%{transform:translate(0px,0px) scaleX(-1);}
+    100%{transform:translate(0px,0px) scaleX(1);}
+  }
+
   /* ---------- ПАРК: экран локации ---------- */
   #pmenu{background:linear-gradient(180deg,#BFE9F5 0%,#DFF3FB 34%,#8FD46A 34%,#7BC950 100%);padding:0;}
   #pmenu .nwbtn{width:420px;}
@@ -3019,6 +3057,31 @@
     +'<circle cx="58" cy="-284" r="60" fill="#6FBF52"/>'
     +'<circle cx="-88" cy="-280" r="56" fill="#6FBF52"/>'
     +'<circle cx="8" cy="-378" r="58" fill="#7BC950"/></g>';}
+  /* зайка нарисован мордой вправо: анимация разворачивает его через scaleX(-1) */
+  function flBunny(){return '<g>'
+    +'<ellipse cx="0" cy="17" rx="26" ry="6" fill="#000" opacity=".14"/>'
+    +'<circle cx="-22" cy="-5" r="9.5" fill="#FFFDF8"/>'
+    +'<ellipse cx="-2" cy="-1" rx="22" ry="17" fill="#F4EDE3"/>'
+    +'<path d="M13 -25 q-4 -23 4 -27 q8 5 5 27 Z" fill="#F4EDE3"/>'
+    +'<path d="M22 -26 q1 -22 8 -24 q5 6 -2 25 Z" fill="#F4EDE3"/>'
+    +'<path d="M16 -26 q-2 -16 3 -19 q4 4 2 19 Z" fill="#F5B8C4"/>'
+    +'<path d="M24 -26 q1 -15 5 -17 q3 4 -1 17 Z" fill="#F5B8C4"/>'
+    +'<circle cx="18" cy="-13" r="13" fill="#FFFDF8"/>'
+    +'<path d="M-13 13 q11 5 22 0" fill="none" stroke="#E4D9C8" stroke-width="5" stroke-linecap="round"/>'
+    +'<circle cx="23" cy="-15" r="2.7" fill="#3A2A2A"/>'
+    +'<circle cx="30" cy="-10" r="2.5" fill="#F5B8C4"/>'
+    +'<path d="M27 -6 q3 3 6 1" fill="none" stroke="#D8C4AE" stroke-width="1.8" stroke-linecap="round"/></g>';}
+  function flSquirrel(){return '<g>'
+    +'<path d="M-8 4 C-34 0 -41 -26 -29 -41 C-17 -53 2 -47 4 -34 C-6 -39 -19 -34 -21 -24 C-23 -12 -14 -4 -6 -2 Z" fill="#D97C33"/>'
+    +'<path d="M-11 1 C-30 -3 -35 -24 -25 -35 C-17 -44 -5 -41 -3 -34 C-11 -36 -19 -30 -19 -22 C-19 -12 -12 -6 -7 -4 Z" fill="#E8963F"/>'
+    +'<ellipse cx="2" cy="-2" rx="13" ry="17" fill="#E8963F"/>'
+    +'<ellipse cx="5" cy="2" rx="8" ry="11" fill="#F3C088"/>'
+    +'<path d="M-1 -30 q-3 -11 4 -10 q5 3 2 10 Z" fill="#E8963F"/>'
+    +'<path d="M11 -32 q1 -10 7 -8 q3 4 -1 9 Z" fill="#E8963F"/>'
+    +'<circle cx="6" cy="-22" r="11" fill="#EFA55A"/>'
+    +'<path d="M-6 10 q9 5 17 1" fill="none" stroke="#D97C33" stroke-width="4.5" stroke-linecap="round"/>'
+    +'<circle cx="10" cy="-24" r="2.7" fill="#3A2A2A"/>'
+    +'<circle cx="16" cy="-20" r="2.3" fill="#5A3A22"/></g>';}
   function flSign(cx,y){let s='<g transform="translate('+cx+','+y+')">'
     +'<rect x="-172" y="0" width="344" height="90" rx="32" fill="#5CA836"/>'
     +'<rect x="-160" y="11" width="320" height="68" rx="24" fill="#C08A52"/>'
@@ -3070,6 +3133,9 @@
     [[692,452,.7],[964,448,.66],[1294,444,.72]].forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
     [[270,500,0],[354,492,1],[422,506,2],[824,498,3],[932,504,0],[664,500,1],[1046,504,2],[38,490,4],[1244,498,1]]
       .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.05);});
+    /* живность рисуется последней, чтобы скакать поверх кустов и грибов */
+    s+='<g class="flsq"><g transform="translate(302,378)">'+flSquirrel()+'</g></g>';
+    s+='<g class="flbun"><g transform="translate(330,462)">'+flBunny()+'</g></g>';
     return s+'</svg>';}
 
   function openForestMenu(){const b=$('#flScene');if(b&&!b.innerHTML)b.innerHTML=flArt();show('fmenu');}
