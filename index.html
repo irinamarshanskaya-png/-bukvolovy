@@ -699,6 +699,10 @@
          box-shadow:0 6px 0 rgba(0,0,0,.15);transition:transform .07s,box-shadow .07s;}
   .lhbtn:active{transform:translateY(3px);box-shadow:0 3px 0 rgba(0,0,0,.15);}
   .lhbtn span{font-size:38px;line-height:1;}
+
+  /* ---------- ПАРК: экран локации ---------- */
+  #pmenu{background:linear-gradient(180deg,#BFE9F5 0%,#DFF3FB 34%,#8FD46A 34%,#7BC950 100%);padding:0;}
+  #pmenu .nwbtn{width:420px;}
 </style>
 </head>
 <body>
@@ -1162,9 +1166,10 @@
 
   <section id="pmenu" class="screen">
     <div class="topbar"><button class="backb" id="pmBack">← Карта</button><h2>🎡 Парк</h2><div style="width:70px"></div></div>
-    <div class="lmwrap">
-      <button class="lbtn" id="pm1"><span class="lic">⭕</span>Крестики-нолики</button>
-      <button class="lbtn" id="pm2"><span class="lic">🍭</span>Сладкая тройка</button>
+    <div class="nwscene" id="pkScene"></div>
+    <div class="nwbtns">
+      <button class="nwbtn" id="pm1"><span>⭕</span>Крестики-нолики</button>
+      <button class="nwbtn" id="pm2"><span>🍭</span>Сладкая тройка</button>
     </div>
   </section>
 
@@ -2343,6 +2348,131 @@
     [[262,444,0],[300,428,1],[352,452,2],[884,444,3],[1000,450,0],[640,444,1],[726,450,2],[62,438,4],[1044,428,1]]
       .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.05);});
     return s+'</svg>';}
+  /* ---------- ПАРК: сцена локации ----------
+     Те же кирпичики, что в «Мире чисел» и «Доме букв», плюс своё: колесо обозрения,
+     карусель, шарики, скамейка и мостик через речку. */
+  function pkCabin(x,y,c,cd){return '<g transform="translate('+x+','+y+')">'
+    +'<rect x="-4" y="-8" width="8" height="18" rx="3" fill="#C9995C"/>'
+    +'<rect x="-32" y="10" width="64" height="68" rx="26" fill="'+cd+'"/>'
+    +'<rect x="-32" y="10" width="64" height="58" rx="26" fill="'+c+'"/>'
+    +'<path d="M-35 28 a35 22 0 0 1 70 0 Z" fill="#FFF6E2"/>'
+    +'<path d="M-35 28 q8.75 12 17.5 0 q8.75 12 17.5 0 q8.75 12 17.5 0 q8.75 12 17.5 0" fill="'+c+'" opacity=".85"/>'
+    +'<rect x="-20" y="34" width="40" height="28" rx="8" fill="#BFE3F5"/>'
+    +'<path d="M0 34 v28" stroke="#fff" stroke-width="3.5"/>'
+    +'<circle cx="0" cy="6" r="6" fill="'+cd+'"/></g>';}
+  /* Порядок важен: площадка рисуется ДО обода, иначе нижняя кабинка прячется за ней
+     и колесо выглядит так, будто у него всего пять кабинок. */
+  function pkWheel(cx,cy,R){
+    const C=[['#E4573B','#C0553F'],['#FFD23F','#E9B21E'],['#4DB6E5','#2E93C4'],
+             ['#F368C4','#D4489F'],['#9B5DE5','#7B3FC4']];   /* пять кабинок, как на образце: внизу кабинки нет */
+    const by=cy+R+76;
+    let s='<g>';
+    s+='<ellipse cx="'+cx+'" cy="'+(by+12)+'" rx="168" ry="32" fill="#000" opacity=".10"/>';
+    s+='<path d="M'+(cx-74)+' '+by+' L'+(cx-14)+' '+cy+'" stroke="#C9995C" stroke-width="22" stroke-linecap="round"/>';
+    s+='<path d="M'+(cx+74)+' '+by+' L'+(cx+14)+' '+cy+'" stroke="#C9995C" stroke-width="22" stroke-linecap="round"/>';
+    s+='<ellipse cx="'+cx+'" cy="'+(by+10)+'" rx="152" ry="30" fill="#7B3FC4"/>';
+    s+='<ellipse cx="'+cx+'" cy="'+by+'" rx="152" ry="30" fill="#9B5DE5"/>';
+    s+='<ellipse cx="'+cx+'" cy="'+by+'" rx="152" ry="30" fill="none" stroke="#B07BEE" stroke-width="4"/>';
+    for(let i=0;i<8;i++){const a=i/8*2*Math.PI;
+      s+='<circle cx="'+(cx+Math.cos(a)*138).toFixed(1)+'" cy="'+(by+Math.sin(a)*26).toFixed(1)+'" r="5" fill="#FFF3C4"/>';}
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+R+'" fill="none" stroke="#E3C08B" stroke-width="17"/>';
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(R+8.5)+'" fill="none" stroke="#C9995C" stroke-width="3"/>';
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="'+(R-8.5)+'" fill="none" stroke="#C9995C" stroke-width="3"/>';
+    for(let i=0;i<5;i++){const a=-Math.PI/2+i*2*Math.PI/5;
+      s+='<path d="M'+cx+' '+cy+' L'+(cx+Math.cos(a)*R).toFixed(1)+' '+(cy+Math.sin(a)*R).toFixed(1)
+        +'" stroke="#E3C08B" stroke-width="11" stroke-linecap="round"/>';}
+    /* лампочки по ободу — та самая «гирлянда» с картинки */
+    for(let i=0;i<24;i++){const a=i/24*2*Math.PI;
+      s+='<circle cx="'+(cx+Math.cos(a)*R).toFixed(1)+'" cy="'+(cy+Math.sin(a)*R).toFixed(1)
+        +'" r="6" fill="#FFF3C4" stroke="#E9B21E" stroke-width="2"/>';}
+    for(let i=0;i<5;i++){const a=-Math.PI/2+i*2*Math.PI/5;
+      s+=pkCabin((cx+Math.cos(a)*R).toFixed(1),(cy+Math.sin(a)*R).toFixed(1),C[i][0],C[i][1]);}
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="48" fill="#4DB6E5"/>';
+    s+='<circle cx="'+cx+'" cy="'+cy+'" r="48" fill="none" stroke="#E3C08B" stroke-width="9"/>';
+    s+=starShape(cx,cy,27,'#FFD23F');
+    return s+'</g>';}
+  /* лошадка карусели: важен шест — без него белая фигурка читается как овечка */
+  function pkHorse(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<rect x="-3" y="-64" width="6" height="106" rx="3" fill="#E3C08B"/>'
+    +'<path d="M-16 12 l-5 22 M-2 14 l-1 22 M11 11 l6 22 M23 6 l8 20" stroke="#FFF6E2" stroke-width="7" stroke-linecap="round"/>'
+    +'<ellipse cx="0" cy="0" rx="29" ry="16" fill="#FFF6E2"/>'
+    +'<path d="M16 -6 q6 -22 16 -30 q6 -5 11 1 q5 6 -1 12 l-10 10 q-6 7 -14 12 Z" fill="#FFF6E2"/>'
+    +'<path d="M40 -32 l3 -12 l6 10 Z" fill="#FFF6E2"/>'
+    +'<path d="M22 -18 q10 -12 19 -14 q-2 10 -10 18 Z" fill="#F368C4"/>'
+    +'<path d="M43 -20 q7 2 8 8 q-7 2 -11 -3 Z" fill="#FFF6E2"/>'
+    +'<circle cx="43" cy="-19" r="2.6" fill="#4A3728"/>'
+    +'<path d="M-27 -8 q-14 4 -18 18 q12 -2 20 -10 Z" fill="#F368C4"/>'
+    +'<path d="M-12 -12 q12 -6 22 -2 l-2 9 q-10 -4 -20 0 Z" fill="#4DB6E5"/></g>';}
+  function pkCarousel(x,y,sc){
+    let s='<g transform="translate('+x+','+y+') scale('+sc+')">';
+    s+='<ellipse cx="0" cy="100" rx="100" ry="24" fill="#000" opacity=".10"/>';
+    s+='<ellipse cx="0" cy="90" rx="96" ry="24" fill="#7B3FC4"/>';
+    s+='<ellipse cx="0" cy="80" rx="96" ry="24" fill="#B07BEE"/>';
+    for(let i=0;i<5;i++){const px=-68+i*34;
+      s+='<rect x="'+(px-4)+'" y="-36" width="8" height="118" rx="4" fill="#E3C08B"/>';}
+    s+=pkHorse(-38,30,.9)+pkHorse(40,40,.72);
+    const R=104,ry=24;
+    for(let i=0;i<8;i++){const t1=i*Math.PI/8,t2=(i+1)*Math.PI/8;
+      s+='<path d="M0 -104 L'+(Math.cos(t1)*R).toFixed(1)+' '+(-40+Math.sin(t1)*ry).toFixed(1)
+        +' L'+(Math.cos(t2)*R).toFixed(1)+' '+(-40+Math.sin(t2)*ry).toFixed(1)+' Z" fill="'
+        +(i%2?'#FFF6E2':'#E4573B')+'"/>';}
+    s+='<path d="M-104 -40 a104 24 0 0 0 208 0" fill="none" stroke="#C0553F" stroke-width="4"/>';
+    s+='<rect x="-3" y="-126" width="6" height="24" fill="#C9995C"/>';
+    s+='<path d="M3 -126 l22 7 l-22 7 Z" fill="#FFD23F"/>';
+    return s+'</g>';}
+  function pkBalloons(x,y,s){const B=[[-34,-92,'#F368C4'],[0,-118,'#FFD23F'],[32,-96,'#9B5DE5']];
+    let o='<g transform="translate('+x+','+y+') scale('+s+')">';
+    B.forEach(function(b){o+='<path d="M'+b[0]+' '+(b[1]+34)+' Q'+(b[0]+10)+' '+(b[1]+62)+' 0 '+(b[1]+96)
+      +'" fill="none" stroke="#C9995C" stroke-width="2.4"/>';});
+    B.forEach(function(b){o+='<ellipse cx="'+b[0]+'" cy="'+b[1]+'" rx="26" ry="31" fill="'+b[2]+'"/>'
+      +'<ellipse cx="'+(b[0]-8)+'" cy="'+(b[1]-10)+'" rx="7" ry="10" fill="#fff" opacity=".45"/>'
+      +'<path d="M'+(b[0]-5)+' '+(b[1]+31)+' h10 l-5 8 Z" fill="'+b[2]+'"/>';});
+    return o+'</g>';}
+  function pkBench(x,y){return '<g transform="translate('+x+','+y+')">'
+    +'<ellipse cx="0" cy="34" rx="52" ry="10" fill="#000" opacity=".10"/>'
+    +'<rect x="-48" y="-34" width="96" height="11" rx="5" fill="#C9995C"/>'
+    +'<rect x="-48" y="-18" width="96" height="11" rx="5" fill="#C9995C"/>'
+    +'<rect x="-48" y="-2" width="96" height="12" rx="6" fill="#B77A47"/>'
+    +'<rect x="-42" y="10" width="10" height="24" rx="5" fill="#8B5E3C"/>'
+    +'<rect x="32" y="10" width="10" height="24" rx="5" fill="#8B5E3C"/></g>';}
+  function pkBridge(x,y,rot){return '<g transform="translate('+x+','+y+') rotate('+rot+')">'
+    +'<path d="M-62 16 Q0 -28 62 16 L62 28 Q0 -12 -62 28 Z" fill="#C9995C"/>'
+    +'<path d="M-62 2 Q0 -42 62 2" fill="none" stroke="#B77A47" stroke-width="5" stroke-linecap="round"/>'
+    +'<path d="M-40 -8 v16 M-14 -19 v18 M14 -19 v18 M40 -8 v16" stroke="#B77A47" stroke-width="5" stroke-linecap="round"/></g>';}
+
+  function pkArt(){
+    let s='<svg class="nwart" viewBox="0 0 1360 510" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><linearGradient id="pkSky" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#BFE9F5"/><stop offset="1" stop-color="#E7F6FB"/></linearGradient></defs>';
+    s+='<rect width="1360" height="510" fill="url(#pkSky)"/>';
+    s+='<path d="M0 252 Q220 220 440 246 Q700 274 950 242 Q1180 216 1360 250 L1360 510 L0 510 Z" fill="#8FD46A"/>';
+    s+='<path d="M0 300 Q270 272 570 292 Q910 314 1360 282 L1360 510 L0 510 Z" fill="#7BC950"/>';
+    /* речка и мостик */
+    s+='<path d="M0 168 Q126 196 214 268 L170 314 Q92 246 0 224 Z" fill="#4DB6E5"/>';
+    s+='<path d="M0 182 Q116 208 198 274" fill="none" stroke="#8FD6F5" stroke-width="9" stroke-linecap="round"/>';
+    s+=pkBridge(120,230,38);
+    /* дорожка */
+    s+='<path d="M0 416 Q340 386 680 404 Q1020 422 1360 388 L1360 468 Q1020 500 680 482 Q340 464 0 496 Z" fill="#CDB07E"/>';
+    s+='<path d="M0 410 Q340 380 680 398 Q1020 416 1360 382 L1360 456 Q1020 488 680 470 Q340 452 0 484 Z" fill="#F6E7C6"/>';
+    [[64,262,.72],[248,240,.6],[1006,244,.62],[1318,262,.8]].forEach(function(f){s+=nwFir(f[0],f[1],f[2]);});
+    s+=nwTree(404,304,.86)+nwTree(902,290,.78);
+    /* вывеска ПАРК */
+    s+='<rect x="516" y="16" width="330" height="94" rx="32" fill="#7B3FC4"/>';
+    s+='<rect x="527" y="27" width="308" height="72" rx="24" fill="#9B5DE5"/>';
+    const NM=['П','А','Р','К'];let tx=610;
+    NM.forEach(function(ch){s+='<text x="'+tx+'" y="88" text-anchor="middle" font-family="Fredoka,sans-serif" '
+      +'font-size="58" font-weight="700" fill="#FFD23F" stroke="#fff" stroke-width="7" paint-order="stroke">'+ch+'</text>';tx+=50;});
+    s+=nwFlower(544,26,3,1.3)+nwFlower(820,22,0,1.2)+nwFlower(576,18,5,.9);
+    /* колесо обозрения */
+    s+=pkWheel(660,270,132);
+    /* карусель, шарики, скамейка, фонарь */
+    s+=pkCarousel(1146,296,.88);
+    s+=pkBalloons(1300,412,.92);
+    s+=pkBench(180,460)+nwLamp(300,450,.98);
+    [[112,466,.8],[420,462,.66],[930,458,.7],[1226,470,.74]].forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    [[196,486,0],[236,470,1],[336,492,2],[860,484,3],[1000,490,0],[520,486,1],[830,470,2],[64,478,4],[1120,478,1]]
+      .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.05);});
+    return s+'</svg>';}
   function openShopMenu(){const b=$('#nwScene');if(b&&!b.innerHTML)b.innerHTML=nwArt();show('shmenu');}
   $('#shmBack').onclick=goWorld;$('#vanBack').onclick=openShopMenu;
   $('#sh1').onclick=startVanish;$('#sh2').onclick=startCart;$('#sh3').onclick=startCash;
@@ -3492,7 +3622,7 @@
   $('#m3More').onclick=function(){$('#m3Prize').classList.remove('on');m3Load();};
 
   /* в Парке теперь две игры, поэтому у локации появилось меню */
-  function openParkMenu(){show('pmenu');}
+  function openParkMenu(){const b=$('#pkScene');if(b&&!b.innerHTML)b.innerHTML=pkArt();show('pmenu');}
   $('#pmBack').onclick=goWorld;
   $('#pm1').onclick=openPark;
   $('#pm2').onclick=openM3;
