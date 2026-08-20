@@ -253,7 +253,7 @@
   .ttail{width:56px;height:56px;cursor:grab;touch-action:none;background:#fff;border-radius:14px;box-shadow:0 4px 10px rgba(0,0,0,.14);display:flex;align-items:center;justify-content:center;}
   .ttail svg{width:48px;height:48px;pointer-events:none;}
   .ttail.locked{cursor:default;box-shadow:none;background:transparent;width:100%;height:100%;}
-  #trk,#tmenu{background:linear-gradient(180deg,#CFEFD6,#EAF7C7);}
+  #trk{background:linear-gradient(180deg,#CFEFD6,#EAF7C7);}
   .trkloc{font-family:'Fredoka';font-weight:700;color:#2c5a2c;font-size:13px;background:rgba(255,255,255,.72);border-radius:10px;padding:3px 10px;}
   .trkgrid{display:grid;grid-template-columns:repeat(3,1fr);gap:8px;}
   .tcell{width:60px;height:60px;font-size:32px;background:#fff;border:none;border-radius:12px;cursor:pointer;box-shadow:0 4px 8px rgba(0,0,0,.1);}
@@ -734,7 +734,6 @@
      а маршрут один: иначе пришлось бы расписывать три десятка кейфреймов. */
   .flbun{transform-box:view-box;transform-origin:-80px 462px;animation:flrun 24s linear infinite;}
   .flbun2{transform-box:fill-box;transform-origin:50% 100%;animation:flhop .5s ease-in-out infinite;}
-  .flsq{transform-box:view-box;transform-origin:302px 378px;animation:flclimb 7s ease-in-out infinite;}
   /* маршрут: от -80 (за левым краем) до 1440 (за правым), разворот вне кадра */
   @keyframes flrun{
     0%,3%{transform:translate(0px,0px) scaleX(1);}
@@ -750,20 +749,6 @@
     48%{transform:translateY(-34px) scale(1,1);}
     76%{transform:translateY(-24px) scale(1.02,.98);}
     100%{transform:translateY(0px) scale(1.07,.9);}
-  }
-  /* белка: вверх по стволу с дуплом, прыжок на соседнее дерево и обратно.
-     scaleX(-1) считается от transform-origin, поэтому фигура разворачивается
-     на месте, а translate уже уносит её на второе дерево. */
-  @keyframes flclimb{
-    0%,8%{transform:translate(0px,0px) scaleX(1);}
-    22%{transform:translate(-6px,-58px) scaleX(1);}
-    30%{transform:translate(60px,-96px) scaleX(1);}
-    38%,58%{transform:translate(128px,-80px) scaleX(1);}
-    62%{transform:translate(128px,-80px) scaleX(-1);}
-    70%{transform:translate(60px,-96px) scaleX(-1);}
-    78%{transform:translate(-6px,-58px) scaleX(-1);}
-    92%{transform:translate(0px,0px) scaleX(-1);}
-    100%{transform:translate(0px,0px) scaleX(1);}
   }
 
   /* ---------- ПАРК: экран локации ---------- */
@@ -842,17 +827,8 @@
     <div class="hero chero" id="asmHero"><img id="asmImg" alt="герой"></div>
   </section>
 
-  <section id="tmenu" class="screen">
-    <div class="topbar"><button class="backb" id="tmBack">← Лес</button><h2>🐾 Чьи следы?</h2><div style="width:70px"></div></div>
-    <div class="lmwrap">
-      <button class="lbtn" id="tl1"><span class="lic">🐾</span>Чьи следы?</button>
-      <button class="lbtn" id="tl4"><span class="lic">🧠</span>Память следов</button>
-      <button class="lbtn" id="tl5"><span class="lic">🕵️</span>Расследование</button>
-    </div>
-  </section>
-
   <section id="trk" class="screen">
-    <div class="topbar"><button class="backb" id="trkBack">← Следы</button><h2 id="trkTitle">🐾 Следы</h2><div class="prog" id="trkProg"></div></div>
+    <div class="topbar"><button class="backb" id="trkBack">← Лес</button><h2 id="trkTitle">🐾 Следы</h2><div class="prog" id="trkProg"></div></div>
     <div class="gwrap">
       <div class="trkloc" id="trkLoc"></div>
       <div class="fqq" id="trkQ"></div>
@@ -877,8 +853,7 @@
     <div class="nwscene" id="flScene"></div>
     <div class="lhbtns">
       <button class="lhbtn" id="fm1"><span>🦊</span>Чей это хвост?</button>
-      <button class="lhbtn" id="fm2"><span>🐾</span>Чьи следы?</button>
-      <button class="lhbtn" id="fm3"><span>🍽️</span>Кто что ест</button>
+      <button class="lhbtn" id="fm2"><span>🕵️</span>Расследование</button>
       <button class="lhbtn" id="fm4"><span>🍂</span>Времена года</button>
     </div>
   </section>
@@ -1317,7 +1292,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),tmenu:$('#tmenu'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -3061,37 +3036,28 @@
     +'<circle cx="-88" cy="-280" r="56" fill="#6FBF52"/>'
     +'<circle cx="8" cy="-378" r="58" fill="#7BC950"/></g>';}
   /* зайка в профиль, мордой вправо: дуга спины, мощное бедро, длинные уши.
-     Дальние ухо и лапа приглушены — так читается объём. Разворот делает анимация. */
-  function flBunny(){return '<g>'
+     Он белый, а тропинка кремовая, поэтому у корпуса мягкий серый контур и
+     затенённые дальние ухо с лапой — без них силуэт на песке расплывается. */
+  function flBunny(){const OL=' stroke="#D6D1C6" stroke-width="1.8" stroke-linejoin="round"';
+    return '<g>'
     +'<ellipse cx="0" cy="20" rx="28" ry="6" fill="#000" opacity=".13"/>'
-    +'<path d="M17 -27 q-9 -25 -1 -33 q11 3 10 32 Z" fill="#8E7C63"/>'
-    +'<path d="M9 6 q11 -3 15 4 q3 7 -5 9 q-12 1 -13 -7 Z" fill="#9C8A70"/>'
-    +'<circle cx="-26" cy="-3" r="10" fill="#E8DFD0"/>'
+    +'<path d="M17 -27 q-9 -25 -1 -33 q11 3 10 32 Z" fill="#C6C0B5"/>'
+    +'<path d="M9 6 q11 -3 15 4 q3 7 -5 9 q-12 1 -13 -7 Z" fill="#D2CCC1"/>'
+    +'<circle cx="-26" cy="-3" r="10" fill="#EDEAE3"'+OL+'/>'
     +'<circle cx="-28" cy="-6" r="6.5" fill="#FFFFFF"/>'
-    +'<path d="M-22 6 q-7 -22 11 -29 q20 -8 31 3 q10 11 4 22 q-7 11 -23 12 q-20 1 -23 -8 Z" fill="#B29B7C"/>'
-    +'<path d="M2 -6 q16 -3 22 8 q4 11 -6 17 q-14 5 -22 -4 q-6 -12 6 -21 Z" fill="#EFE6D8" opacity=".55"/>'
-    +'<path d="M-13 15 q-17 -4 -18 -17 q-1 -15 13 -16 q15 -1 18 13 q3 13 -6 20 Z" fill="#C4AE8E"/>'
-    +'<path d="M-14 14 q-15 -5 -16 -16" fill="none" stroke="#9C8A70" stroke-width="2.2" stroke-linecap="round"/>'
-    +'<path d="M13 -15 q9 -13 23 -7 q13 7 11 18 q-2 12 -17 13 q-16 1 -20 -10 q-3 -9 3 -14 Z" fill="#C4AE8E"/>'
-    +'<path d="M28 4 q10 -2 15 3 q-4 8 -15 6 Z" fill="#EFE6D8"/>'
-    +'<path d="M27 -29 q4 -28 13 -30 q8 7 -2 32 Z" fill="#BCA688"/>'
+    +'<path d="M-22 6 q-7 -22 11 -29 q20 -8 31 3 q10 11 4 22 q-7 11 -23 12 q-20 1 -23 -8 Z" fill="#FFFFFF"'+OL+'/>'
+    +'<path d="M-18 8 q-5 -18 9 -25 q-9 12 -5 25 Z" fill="#E8E4DB"/>'
+    +'<path d="M-13 15 q-17 -4 -18 -17 q-1 -15 13 -16 q15 -1 18 13 q3 13 -6 20 Z" fill="#FBFAF7"'+OL+'/>'
+    +'<path d="M-14 14 q-15 -5 -16 -16" fill="none" stroke="#DFDAD0" stroke-width="2.2" stroke-linecap="round"/>'
+    +'<path d="M13 -15 q9 -13 23 -7 q13 7 11 18 q-2 12 -17 13 q-16 1 -20 -10 q-3 -9 3 -14 Z" fill="#FFFFFF"'+OL+'/>'
+    +'<path d="M28 4 q10 -2 15 3 q-4 8 -15 6 Z" fill="#F2EFE9"/>'
+    +'<path d="M27 -29 q4 -28 13 -30 q8 7 -2 32 Z" fill="#FBFAF7"'+OL+'/>'
     +'<path d="M29 -28 q4 -21 10 -23 q4 6 -2 24 Z" fill="#F0A9B8"/>'
-    +'<path d="M15 12 q12 -3 17 4 q3 7 -5 9 q-13 1 -14 -7 Z" fill="#CFBA9B"/>'
+    +'<path d="M15 12 q12 -3 17 4 q3 7 -5 9 q-13 1 -14 -7 Z" fill="#FFFFFF"'+OL+'/>'
     +'<circle cx="30" cy="-9" r="3.2" fill="#2E2320"/>'
     +'<circle cx="31.3" cy="-10.3" r="1.2" fill="#fff"/>'
     +'<path d="M40 -3 q5 -1 6 2 q-3 3 -7 1 Z" fill="#F0A9B8"/>'
-    +'<path d="M38 2 q5 2 9 1 M37 4 q5 4 8 5" fill="none" stroke="#EFE6D8" stroke-width="1.6" stroke-linecap="round"/></g>';}
-  function flSquirrel(){return '<g>'
-    +'<path d="M-8 4 C-34 0 -41 -26 -29 -41 C-17 -53 2 -47 4 -34 C-6 -39 -19 -34 -21 -24 C-23 -12 -14 -4 -6 -2 Z" fill="#D97C33"/>'
-    +'<path d="M-11 1 C-30 -3 -35 -24 -25 -35 C-17 -44 -5 -41 -3 -34 C-11 -36 -19 -30 -19 -22 C-19 -12 -12 -6 -7 -4 Z" fill="#E8963F"/>'
-    +'<ellipse cx="2" cy="-2" rx="13" ry="17" fill="#E8963F"/>'
-    +'<ellipse cx="5" cy="2" rx="8" ry="11" fill="#F3C088"/>'
-    +'<path d="M-1 -30 q-3 -11 4 -10 q5 3 2 10 Z" fill="#E8963F"/>'
-    +'<path d="M11 -32 q1 -10 7 -8 q3 4 -1 9 Z" fill="#E8963F"/>'
-    +'<circle cx="6" cy="-22" r="11" fill="#EFA55A"/>'
-    +'<path d="M-6 10 q9 5 17 1" fill="none" stroke="#D97C33" stroke-width="4.5" stroke-linecap="round"/>'
-    +'<circle cx="10" cy="-24" r="2.7" fill="#3A2A2A"/>'
-    +'<circle cx="16" cy="-20" r="2.3" fill="#5A3A22"/></g>';}
+    +'<path d="M38 2 q5 2 9 1 M37 4 q5 4 8 5" fill="none" stroke="#CFC9BE" stroke-width="1.6" stroke-linecap="round"/></g>';}
   function flSign(cx,y){let s='<g transform="translate('+cx+','+y+')">'
     +'<rect x="-172" y="0" width="344" height="90" rx="32" fill="#5CA836"/>'
     +'<rect x="-160" y="11" width="320" height="68" rx="24" fill="#C08A52"/>'
@@ -3144,13 +3110,12 @@
     [[270,500,0],[354,492,1],[422,506,2],[824,498,3],[932,504,0],[664,500,1],[1046,504,2],[38,490,4],[1244,498,1]]
       .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.05);});
     /* живность рисуется последней, чтобы скакать поверх кустов и грибов */
-    s+='<g class="flsq"><g transform="translate(302,378)">'+flSquirrel()+'</g></g>';
     s+='<g class="flbun"><g class="flbun2"><g transform="translate(-80,462)">'+flBunny()+'</g></g></g>';
     return s+'</svg>';}
 
   function openForestMenu(){const b=$('#flScene');if(b&&!b.innerHTML)b.innerHTML=flArt();show('fmenu');}
   $('#fmBack').onclick=goWorld;$('#fqBack').onclick=openForestMenu;$('#ftBack').onclick=openForestMenu;$('#fsBack').onclick=openForestMenu;
-  $('#fm1').onclick=startTails;$('#fm2').onclick=openTracksMenu;$('#fm3').onclick=startFeed;$('#fm4').onclick=startSeasonDress;
+  $('#fm1').onclick=startTails;$('#fm2').onclick=startTrk5;$('#fm4').onclick=startSeasonDress;
   $('#tlBack').onclick=openForestMenu;
   const TAIL_PAIRS=[['🦊','fox'],['🐰','rabbit'],['🐱','cat'],['🐶','dog'],['🐴','horse'],['🦁','lion'],['🐷','pig']];
   function tailSVG(k){const S='<svg viewBox="0 0 60 60" style="width:100%;height:100%">';
@@ -3182,12 +3147,9 @@
 
   const FA_POOL=['🐰','🦊','🐘','🦔','🦁','🦒','🐢','🐯','🐪','🦀','🐆','🐻','🦜','🦘','🐼','🐨','🐺','🐮'];
   const FPARTS=[['Длинные уши','🐰'],['Рыжий пушистый хвост','🦊'],['Длинный хобот','🐘'],['Иголки на спинке','🦔'],['Большая грива','🦁'],['Длинная шея','🦒'],['Панцирь на спине','🐢'],['Полосатая шубка','🐯'],['Горб на спине','🐪'],['Большие клешни','🦀'],['Пятнышки на шкуре','🐆'],['Толстые лапы и когти','🐻'],['Крылья и клюв','🦜'],['Прыгучие задние лапы','🦘']];
-  const FEED=[['🐰','🥕'],['🐭','🧀'],['🐒','🍌'],['🐻','🍯'],['🐱','🐟'],['🐶','🦴'],['🐝','🌸'],['🐿️','🌰'],['🐴','🍏'],['🐘','🥜'],['🐼','🎍'],['🐧','🐟'],['🐮','🌱'],['🐑','🌾'],['🐔','🌽'],['🦆','🍞'],['🦉','🐭'],['🦁','🍖'],['🐯','🍖'],['🐨','🍃'],['🦒','🍃'],['🐷','🌽'],['🐐','🌿'],['🦫','🌿']];
-  const FOOD_POOL=['🥕','🧀','🍌','🍯','🐟','🦴','🌸','🌰','🍏','🥜','🎍','🍎','🍓','🥬','🌱','🌾','🌽','🍞','🐭','🍖','🍃','🌿'];
   function shufTake(arr,n,exclude){return shuf(arr.filter(x=>x!==exclude)).slice(0,n);}
   let fqI,fqRounds,fqReward,fqMake,fqCorrect;
   function startPart(){fqRounds=5;fqReward='coin';fqI=0;$('#fqTitle').textContent='🦊 Чей это хвост?';fqMake=()=>{const p=FPARTS[Math.random()*FPARTS.length|0];return{q:'У кого '+p[0].toLowerCase()+'?',big:'',correct:p[1],opts:shuf([p[1],...shufTake(FA_POOL,3,p[1])])};};show('fquiz');loadFq();}
-  function startFeed(){fqRounds=5;fqReward='coin';fqI=0;$('#fqTitle').textContent='🍽️ Кто что ест';fqMake=()=>{const p=FEED[Math.random()*FEED.length|0];return{q:'Чем его накормить?',big:p[0],correct:p[1],opts:shuf([p[1],...shufTake(FOOD_POOL,3,p[1])])};};show('fquiz');loadFq();}
   function loadFq(){const r=fqMake();fqCorrect=r.correct;$('#fqProg').textContent=(fqI+1)+' / '+fqRounds;$('#fqPrompt').textContent=r.big||'';$('#fqPrompt').style.display=r.big?'block':'none';$('#fqQ').textContent=r.q;
     const box=$('#fqOpts');box.innerHTML='';r.opts.forEach(o=>{const b=document.createElement('button');b.className='vopt';b.textContent=o;b.onclick=()=>fqTap(o,b);box.appendChild(b);});}
   function fqTap(o,b){if(o===fqCorrect){blip();fqI++;if(fqI>=fqRounds)giveReward(fqReward,fqRounds,screens.fquiz,openForestMenu);else{flash(screens.fquiz,'✓');setTimeout(loadFq,600);}}
@@ -3239,16 +3201,9 @@
   function wiggle(b){chime(false);try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(e){}}
   function renderTrkOpts(opts,onTap,cls){const box=$('#trkOpts');box.style.display='flex';box.className='vopts';box.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className=cls||'vopt';b.textContent=o;b.onclick=()=>onTap(o,b);box.appendChild(b);});}
   function setTrkLoc(){const L=LOCATIONS[Math.random()*LOCATIONS.length|0];screens.trk.style.background=L[2];$('#trkLoc').textContent='📍 '+L[0]+' — следы на '+L[1];}
-  function openTracksMenu(){show('tmenu');}
-  $('#tmBack').onclick=openForestMenu;$('#trkBack').onclick=openTracksMenu;
-  $('#tl1').onclick=startTrk1;$('#tl4').onclick=startTrk4;$('#tl5').onclick=startTrk5;
+  $('#trkBack').onclick=openForestMenu;
   let trkI,trkRounds,trkCorrect,trkTrail,trkChain,trk3Found,trk3Need;
   function trkReset(){const a=$('#trkArea');a.style.display='none';a.className='trackarea';a.innerHTML='';$('#trkBig').style.display='none';$('#trkOpts').style.display='none';$('#trkOpts').innerHTML='';}
-
-  function startTrk1(){setTrkLoc();$('#trkTitle').textContent='🌱 Чьи следы?';trkI=0;trkRounds=5;show('trk');loadTrk1();}
-  function loadTrk1(){trkReset();const target=TRK_ANIMALS[Math.random()*TRK_ANIMALS.length|0];trkCorrect=target;bigTrack(TRACKS[target]);
-    $('#trkProg').textContent=(trkI+1)+' / '+trkRounds;$('#trkQ').textContent='Чьи это следы?';
-    renderTrkOpts(shuf([target,...shufTake(TRK_ANIMALS,2,target)]),(o,b)=>{if(o===trkCorrect){blip();trkI++;if(trkI>=trkRounds)giveReward('coin',5,screens.trk,openTracksMenu);else{flash(screens.trk,'✓');setTimeout(loadTrk1,600);}}else wiggle(b);});}
 
   function startTrk2(){setTrkLoc();$('#trkTitle').textContent='🐾 Следопыт';trkTrail=0;show('trk');loadTrk2();}
   function loadTrk2(){trkReset();$('#trkArea').style.display='block';$('#trkQ').textContent='Иди по следам — нажимай лапки! 🐾';$('#trkProg').textContent='Тропинка '+(trkTrail+1)+' / 3';
@@ -3257,27 +3212,20 @@
       el.onclick=()=>{if(el.classList.contains('lit'))return;el.classList.add('lit');blip();lit++;if(lit>=N)trk2Dirs();};area.appendChild(el);}
     const end=document.createElement('div');end.className='trackend';end.id='trkEnd';end.textContent='❓';end.style.left='94%';end.style.top='40%';area.appendChild(end);}
   function trk2Dirs(){$('#trkQ').textContent='Куда убежал зверёк? 🔎';const correct=Math.random()*3|0;const labels=['⬅️ 🌲 лес','⬆️ 🌊 река','➡️ 🕳️ пещера'];
-    renderTrkOpts(labels,(o,b)=>{const i=labels.indexOf(o);if(i===correct){const an=FA_POOL[Math.random()*FA_POOL.length|0];const end=$('#trkEnd');if(end)end.textContent=an;chime(true);$('#trkOpts').style.display='none';trkTrail++;if(trkTrail>=3)setTimeout(()=>giveReward('coin',3,screens.trk,openTracksMenu),700);else setTimeout(loadTrk2,900);}else wiggle(b);},'btn small');}
+    renderTrkOpts(labels,(o,b)=>{const i=labels.indexOf(o);if(i===correct){const an=FA_POOL[Math.random()*FA_POOL.length|0];const end=$('#trkEnd');if(end)end.textContent=an;chime(true);$('#trkOpts').style.display='none';trkTrail++;if(trkTrail>=3)setTimeout(()=>giveReward('coin',3,screens.trk,openForestMenu),700);else setTimeout(loadTrk2,900);}else wiggle(b);},'btn small');}
 
   function startTrk3(){setTrkLoc();$('#trkTitle').textContent='🔍 Найди все следы';show('trk');loadTrk3();}
   function loadTrk3(){trkReset();const a=$('#trkArea');a.style.display='block';a.className='';const target=FA_POOL[Math.random()*FA_POOL.length|0];
     const cells=[];trk3Need=3;for(let i=0;i<trk3Need;i++)cells.push(target);while(cells.length<9){const e=FA_POOL[Math.random()*FA_POOL.length|0];if(e!==target)cells.push(e);}const arr=shuf(cells);trk3Found=0;
     $('#trkQ').textContent='Найди все следы: '+target+' — нажми всех!';$('#trkProg').textContent='0 / '+trk3Need;
-    const g=document.createElement('div');g.className='trkgrid';arr.forEach(e=>{const b=document.createElement('button');b.className='tcell';b.textContent=e;b.onclick=()=>{if(b.classList.contains('found'))return;if(e===target){b.classList.add('found');blip();trk3Found++;$('#trkProg').textContent=trk3Found+' / '+trk3Need;if(trk3Found>=trk3Need)giveReward('coin',4,screens.trk,openTracksMenu);}else wiggle(b);};g.appendChild(b);});a.appendChild(g);}
-
-  function startTrk4(){setTrkLoc();$('#trkTitle').textContent='🧠 Память';show('trk');loadTrk4();}
-  function loadTrk4(){trkReset();const a=$('#trkArea');a.style.display='block';a.className='';const set=shuf(TRK_ANIMALS).slice(0,3);
-    $('#trkQ').textContent='Запомни, чьи это следы!';
-    const row=document.createElement('div');row.className='pairrow';set.forEach(an=>{const it=document.createElement('div');it.className='pairit';it.innerHTML='<div>'+an+'</div><div style="width:52px;height:52px;background:#fff;border-radius:12px;padding:5px">'+trackSVG(TRACKS[an])+'</div>';row.appendChild(it);});a.appendChild(row);
-    setTimeout(()=>{const ti=Math.random()*set.length|0;$('#trkQ').textContent='Кто здесь прошёл? 🔎';a.innerHTML='<div style="width:96px;height:96px;margin:auto;background:#fff;border-radius:16px;padding:8px">'+trackSVG(TRACKS[set[ti]])+'</div>';
-      renderTrkOpts(shuf(set.slice()),(o,b)=>{if(o===set[ti]){blip();giveReward('coin',4,screens.trk,openTracksMenu);}else wiggle(b);});},2800);}
+    const g=document.createElement('div');g.className='trkgrid';arr.forEach(e=>{const b=document.createElement('button');b.className='tcell';b.textContent=e;b.onclick=()=>{if(b.classList.contains('found'))return;if(e===target){b.classList.add('found');blip();trk3Found++;$('#trkProg').textContent=trk3Found+' / '+trk3Need;if(trk3Found>=trk3Need)giveReward('coin',4,screens.trk,openForestMenu);}else wiggle(b);};g.appendChild(b);});a.appendChild(g);}
 
   function startTrk5(){setTrkLoc();$('#trkTitle').textContent='🕵️ Расследование';trkChain=0;show('trk');loadTrk5();}
   function loadTrk5(){trkReset();const a=ANIMALS5[Math.random()*ANIMALS5.length|0];$('#trkProg').textContent='Дело '+(trkChain+1)+' / 2';
     bigTrack(TRACKS[a[0]]);$('#trkQ').textContent='Чьи это следы?';
     renderTrkOpts(shuf([a[0],...shufTake(TRK_ANIMALS,2,a[0])]),(o,b)=>{if(o===a[0]){blip();trk5Hab(a);}else wiggle(b);});}
   function trk5Hab(a){$('#trkArea').style.display='none';$('#trkBig').style.display='block';$('#trkBig').textContent=a[0];$('#trkQ').textContent='Где живёт?';renderTrkOpts(shuf([a[1],...shufTake(HAB5,2,a[1])]),(o,b)=>{if(o===a[1]){blip();trk5Food(a);}else wiggle(b);});}
-  function trk5Food(a){$('#trkQ').textContent='Что ест?';renderTrkOpts(shuf([a[2],...shufTake(FOOD5,2,a[2])]),(o,b)=>{if(o===a[2]){blip();trkChain++;if(trkChain>=2)giveReward('coin',5,screens.trk,openTracksMenu);else{flash(screens.trk,'✓');setTimeout(loadTrk5,700);}}else wiggle(b);});}
+  function trk5Food(a){$('#trkQ').textContent='Что ест?';renderTrkOpts(shuf([a[2],...shufTake(FOOD5,2,a[2])]),(o,b)=>{if(o===a[2]){blip();trkChain++;if(trkChain>=2)giveReward('coin',5,screens.trk,openForestMenu);else{flash(screens.trk,'✓');setTimeout(loadTrk5,700);}}else wiggle(b);});}
 
   /* ---------- МАСТЕРСКАЯ: ПОЧИНИ МЕХАНИЗМ ---------- */
   /* Правило, которое ребёнок выводит сам: цепочка идёт от питания 🔋 через передачу к прибору.
