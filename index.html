@@ -645,6 +645,21 @@
            font-weight:700;font-size:32px;color:#7a4a86;box-shadow:0 5px 0 rgba(0,0,0,.10);}
   .m3moves.low{color:var(--coral);}
   .m3park{display:flex;gap:10px;font-size:42px;line-height:1;filter:drop-shadow(0 4px 3px rgba(0,0,0,.15));}
+
+  /* ---------- МИР ЧИСЕЛ: экран локации ----------
+     Сцена занимает почти всю ширину, кнопки игр лежат на дорожке под ней.
+     Правило перебивает общий фон #shmenu выше по файлу — оно идёт позже. */
+  #shmenu{background:linear-gradient(180deg,#BFE9F5 0%,#DFF3FB 34%,#8FD46A 34%,#7BC950 100%);padding:0;}
+  .nwscene{width:100%;flex:none;line-height:0;}
+  .nwart{display:block;width:100%;height:auto;}
+  .nwhint{font-family:'Fredoka';font-weight:700;font-size:19px;color:#5c7a3a;text-align:center;
+          background:rgba(255,255,255,.72);border-radius:14px;padding:4px 18px;margin:6px auto 0;display:inline-block;}
+  .nwbtns{display:flex;justify-content:center;gap:20px;padding:8px 24px 14px;}
+  .nwbtn{width:372px;height:88px;border:none;border-radius:26px;background:#fff;cursor:pointer;
+         font-family:'Fredoka';font-weight:600;font-size:25px;color:var(--ink);display:flex;align-items:center;
+         justify-content:center;gap:16px;box-shadow:0 7px 0 rgba(0,0,0,.15);transition:transform .07s,box-shadow .07s;}
+  .nwbtn:active{transform:translateY(4px);box-shadow:0 3px 0 rgba(0,0,0,.15);}
+  .nwbtn span{font-size:46px;line-height:1;}
 </style>
 </head>
 <body>
@@ -806,19 +821,19 @@
     </div>
     <div class="hero chero" id="gapHero"><img id="gapImg" alt="герой"></div>
   </section>
-
   <section id="shmenu" class="screen">
-    <div class="topbar"><button class="backb" id="shmBack">← Карта</button><h2>🛒 Магазин</h2><div style="width:70px"></div></div>
-    <div class="lmwrap">
-      <div class="fqq" style="margin-bottom:2px;font-size:14px">Вирус устроил беспорядок! Помоги навести порядок 🧹</div>
-      <button class="lbtn" id="sh1"><span class="lic">🧠</span>Что исчезло?</button>
-      <button class="lbtn" id="sh2"><span class="lic">🛒</span>Магазинный квест</button>
-      <button class="lbtn" id="sh3"><span class="lic">🪙</span>Сколько стоит?</button>
+    <div class="topbar"><button class="backb" id="shmBack">← Карта</button><h2>🔢 Мир чисел</h2><div style="width:70px"></div></div>
+    <div class="nwscene" id="nwScene"></div>
+    <div style="text-align:center"><div class="nwhint">Вирус устроил беспорядок! Помоги навести порядок 🧹</div></div>
+    <div class="nwbtns">
+      <button class="nwbtn" id="sh1"><span>🧠</span>Что исчезло?</button>
+      <button class="nwbtn" id="sh2"><span>🛒</span>Магазинный квест</button>
+      <button class="nwbtn" id="sh3"><span>🪙</span>Сколько стоит?</button>
     </div>
   </section>
 
   <section id="cart" class="screen">
-    <div class="topbar"><button class="backb" id="cartBack">← Магазин</button><h2>🛒 Магазинный квест</h2><div class="prog" id="cartProg"></div></div>
+    <div class="topbar"><button class="backb" id="cartBack">← Мир чисел</button><h2>🛒 Магазинный квест</h2><div class="prog" id="cartProg"></div></div>
     <div class="gwrap" style="gap:6px">
       <div class="cartlist" id="cartList"></div>
       <button class="btn small" id="cartPeek" style="display:none">👀 Заказ</button>
@@ -832,7 +847,7 @@
   </section>
 
   <section id="cash" class="screen">
-    <div class="topbar"><button class="backb" id="cashBack">← Магазин</button><h2>🪙 Сколько стоит?</h2><div class="prog" id="cashProg"></div></div>
+    <div class="topbar"><button class="backb" id="cashBack">← Мир чисел</button><h2>🪙 Сколько стоит?</h2><div class="prog" id="cashProg"></div></div>
     <div class="gwrap">
       <div class="fqq" id="cashHint"></div>
       <div class="cashstage" id="cashStage"></div>
@@ -1320,7 +1335,7 @@
   const NODES=[{x:50,y:50,b:'home',nm:'Домик',room:'home'},
     {x:79,y:47,b:'letters',nm:'Дом букв',room:'letters',bend:-6},
     {x:70,y:24,b:'circus',nm:'Цирк',room:'circus',bend:5},
-    {x:58,y:81,b:'shop',nm:'Магазин',room:'shop',bend:-5},
+    {x:58,y:81,b:'shop',nm:'Мир чисел',room:'shop',bend:-5},
     {x:74,y:69,b:'bakery',nm:'Пекарня',room:'bakery',bend:6},
     {x:34,y:82,b:'forest',nm:'Лес',room:'forest',bend:6},
     {x:29,y:25,b:'workshop',nm:'Мастерская',room:'workshop',bend:-6},
@@ -1364,7 +1379,7 @@
     if(k==='home')return S+'<rect x="22" y="42" width="36" height="28" rx="4" fill="#FFE1B0"/><path d="M17 44 L40 24 L63 44 Z" fill="#E4573B"/><rect x="34" y="54" width="12" height="16" rx="2" fill="#B77A47"/><rect x="25" y="47" width="9" height="8" rx="1.5" fill="#BFE3F5" stroke="#fff" stroke-width="1.5"/><rect x="50" y="28" width="6" height="12" fill="#C0645A"/>'+E;
     if(k==='letters')return S+'<rect x="20" y="42" width="40" height="28" rx="4" fill="#FFD98A"/><path d="M15 44 L40 26 L65 44 Z" fill="#C0553F"/><rect x="34" y="56" width="12" height="14" rx="2" fill="#B77A47"/><rect x="27" y="48" width="26" height="12" rx="3" fill="#fff"/><text x="40" y="57" font-family="Fredoka" font-size="11" font-weight="700" fill="#9B5DE5" text-anchor="middle">АБВ</text>'+E;
     if(k==='circus')return S+'<path d="M40 20 L20 66 L60 66 Z" fill="#fff"/><path d="M40 20 L27 66 L35 66 Z" fill="#E4573B"/><path d="M40 20 L45 66 L53 66 Z" fill="#E4573B"/><path d="M34 66 L40 50 L46 66 Z" fill="#B23A3A"/><rect x="39" y="10" width="2" height="11" fill="#8B5E3C"/><path d="M41 11 L50 14 L41 17 Z" fill="#FFD23F"/>'+E;
-    if(k==='shop')return S+'<rect x="20" y="44" width="40" height="26" rx="3" fill="#EFE7DA"/><rect x="33" y="52" width="14" height="18" rx="2" fill="#B77A47"/><path d="M16 44 L18 36 L62 36 L64 44 Z" fill="#fff"/><path d="M22 36 L21 44 L30 44 L31 36 Z" fill="#5AB0E0"/><path d="M40 36 L39 44 L48 44 L49 36 Z" fill="#5AB0E0"/><path d="M58 36 L57 44 L64 44 L62 36 Z" fill="#5AB0E0"/>'+E;
+    if(k==='shop')return S+'<rect x="18" y="42" width="44" height="28" rx="4" fill="#FFE1B0"/><path d="M14 44 L40 26 L66 44 Z" fill="#E4573B"/><g><rect x="16" y="44" width="8" height="9" fill="#E4573B"/><rect x="24" y="44" width="8" height="9" fill="#FFF6E2"/><rect x="32" y="44" width="8" height="9" fill="#E4573B"/><rect x="40" y="44" width="8" height="9" fill="#FFF6E2"/><rect x="48" y="44" width="8" height="9" fill="#E4573B"/><rect x="56" y="44" width="8" height="9" fill="#FFF6E2"/></g><rect x="34" y="56" width="12" height="14" rx="2" fill="#3E97C0"/><rect x="22" y="56" width="9" height="8" rx="2" fill="#BFE3F5"/><rect x="49" y="56" width="9" height="8" rx="2" fill="#BFE3F5"/><circle cx="40" cy="30" r="7" fill="#FFD23F" stroke="#E9B21E" stroke-width="2"/><text x="40" y="34" text-anchor="middle" font-family="Fredoka" font-size="9" font-weight="700" fill="#fff">+</text>'+E;
     if(k==='bakery')return S+'<rect x="20" y="44" width="40" height="26" rx="3" fill="#F7E0C0"/><path d="M16 45 L40 28 L64 45 Z" fill="#B5764A"/><rect x="34" y="56" width="12" height="14" rx="2" fill="#8B5E3C"/><path d="M33 40 h14 l-2 8 h-10 Z" fill="#E7B98C"/><path d="M32 40 q8 -9 16 0 Z" fill="#F5A6C0"/><circle cx="40" cy="33" r="2.4" fill="#E4573B"/>'+E;
     if(k==='forest')return S+'<rect x="24" y="48" width="5" height="16" fill="#8B5E3C"/><rect x="51" y="50" width="5" height="14" fill="#8B5E3C"/><rect x="37" y="46" width="6" height="20" fill="#8B5E3C"/><circle cx="26" cy="44" r="13" fill="#5CA836"/><circle cx="54" cy="46" r="12" fill="#6FBF52"/><circle cx="40" cy="38" r="16" fill="#7BC950"/>'+E;
     if(k==='workshop')return S+'<rect x="20" y="44" width="40" height="26" rx="3" fill="#CFC6BA"/><path d="M16 45 L40 30 L64 45 Z" fill="#7A8087"/><rect x="34" y="56" width="12" height="14" rx="2" fill="#5a5f66"/><g transform="translate(40,40)"><circle r="9" fill="#FFD23F"/><circle r="3.5" fill="#EFE7DA"/><rect x="-2" y="-13" width="4" height="4" fill="#FFD23F"/><rect x="-2" y="9" width="4" height="4" fill="#FFD23F"/><rect x="-13" y="-2" width="4" height="4" fill="#FFD23F"/><rect x="9" y="-2" width="4" height="4" fill="#FFD23F"/></g>'+E;
@@ -2039,7 +2054,131 @@
   const SHOP_ITEMS=['🍎','🍌','🥛','🍞','🧃','🧀','🥚','🍓','🍇','🥕','🍅','🍪','🍫','🥐','🍊','🥦','🍐','🍋'];
   let vanMissing=[],vanFound=0,vanRoundMiss=0;
   const VAN_CFG=[[3,1],[4,1],[6,1],[5,2],[6,2]];
-  function openShopMenu(){show('shmenu');}
+  /* ---------- МИР ЧИСЕЛ: сцена локации ----------
+     Рисуется скриптом, а не разметкой: полоски маркизы, деревья и кусты — это циклы,
+     руками такое писать долго и легко ошибиться. Поле сцены 1360x486, ширина совпадает
+     со сценой игры, поэтому картинка масштабируется вместе со всем остальным. */
+  function nwFir(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<rect x="-7" y="-18" width="14" height="26" rx="5" fill="#8B5E3C"/>'
+    +'<path d="M0 -118 L36 -56 L-36 -56 Z" fill="#4E9E37"/>'
+    +'<path d="M0 -86 L46 -16 L-46 -16 Z" fill="#5CA836"/>'
+    +'<path d="M0 -104 L30 -62 L-30 -62 Z" fill="#6FBF52" opacity=".55"/></g>';}
+  function nwTree(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<rect x="-8" y="-34" width="16" height="42" rx="7" fill="#8B5E3C"/>'
+    +'<circle cx="0" cy="-62" r="42" fill="#5CA836"/>'
+    +'<circle cx="-28" cy="-40" r="27" fill="#6FBF52"/><circle cx="28" cy="-40" r="27" fill="#6FBF52"/>'
+    +'<circle cx="-2" cy="-88" r="27" fill="#7BC950"/></g>';}
+  function nwBush(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="0" rx="42" ry="22" fill="#5CA836"/>'
+    +'<circle cx="-20" cy="-10" r="20" fill="#6FBF52"/><circle cx="16" cy="-14" r="23" fill="#7BC950"/></g>';}
+  const NW_FC=['#F368C4','#FF6B6B','#FFD23F','#9B5DE5','#fff'];
+  function nwFlower(x,y,i,s){const c=NW_FC[i%NW_FC.length];return '<g transform="translate('+x+','+y+') scale('+(s||1)+')">'
+    +'<rect x="-1.6" y="-10" width="3.2" height="16" fill="#4E9E37"/>'
+    +'<circle cx="0" cy="-16" r="5" fill="'+c+'"/><circle cx="-7" cy="-9" r="5" fill="'+c+'"/>'
+    +'<circle cx="7" cy="-9" r="5" fill="'+c+'"/><circle cx="0" cy="-2" r="5" fill="'+c+'"/>'
+    +'<circle cx="0" cy="-9" r="3.4" fill="#FFD23F"/></g>';}
+  function nwLamp(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="0" cy="4" rx="22" ry="8" fill="#000" opacity=".10"/>'
+    +'<rect x="-13" y="-16" width="26" height="18" rx="7" fill="#3A3A5A"/>'
+    +'<rect x="-6" y="-122" width="12" height="108" rx="6" fill="#4A4A6E"/>'
+    +'<path d="M-22 -128 L22 -128 L14 -172 L-14 -172 Z" fill="#FFE9A8"/>'
+    +'<path d="M-22 -128 L22 -128 L14 -172 L-14 -172 Z" fill="none" stroke="#3A3A5A" stroke-width="6" stroke-linejoin="round"/>'
+    +'<circle cx="0" cy="-150" r="13" fill="#FFD23F"/>'
+    +'<path d="M-16 -176 L16 -176 L10 -186 L-10 -186 Z" fill="#3A3A5A"/>'
+    +'<circle cx="0" cy="-192" r="5" fill="#FFD23F"/></g>';}
+  /* кубик с цифрой — тот самый «1 2 3 +» с картинки */
+  function nwCube(x,y,c,cd,t,rot){return '<g transform="translate('+x+','+y+') rotate('+(rot||0)+')">'
+    +'<rect x="-36" y="-36" width="72" height="72" rx="14" fill="'+cd+'"/>'
+    +'<rect x="-36" y="-36" width="72" height="62" rx="14" fill="'+c+'"/>'
+    +'<rect x="-28" y="-30" width="56" height="14" rx="7" fill="#fff" opacity=".28"/>'
+    +'<text x="0" y="16" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="46" font-weight="700" fill="#fff">'+t+'</text></g>';}
+  /* доска с примерами: ребёнок видит, чем тут занимаются, ещё не заходя в игру */
+  function nwBoard(x,y){const L=['2 + 3','5 − 1','4 + 2'];let t='';
+    L.forEach(function(s,i){t+='<text x="0" y="'+(-28+i*40)+'" text-anchor="middle" font-family="Fredoka,sans-serif" '
+      +'font-size="34" font-weight="700" fill="#F4F7E8">'+s+'</text>';});
+    return '<g transform="translate('+x+','+y+')">'
+      +'<path d="M-46 96 L-16 22 M46 96 L16 22" stroke="#8B5E3C" stroke-width="11" stroke-linecap="round"/>'
+      +'<rect x="-96" y="-92" width="192" height="152" rx="14" fill="#B77A47"/>'
+      +'<rect x="-84" y="-80" width="168" height="128" rx="8" fill="#3E5548"/>'
+      +'<rect x="-84" y="-80" width="168" height="128" rx="8" fill="none" stroke="#2E4036" stroke-width="4"/>'
+      +t+'<rect x="-30" y="52" width="60" height="12" rx="6" fill="#8B5E3C"/></g>';}
+  /* тележка из магазина */
+  function nwCart(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<ellipse cx="4" cy="42" rx="52" ry="10" fill="#000" opacity=".10"/>'
+    +'<path d="M-38 -30 L48 -30 L36 26 L-24 26 Z" fill="#9B5DE5"/>'
+    +'<path d="M-38 -30 L48 -30 L44 -12 L-34 -12 Z" fill="#B07BEE"/>'
+    +'<path d="M-52 -44 L-34 -44 L-24 26 L36 26" fill="none" stroke="#7B3FC4" stroke-width="8" stroke-linecap="round" stroke-linejoin="round"/>'
+    +'<circle cx="-16" cy="38" r="10" fill="#4A4A6E"/><circle cx="30" cy="38" r="10" fill="#4A4A6E"/>'
+    +'<circle cx="-6" cy="-38" r="14" fill="#E4573B"/><circle cx="20" cy="-40" r="13" fill="#FFD23F"/>'
+    +'<path d="M32 -44 q14 -14 22 -2 q-12 10 -22 2 Z" fill="#7BC950"/></g>';}
+  /* ящик с овощами у крыльца */
+  function nwCrate(x,y,s,c1,c2){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<circle cx="-14" cy="-16" r="14" fill="'+c1+'"/><circle cx="14" cy="-18" r="15" fill="'+c1+'"/>'
+    +'<circle cx="0" cy="-28" r="13" fill="'+c2+'"/>'
+    +'<rect x="-30" y="-8" width="60" height="30" rx="6" fill="#C08A52"/>'
+    +'<rect x="-30" y="-2" width="60" height="7" fill="#A97440"/>'
+    +'<rect x="-30" y="10" width="60" height="7" fill="#A97440"/></g>';}
+
+  function nwArt(){
+    let s='<svg class="nwart" viewBox="0 0 1360 486" xmlns="http://www.w3.org/2000/svg">';
+    /* полоски маркизы задаём узором — иначе пришлось бы писать полтора десятка прямоугольников */
+    s+='<defs><pattern id="nwStripe" width="64" height="60" patternUnits="userSpaceOnUse">'
+      +'<rect width="32" height="60" fill="#E4573B"/><rect x="32" width="32" height="60" fill="#FFF6E2"/></pattern>'
+      +'<linearGradient id="nwSky" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#BFE9F5"/><stop offset="1" stop-color="#E4F7FB"/></linearGradient></defs>';
+    s+='<rect width="1360" height="486" fill="url(#nwSky)"/>';
+    /* земля и дорожка */
+    s+='<path d="M0 250 Q210 218 430 244 Q690 272 940 240 Q1170 214 1360 248 L1360 486 L0 486 Z" fill="#8FD46A"/>';
+    s+='<path d="M0 300 Q260 272 560 292 Q900 314 1360 282 L1360 486 L0 486 Z" fill="#7BC950"/>';
+    s+='<path d="M0 392 Q340 360 680 378 Q1020 396 1360 362 L1360 442 Q1020 474 680 456 Q340 438 0 470 Z" fill="#CDB07E"/>';
+    s+='<path d="M0 386 Q340 354 680 372 Q1020 390 1360 356 L1360 430 Q1020 462 680 444 Q340 426 0 458 Z" fill="#F6E7C6"/>';
+    /* дальние ёлки */
+    [[70,262,.86],[178,246,.7],[1218,252,.8],[1302,268,.9],[262,238,.58],[1120,236,.6]].forEach(function(f){s+=nwFir(f[0],f[1],f[2]);});
+    /* здание магазина */
+    s+='<ellipse cx="680" cy="404" rx="268" ry="26" fill="#000" opacity=".10"/>';
+    s+='<rect x="452" y="252" width="456" height="156" rx="16" fill="#FFE1B0"/>';
+    s+='<rect x="452" y="252" width="456" height="20" rx="10" fill="#F3CE97"/>';
+    s+='<path d="M424 258 L680 146 L936 258 Z" fill="#E4573B"/>';
+    s+='<path d="M424 258 L680 146 L936 258 Z" fill="none" stroke="#B8442F" stroke-width="7" stroke-linejoin="round"/>';
+    for(let i=0;i<5;i++){const y=258-i*20,w=(456-i*74)/2;
+      s+='<path d="M'+(680-w)+' '+y+' L'+(680+w)+' '+y+'" stroke="#C0553F" stroke-width="4" opacity=".55"/>';}
+    /* маркиза */
+    s+='<rect x="436" y="258" width="488" height="42" rx="10" fill="url(#nwStripe)"/>';
+    let sc='M436 300';for(let i=0;i<16;i++)sc+=' q15 22 30.5 0';
+    s+='<path d="'+sc+' L924 300 Z" fill="url(#nwStripe)"/>';
+    /* дверь и окна */
+    s+='<path d="M628 408 L628 336 a52 52 0 0 1 104 0 L732 408 Z" fill="#3E97C0"/>';
+    s+='<path d="M628 408 L628 336 a52 52 0 0 1 104 0 L732 408 Z" fill="none" stroke="#2E7EA3" stroke-width="7"/>';
+    s+='<rect x="676" y="358" width="8" height="8" rx="4" fill="#FFD23F"/>';
+    [[502,318],[818,318]].forEach(function(w){
+      s+='<rect x="'+(w[0]-4)+'" y="'+(w[1]-4)+'" width="96" height="76" rx="12" fill="#B77A47"/>';
+      s+='<rect x="'+w[0]+'" y="'+w[1]+'" width="88" height="68" rx="9" fill="#BFE3F5"/>';
+      s+='<path d="M'+w[0]+' '+(w[1]+40)+' h88 v28 a9 9 0 0 1 -9 9 h-70 a9 9 0 0 1 -9 -9 Z" fill="#8FD0EC" opacity=".7"/>';});
+    s+=nwCrate(500,406,1,'#E4573B','#FF8A5C')+nwCrate(846,406,.94,'#FF9F45','#FFD23F');
+    /* вывеска «Мир чисел» */
+    s+='<rect x="466" y="52" width="428" height="86" rx="26" fill="#B77A47"/>';
+    s+='<rect x="474" y="60" width="412" height="70" rx="21" fill="#FFF6E2"/>';
+    s+='<text x="680" y="117" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="54" font-weight="700" '
+      +'fill="#E4573B" stroke="#fff" stroke-width="7" paint-order="stroke">Мир чисел</text>';
+    s+='<circle cx="680" cy="40" r="30" fill="#FFD23F" stroke="#E9B21E" stroke-width="5"/>';
+    s+=starShape(680,40,17,'#fff');
+    s+='<rect x="516" y="140" width="328" height="34" rx="17" fill="#6B4A86"/>';
+    s+='<text x="680" y="164" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="19" font-weight="700" '
+      +'fill="#FFF6E2">Математический магазин</text>';
+    /* кубики с цифрами, доска с примерами, тележка */
+    s+=nwCube(236,282,'#4DB6E5','#2E93C4','1',-7)+nwCube(218,354,'#FFD23F','#E9B21E','2',4)
+      +nwCube(240,426,'#9B5DE5','#7B3FC4','3',-3)+nwCube(340,428,'#7BC950','#5CA836','+',6);
+    s+=nwBoard(1104,330);
+    s+=nwCart(596,428,.92);
+    /* фонари, кусты, цветы */
+    /* деревья рисуем ДО фонарей: иначе крона накрывает фонарь и он выглядит сломанным */
+    s+=nwTree(74,346,.92)+nwTree(1308,336,.86);
+    s+=nwLamp(360,408,1)+nwLamp(1252,404,.96);
+    [[112,404,1],[1206,430,.9],[404,452,.68],[962,428,.78]].forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    [[172,452,0],[204,436,1],[300,466,2],[1000,458,3],[1044,442,0],[892,452,1],[640,452,2],[720,458,3],[68,442,4],[1304,452,1]]
+      .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.1);});
+    return s+'</svg>';}
+  function openShopMenu(){const b=$('#nwScene');if(b&&!b.innerHTML)b.innerHTML=nwArt();show('shmenu');}
   $('#shmBack').onclick=goWorld;$('#vanBack').onclick=openShopMenu;
   $('#sh1').onclick=startVanish;$('#sh2').onclick=startCart;$('#sh3').onclick=startCash;
   function startVanish(){vanRound=0;vanRoundMiss=0;show('vanish');setTimeout(()=>speak('Запомни, что лежит на полке!'),350);loadShop();}
