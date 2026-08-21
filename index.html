@@ -813,7 +813,7 @@
   .hhclose{font-family:'Fredoka';font-size:17px;background:var(--coral);color:#fff;border:none;
     border-radius:13px;padding:5px 13px;cursor:pointer;box-shadow:0 3px 0 #d84a4a;}
   .hhclose:active{transform:translateY(2px);box-shadow:0 1px 0 #d84a4a;}
-  .hhgrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:2px;}
+  .hhgrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:2px;align-content:start;}
   .hhcell{background:#fff;border-radius:16px;padding:7px 6px 8px;box-shadow:0 3px 8px rgba(0,0,0,.12);
     display:flex;flex-direction:column;align-items:center;gap:3px;border:3px solid transparent;cursor:pointer;}
   .hhcell.have{border-color:var(--grass);}
@@ -822,6 +822,7 @@
   .hhcell .pv svg{max-width:100%;max-height:100%;}
   .hhcell .pv .sw{width:92%;height:60px;border-radius:12px;box-shadow:inset 0 0 0 3px rgba(0,0,0,.10);}
   .hhcell .nm{font-family:'Fredoka';font-size:13px;color:#3a2f1a;text-align:center;line-height:1.15;}
+  .hhnote{grid-column:1/-1;font-family:'Fredoka';font-size:15px;color:#6A6486;background:#fff;border-radius:16px;padding:16px 14px;text-align:center;line-height:1.35;box-shadow:0 3px 8px rgba(0,0,0,.10);}
   .hhcell .pr{font-family:'Fredoka';font-size:14px;font-weight:600;color:#8a6a1e;background:#FFF3C4;
     border-radius:11px;padding:2px 10px;}
   .hhcell.have .pr{color:#3d7a22;background:#E7F7D6;}
@@ -1201,7 +1202,7 @@
         <div class="hhdoor" id="hhDoor"></div>
         <div class="hhitems" id="hhItems"></div>
         <div class="hhero" id="hhHero"><div class="hhname" id="hhName"></div><div class="hhbub" id="hhBub"></div><img id="hhImg" alt="герой"></div>
-        <div class="hhtip" id="hhTip"><span id="hhTipTxt">Двигай пальцем</span><button class="btn small" id="hhOk">✅</button><button class="btn small coral" id="hhNo">✕</button></div>
+        <div class="hhtip" id="hhTip"><span id="hhTipTxt">Двигай пальцем</span><button class="btn small" id="hhOk">✅</button><button class="btn small coral" id="hhNo">✕</button><button class="btn small" id="hhBox" style="background:#8C93B8;box-shadow:0 6px 0 #6b7192">📦</button></div>
       </div>
       <button class="hhtab" id="hhTab">🛋️</button>
       <aside class="hhpanel" id="hhPanel">
@@ -1507,7 +1508,7 @@
   function inlineSVG(s){return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" style="width:100%;height:100%;display:block">'+composeInner(s)+'</svg>';}
   function fileURL(s){return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">'+composeInner(s)+'</svg>');}
   function renderPreview(){$('#preview').innerHTML=inlineSVG(sel);}
-  function isUnlocked(cat,id){var lk=LOCK[cat]&&LOCK[cat][id];if(!lk)return true;var have=lk.k==='star'?stars:lk.k==='page'?pages.length:(coins+coinsSpent);return have>=lk.n;}
+  function isUnlocked(cat,id){var lk=LOCK[cat]&&LOCK[cat][id];if(!lk)return true;var have=lk.k==='star'?earnedStars():lk.k==='page'?pages.length:earnedCoins();return have>=lk.n;}
   function reqText(cat,id){var lk=LOCK[cat][id];var em=lk.k==='star'?'⭐':lk.k==='page'?'📖':'🪙';return lk.n+em;}
   function renderTabs(){const box=$('#tabs');box.innerHTML='';TABS.forEach(function(t){const b=document.createElement('button');b.className='tab'+(t[0]===activeTab?' sel':'');b.textContent=t[1];b.onclick=function(){activeTab=t[0];renderTabs();renderOpts();};box.appendChild(b);});}
   function renderOpts(){const box=$('#opts');box.innerHTML='';
@@ -1534,13 +1535,16 @@
   /* coinsSpent — сколько монет ушло на дом. Разблокировки конструктора считаются от
      заработанного всего (coins+coinsSpent), иначе покупка мебели отняла бы у ребёнка
      уже открытые детали монстрика. */
-  let coinsSpent=0;
+  let coinsSpent=0,starsSpent=0;
+  /* заработано за всё время — от него считаются разблокировки конструктора героя */
+  function earnedCoins(){return coins+coinsSpent;}
+  function earnedStars(){return stars+starsSpent;}
   /* дом героя: что куплено и где стоит. Живёт рядом с остальным состоянием, потому что
      load() разбирает сохранение раньше, чем объявлен код комнаты. */
   let houseSt={wall:'w0',floor:'f0',own:[],items:[]};
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
-  function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,house:houseSt};}
+  function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,starsSpent,house:houseSt};}
   function save(){
     if(!heroSrc&&heroStored)return;                       /* защита от записи пустого профиля поверх готового */
     const json=JSON.stringify(snapshot());let ok=false;
@@ -1561,7 +1565,7 @@
     Object.assign(done,s.done||{});chosen=s.chosen||'А';curNode=s.curNode||0;cDone=s.cDone||[];playerName=s.playerName||'Герой';
     pages=s.pages||[];introSeen=!!s.introSeen;finaleDone=!!s.finaleDone;
     stars=s.stars||0;coins=s.coins||0;keys=s.keys||0;pies=s.pies||0;recipes=s.recipes||[];
-    games=s.games||{};levels=s.levels||{};coinsSpent=s.coinsSpent||0;
+    games=s.games||{};levels=s.levels||{};coinsSpent=s.coinsSpent||0;starsSpent=s.starsSpent||0;
     if(s.house&&s.house.items)houseSt=Object.assign(houseSt,s.house);
     save();  /* переносим данные со старого ключа/копии на основной */
     return true;}
@@ -4638,7 +4642,7 @@
      Тап по мебели — герой идёт и садится, потаскивание — вещь переезжает.
      Купленное и его места лежат в houseSt и сохраняются вместе с прогрессом. */
   const HH_CATS=[['furn','🛏️','Мебель'],['deco','🖼️','Украшения'],['win','🪟','Окна'],
-                 ['cozy','🧸','Уют и игрушки'],['walls','🌈','Стены и пол']];
+                 ['cozy','🧸','Уют и игрушки'],['walls','🌈','Стены и пол'],['store','📦','Склад']];
   const HH_WALLS=[
     {id:'w0',n:'Кремовые',p:0,bg:'linear-gradient(180deg,#FFF4DF,#F3E1C0)'},
     {id:'w1',n:'Полоска',p:10,bg:'repeating-linear-gradient(90deg,#FFF0F5 0 26px,#FBD9E6 26px 52px)'},
@@ -4678,25 +4682,25 @@
      v:[['белое','#fff','#7FB4CE'],['жёлтое','#FFEFC4','#D8A21A']]},
     {k:'curt',c:'win',n:'Шторы',p:12,w:180,wall:1,
      v:[['розовые','#F5A6C0','#CE6E8C'],['голубые','#9AD4F5','#4A90B5'],['мятные','#9EE3C6','#2E8F72']]},
-    {k:'teddy',c:'cozy',n:'Мишка',p:10,w:110,act:'play',sx:.4,sy:0,
+    {k:'teddy',c:'cozy',n:'Мишка',cur:'star',p:3,w:110,act:'play',sx:.4,sy:0,
      v:[['коричневый','#D9A15E','#7A4E28'],['белый','#FFF1DC','#B79A6E'],['розовый','#FFC2D8','#C4708F']]},
-    {k:'bunny',c:'cozy',n:'Зайка',p:10,w:110,act:'play',sx:.4,sy:0,
+    {k:'bunny',c:'cozy',n:'Зайка',cur:'star',p:3,w:110,act:'play',sx:.4,sy:0,
      v:[['белый','#FFF6EA','#B79A6E'],['серый','#D6DBE2','#8B9099']]},
-    {k:'ball',c:'cozy',n:'Мячик',p:6,w:80,act:'play',sx:.45,sy:0,
+    {k:'ball',c:'cozy',n:'Мячик',cur:'star',p:1,w:80,act:'play',sx:.45,sy:0,
      v:[['красный','#FF6B6B','#C0483A'],['синий','#4DB6E5','#2C7FA8'],['жёлтый','#FFD23F','#D8A21A']]},
-    {k:'blocks',c:'cozy',n:'Кубики',p:8,w:110,act:'play',sx:.45,sy:0,
+    {k:'blocks',c:'cozy',n:'Кубики',cur:'star',p:2,w:110,act:'play',sx:.45,sy:0,
      v:[['цветные','#FF6B6B','#C0483A']]},
-    {k:'car',c:'cozy',n:'Машинка',p:8,w:120,act:'play',sx:.45,sy:0,
+    {k:'car',c:'cozy',n:'Машинка',cur:'star',p:2,w:120,act:'play',sx:.45,sy:0,
      v:[['красная','#FF6B6B','#C0483A'],['синяя','#4DB6E5','#2C7FA8']]},
-    {k:'rocket',c:'cozy',n:'Ракета',p:9,w:110,act:'play',sx:.45,sy:0,
+    {k:'rocket',c:'cozy',n:'Ракета',cur:'star',p:2,w:110,act:'play',sx:.45,sy:0,
      v:[['белая','#FFF4E4','#B79A6E'],['фиолетовая','#C9A8F0','#7B4FC0']]},
-    {k:'horse',c:'cozy',n:'Лошадка',p:12,w:140,act:'play',sx:.45,sy:0,
+    {k:'horse',c:'cozy',n:'Лошадка',cur:'star',p:4,w:140,act:'play',sx:.45,sy:0,
      v:[['рыжая','#E0B072','#8A5A2B'],['белая','#FFF6EA','#B79A6E']]},
-    {k:'plant',c:'cozy',n:'Растение',p:10,w:115,act:'look',sx:.42,sy:0,
+    {k:'plant',c:'cozy',n:'Растение',cur:'star',p:2,w:115,act:'look',sx:.42,sy:0,
      v:[['пальма','#5FB441','#2F6B24'],['кактус','#6FC64C','#2F6B24'],['цветок','#F368C4','#C4478F']]},
-    {k:'vase',c:'cozy',n:'Вазочка',p:8,w:90,act:'look',sx:.42,sy:0,
+    {k:'vase',c:'cozy',n:'Вазочка',cur:'star',p:1,w:90,act:'look',sx:.42,sy:0,
      v:[['голубая','#8FD4F3','#4A90B5'],['розовая','#FFC2D8','#CE6E8C']]},
-    {k:'rug',c:'cozy',n:'Коврик',p:12,w:220,act:'play',flat:1,sx:0,sy:.05,
+    {k:'rug',c:'cozy',n:'Коврик',cur:'star',p:3,w:220,act:'play',flat:1,sx:0,sy:.05,
      v:[['розовый','#FBCEDF','#D98BAA'],['голубой','#CDE9FB','#7FB4CE'],['зелёный','#D5EFC0','#8FBF6A']]},
     {k:'chest',c:'cozy',n:'Сундук',p:0,w:130,act:'play',sx:.45,sy:0,lk:{k:'key',n:3},v:[['с ключами','#E0B072','#7A4E28']]},
     {k:'wheel',c:'cozy',n:'Колесо из Парка',p:0,w:130,act:'play',sx:.45,sy:0,lk:{k:'game',g:'park_win',t:'Пройди Парк 🎡'},v:[['из Парка','#FFD23F','#7A86A8']]},
@@ -4916,8 +4920,13 @@
 
   function hhOwned(id){return houseSt.own.indexOf(id)>=0;}
   function hhPlaced(id){return houseSt.items.some(function(o){return o.id===id;});}
+  /* «Уют и игрушки» покупаются за звёздочки, остальное — за монетки */
+  function hhEm(t){return t.cur==='star'?'⭐':'🪙';}
+  function hhHave(t){return t.cur==='star'?stars:coins;}
+  function hhPay(t,n){if(t.cur==='star'){stars-=n;starsSpent+=n;}else{coins-=n;coinsSpent+=n;}}
+  function hhRefund(t,n){if(t.cur==='star'){stars+=n;starsSpent-=n;}else{coins+=n;coinsSpent-=n;}}
   function hhLock(t){const l=t.lk;if(!l)return null;
-    if(l.k==='star')return stars>=l.n?null:{t:'⭐ '+stars+' / '+l.n};
+    if(l.k==='star')return earnedStars()>=l.n?null:{t:'⭐ '+earnedStars()+' / '+l.n};
     if(l.k==='key')return keys>=l.n?null:{t:'🔑 '+keys+' / '+l.n};
     if(l.k==='page')return pages.length>=l.n?null:{t:'📖 '+pages.length+' / '+l.n};
     return games[l.g]?null:{t:l.t};}
@@ -4927,7 +4936,7 @@
     $('#hhWall').style.background=hhBg(HH_WALLS,houseSt.wall);
     $('#hhFloor').style.background=hhBg(HH_FLOORS,houseSt.floor);
     $('#hhDoor').innerHTML=HH_DOOR;
-    $('#hhCoins').textContent='🪙 '+coins;}
+    $('#hhCoins').textContent='🪙 '+coins+'   ⭐ '+stars;}
 
   function hhZ(t,y){return t.flat?1:(t.wall?2:3+Math.round(y));}
   function hhRender(){
@@ -4956,7 +4965,7 @@
     if(!hhDrag)return;
     if(!hhDrag.moved){
       if(Math.abs(e.clientX-hhDrag.x0)+Math.abs(e.clientY-hhDrag.y0)<8)return;
-      hhDrag.moved=true;hhStartPut(hhDrag.i,false);}
+      hhDrag.moved=true;hhStartPut(hhDrag.i,'move');}
     const r=hhDrag.r;
     if(hhDrag.hero){
       hhX=Math.max(5,Math.min(95,(e.clientX-r.left)/r.width*100));
@@ -4982,24 +4991,44 @@
   window.addEventListener('pointercancel',hhUp);
 
   /* режим «поставь и подтверди»: ✅ оставить, ✕ вернуть как было (или отменить покупку) */
-  function hhStartPut(i,fresh){
+  /* mode: new — только что купили, move — переставляем, back — достали со склада */
+  function hhStartPut(i,mode){
     const o=houseSt.items[i];if(!o)return;
-    hhPut={i:i,fresh:!!fresh,x:o.x,y:o.y};
-    $('#hhTipTxt').textContent=fresh?'Поставь, куда хочешь':'Переставь, куда хочешь';
+    hhPut={i:i,mode:mode||'move',x:o.x,y:o.y};
+    $('#hhTipTxt').textContent=mode==='move'?'Переставь, куда хочешь':'Поставь, куда хочешь';
     hhRender();}
   function hhEndPut(keep){
     if(!hhPut)return;
+    const p=hhPut;hhPut=null;
     if(!keep){
-      if(hhPut.fresh){
-        const o=houseSt.items[hhPut.i],t=hhKind(o.id);
-        houseSt.items.splice(hhPut.i,1);
-        const j=houseSt.own.indexOf(o.id);if(j>=0)houseSt.own.splice(j,1);
-        if(t&&t.p>0){coins+=t.p;coinsSpent-=t.p;}
-        updateHUD();hhPaint();hhGrid();
-      }else{const o=houseSt.items[hhPut.i];if(o){o.x=hhPut.x;o.y=hhPut.y;}}}
-    hhPut=null;save();hhRender();}
+      const o=houseSt.items[p.i];
+      if(p.mode==='move'){if(o){o.x=p.x;o.y=p.y;}}
+      else if(o){
+        const t=hhKind(o.id);
+        houseSt.items.splice(p.i,1);
+        if(p.mode==='new'){                      /* отменили покупку — деньги назад */
+          const j=houseSt.own.indexOf(o.id);if(j>=0)houseSt.own.splice(j,1);
+          if(t&&t.p>0)hhRefund(t,t.p);
+          updateHUD();hhPaint();}
+        hhGrid();}}
+    save();hhRender();}
+  /* склад: вещь остаётся купленной, но уходит из комнаты — можно поставить другую */
+  function hhStore(i){
+    const o=houseSt.items[i];if(!o)return;
+    const t=hhKind(o.id);
+    if(hhPut&&hhPut.i===i)hhPut=null;
+    houseSt.items.splice(i,1);
+    save();hhRender();hhGrid();chime(true);
+    flash(screens.house,(t?t.n:'Вещь')+' на складе 📦');}
+  function hhTakeBack(id){
+    const t=hhKind(id);if(!t)return;
+    houseSt.items.push({id:id,x:50,y:t.wall?46:82});
+    hhStartPut(houseSt.items.length-1,'back');
+    hhShut(true);blip();hhGrid();
+    flash(screens.house,'Поставь, куда хочешь 🏠');}
   $('#hhOk').onclick=function(){chime(true);hhEndPut(true);};
   $('#hhNo').onclick=function(){blip();hhEndPut(false);};
+  $('#hhBox').onclick=function(){if(hhPut)hhStore(hhPut.i);};
 
   /* ——— витрина ——— */
   function hhTabs(){
@@ -5015,6 +5044,14 @@
     if(onTap)d.onclick=onTap;return d;}
   function hhGrid(){
     const box=$('#hhGrid');box.innerHTML='';
+    if(hhCat==='store'){
+      const left=houseSt.own.filter(function(id){return hhKind(id)&&!hhPlaced(id);});
+      if(!left.length){const d=document.createElement('div');
+        d.className='hhnote';d.textContent='Склад пустой. Убери сюда вещь из комнаты — и место освободится для новой.';
+        box.appendChild(d);return;}
+      left.forEach(function(id){const t=hhKind(id),i=hhVar(id);
+        box.appendChild(hhCell(hhArt(id),t.v.length>1?t.n+' '+t.v[i][0]:t.n,'🏠 Поставить','',function(){hhTakeBack(id);}));});
+      return;}
     if(hhCat==='walls'){
       HH_WALLS.concat(HH_FLOORS).forEach(function(f){
         const isW=HH_WALLS.indexOf(f)>=0,got=f.p===0||hhOwned(f.id);
@@ -5029,21 +5066,25 @@
           chime(true);save();updateHUD();hhPaint();hhGrid();}));});
       return;}
     HH_LIST.filter(function(e){return e.t.c===hhCat;}).forEach(function(e){
-      const t=e.t,lk=hhLock(t),inRoom=hhPlaced(e.id);
+      const t=e.t,lk=hhLock(t),inRoom=hhPlaced(e.id),own=hhOwned(e.id);
       const nm=t.v.length>1?t.n+' '+t.v[e.i][0]:t.n;
-      const price=inRoom?'✔ дома':lk?('🔒 '+lk.t):t.p===0?'⭐ подарок':(coins>=t.p?'🛒 '+t.p+' 🪙':'ещё '+(t.p-coins)+' 🪙');
-      box.appendChild(hhCell(hhArt(e.id),nm,price,inRoom?'have':(lk||t.p>coins)?'no':'',function(){
-        if(inRoom){flash(screens.house,'Уже стоит дома 🏠');return;}
+      const em=hhEm(t),have=hhHave(t);
+      const price=inRoom?'📦 Убрать':own?'🏠 Поставить':lk?('🔒 '+lk.t):t.p===0?'🎁 подарок':(have>=t.p?'🛒 '+t.p+' '+em:'ещё '+(t.p-have)+' '+em);
+      box.appendChild(hhCell(hhArt(e.id),nm,price,inRoom?'have':own?'':(lk||t.p>have)?'no':'',function(){
+        if(inRoom){                                  /* стоит дома — убираем на склад */
+          let j=-1;houseSt.items.forEach(function(o,n){if(o.id===e.id)j=n;});
+          if(j>=0)hhStore(j);return;}
+        if(own){hhTakeBack(e.id);return;}            /* лежит на складе — ставим обратно */
         if(lk){chime(false);flash(screens.house,'Открой: '+lk.t);return;}
-        if(t.p>coins){chime(false);flash(screens.house,'Нужно ещё '+(t.p-coins)+' 🪙');return;}
+        if(t.p>have){chime(false);flash(screens.house,'Нужно ещё '+(t.p-have)+' '+em);return;}
         hhBuy(e.id,t);}));});}
 
   function hhBuy(id,t){
-    if(t.p>0){coins-=t.p;coinsSpent+=t.p;}
+    if(t.p>0)hhPay(t,t.p);
     houseSt.own.push(id);
     houseSt.items.push({id:id,x:50,y:t.wall?46:82});
     chime(true);save();updateHUD();hhPaint();hhGrid();
-    hhStartPut(houseSt.items.length-1,true);
+    hhStartPut(houseSt.items.length-1,'new');
     hhShut(true);
     flash(screens.house,t.n+' куплен! 🎉');}
 
