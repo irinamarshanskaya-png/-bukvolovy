@@ -53,21 +53,24 @@
   .topmap{position:relative;flex:1;width:100%;overflow:hidden;background:radial-gradient(150px 90px at 80% 18%, rgba(255,255,255,.20), transparent 70%),radial-gradient(170px 110px at 20% 52%, rgba(255,255,255,.16), transparent 70%),radial-gradient(150px 90px at 78% 80%, rgba(255,255,255,.14), transparent 70%),linear-gradient(180deg,#A6DE86,#8FD26E 55%,#7CC65C);}
   .road2{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
   .node{position:absolute;transform:translate(-50%,-70%);display:flex;flex-direction:column;align-items:center;cursor:pointer;z-index:2;}
-  .node .building{width:132px;height:132px;filter:drop-shadow(0 5px 4px rgba(0,0,0,.2));transition:transform .1s;}
+  .node .building{width:172px;height:172px;filter:drop-shadow(0 5px 4px rgba(0,0,0,.2));transition:transform .1s;}
   .node:active .building{transform:scale(.94);}
   .node .building svg{width:100%;height:100%;display:block;}
   /* закрытую локацию обозначает замок, а не блёклость: картинка должна быть узнаваемой */
   .node.soon .building{opacity:.95;filter:grayscale(.08) drop-shadow(0 5px 4px rgba(0,0,0,.2));}
-  .node.nhome .building{width:178px;height:178px;}
+  .node.nhome .building{width:232px;height:232px;}
   .node .nlock{position:absolute;top:10px;right:-14px;font-size:36px;filter:drop-shadow(0 2px 3px rgba(0,0,0,.35));}
-  .node .nlbl{font-family:'Fredoka';font-size:19px;font-weight:600;color:#3a2f1a;background:rgba(255,255,255,.92);border-radius:10px;padding:3px 16px;margin-top:-6px;white-space:nowrap;box-shadow:0 2px 5px rgba(0,0,0,.16);}
+  .node .nlbl{font-family:'Fredoka';font-size:21px;font-weight:600;color:#3a2f1a;background:rgba(255,255,255,.92);border-radius:10px;padding:3px 16px;margin-top:-6px;white-space:nowrap;box-shadow:0 2px 5px rgba(0,0,0,.16);}
   .deco{position:absolute;transform:translate(-50%,-70%) scale(1.6);pointer-events:none;z-index:0;filter:drop-shadow(0 3px 3px rgba(0,0,0,.12));}
   .deco svg{display:block;}
   .node .nstar{position:absolute;top:-10px;right:-6px;font-size:20px;filter:grayscale(1) opacity(.4);transition:.2s;} .node.done .nstar{filter:none;transform:scale(1.15);}
-  .map-token{position:absolute;width:82px;height:82px;transform:translate(-50%,-72%);z-index:3;pointer-events:none;transition:left .8s ease-in-out, top .8s ease-in-out;}
-  .map-token img{width:100%;height:100%;object-fit:contain;transform-origin:50% 100%;animation:alive 1.9s ease-in-out infinite;filter:drop-shadow(0 4px 5px rgba(0,0,0,.32));}
+  /* положение героя ведёт скрипт по точкам тропинки, поэтому переходов по left/top тут нет */
+  .map-token{position:absolute;width:82px;height:82px;transform:translate(-50%,-72%);z-index:3;pointer-events:none;}
+  .map-token img{width:100%;height:100%;object-fit:contain;transform-origin:50% 100%;animation:alive 1.9s ease-in-out infinite;filter:drop-shadow(0 4px 5px rgba(0,0,0,.32));transition:scale .22s;}
   /* герой топает не спеша — так же, как ходил по старой карте */
-  .map-token.walk img{animation:waddle .52s ease-in-out infinite;}
+  .map-token.walk img{animation:waddle .62s ease-in-out infinite;}
+  /* идёт налево — разворачиваем; scale отдельное свойство, поэтому не спорит с анимацией шага */
+  .map-token.flip img{scale:-1 1;}
 
   #picker{align-items:center;padding:18px 14px 0;text-align:center;background:linear-gradient(180deg,#CFF0FB,#E9F9C9);}
   #picker h1{font-size:22px;color:var(--grape);text-shadow:0 2px 0 #fff;} #picker .hint{font-weight:800;color:#4b6b7a;font-size:13px;margin:4px 0 10px;}
@@ -1456,35 +1459,57 @@
 
   /* WORLD */
   /* Городок-ромашка: Домик в центре (всегда NODES[0]), от него своя дорожка к каждой локации.
-     Ребёнку не нужно проходить локации по очереди — любая доступна сразу. bend — изгиб дорожки. */
+     Ребёнку не нужно проходить локации по очереди — любая доступна сразу. */
+  /* road=[[доля пути, сдвиг вбок в пикселях], ...] — свой маршрут у каждой тропинки */
   const NODES=[{x:50,y:50,b:'home',nm:'Домик',room:'home'},
-    {x:79,y:47,b:'letters',nm:'Дом букв',room:'letters',bend:-6},
-    {x:70,y:24,b:'circus',nm:'Цирк',room:'circus',bend:5},
-    {x:58,y:81,b:'shop',nm:'Мир чисел',room:'shop',bend:-5},
-    {x:74,y:69,b:'bakery',nm:'Пекарня',room:'bakery',bend:6},
-    {x:34,y:82,b:'forest',nm:'Лес',room:'forest',bend:6},
-    {x:29,y:25,b:'workshop',nm:'Мастерская',room:'workshop',bend:-6},
-    {x:49,y:17,b:'station',nm:'Вокзал',room:'station',bend:4},
-    {x:20,y:52,b:'park',nm:'Парк',room:'park',bend:5}];
+    {x:82,y:45,b:'letters',nm:'Дом букв',room:'letters',road:[[0.35,30],[0.72,-26]]},
+    {x:69,y:21,b:'circus',nm:'Цирк',room:'circus',road:[[0.5,42]]},
+    {x:57,y:83,b:'shop',nm:'Мир чисел',room:'shop',road:[[0.4,-26],[0.78,-6]]},
+    {x:77,y:73,b:'bakery',nm:'Пекарня',room:'bakery',road:[[0.3,22],[0.68,-20]]},
+    {x:33,y:83,b:'forest',nm:'Лес',room:'forest',road:[[0.45,30],[0.8,8]]},
+    {x:28,y:23,b:'workshop',nm:'Мастерская',room:'workshop',road:[[0.28,-26],[0.62,20],[0.85,-8]]},
+    {x:49,y:20,b:'station',nm:'Вокзал',room:'station',road:[[0.45,30]]},
+    {x:18,y:52,b:'park',nm:'Парк',room:'park',road:[[0.25,24],[0.55,-26],[0.82,-8]]}];
   const done={letters:false,circus:false,shop:false};
   const topmap=$('#topmap'),token=$('#mapToken');let curNode=0,walking=false,nodeEls=[];
   let mapInit=false;
   function buildNodes(){if(!mapInit){setRoad();buildDecor();mapInit=true;}nodeEls.forEach(e=>e.remove());nodeEls=[];NODES.forEach((n,i)=>{const el=document.createElement('div');el.className='node'+(n.soon?' soon':'')+(i===0?' nhome':'')+(done[n.room]?' done':'');
     el.style.left=n.x+'%';el.style.top=n.y+'%';el.innerHTML='<div class="building">'+buildingSVG(n.b)+'</div><div class="nlbl">'+n.nm+'</div>'+(n.soon?'<div class="nlock">🔒</div>':'')+(done[n.room]?'<div class="nstar">⭐</div>':'');
     el.onclick=()=>walkTo(i);topmap.appendChild(el);nodeEls.push(el);});}
-  /* дорожка = дуга от Домика к локации: короткая и слегка извилистая, а не длинная прямая */
+  /* дорожка = живая тропинка от площадки перед Домиком к локации: своя дуга у каждой */
   const SVGNS='http://www.w3.org/2000/svg';
-  function roadD(a,b,bend){const dx=b.x-a.x,dy=b.y-a.y,L=Math.hypot(dx,dy)||1;
-    const mx=(a.x+b.x)/2+(-dy/L)*(bend||6),my=(a.y+b.y)/2+(dx/L)*(bend||6);
-    return 'M'+a.x+' '+a.y+' Q'+mx.toFixed(1)+' '+my.toFixed(1)+' '+b.x+' '+b.y;}
+  const HUB=[56,62];        /* площадка перед Домиком: отсюда расходятся все дорожки */
+  let mapW=1360,mapH=707;   /* размер поля карты в пикселях сцены */
+  /* герой останавливается сбоку от здания, со стороны Домика, а не под крышей */
+  function stopAt(n){return [n.x+(n.x>=50?-8:8),n.y+4];}
+  /* точки маршрута в процентах: площадка → изгибы → порог локации → само здание */
+  function nodePts(n){
+    const st=stopAt(n),hx=HUB[0]*mapW/100,hy=HUB[1]*mapH/100;
+    const dx=st[0]*mapW/100-hx,dy=st[1]*mapH/100-hy,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L;
+    const pts=[[HUB[0],HUB[1]]];
+    (n.road||[]).forEach(function(w){
+      pts.push([(hx+dx*w[0]-uy*w[1])/mapW*100,(hy+dy*w[0]+ux*w[1])/mapH*100]);});
+    pts.push(st);pts.push([n.x,n.y]);return pts;}
+  /* ломаная → плавная кривая (Catmull-Rom кубическими Безье): изгибы мягкие, без углов */
+  function smoothD(pts,kx,ky){
+    const P=pts.map(function(p){return [p[0]*kx,p[1]*ky];});
+    let d='M'+P[0][0].toFixed(1)+' '+P[0][1].toFixed(1);
+    for(let i=0;i<P.length-1;i++){
+      const a=P[i-1]||P[i],b=P[i],c=P[i+1],e=P[i+2]||P[i+1];
+      d+='C'+(b[0]+(c[0]-a[0])/6).toFixed(1)+' '+(b[1]+(c[1]-a[1])/6).toFixed(1)
+        +' '+(c[0]-(e[0]-b[0])/6).toFixed(1)+' '+(c[1]-(e[1]-b[1])/6).toFixed(1)
+        +' '+c[0].toFixed(1)+' '+c[1].toFixed(1);}
+    return d;}
   function setRoad(){const svg=document.querySelector('.road2');if(!svg)return;svg.innerHTML='';
+    mapW=topmap.offsetWidth||mapW;mapH=topmap.offsetHeight||mapH;
+    NODES.forEach(function(n,i){if(i)n.pts=nodePts(n);});
     /* три слоя поверх друг друга: тёмный край, светлая насыпь, пунктир — рисуем слоями,
        иначе край одной дорожки ляжет поверх соседней */
-    [['#CDB07E',15,''],['#F6E7C6',10,''],['#ffffff',2.5,'0.2 5']].forEach(function(L){
+    [['#CDB07E',27,''],['#F6E7C6',18,''],['#ffffff',4,'0.3 9']].forEach(function(L){
       const g=document.createElementNS(SVGNS,'g');
       NODES.forEach(function(n,i){if(i===0)return;
         const p=document.createElementNS(SVGNS,'path');
-        p.setAttribute('d',roadD(NODES[0],n,n.bend));p.setAttribute('fill','none');
+        p.setAttribute('d',smoothD(n.pts,1,1));p.setAttribute('fill','none');
         p.setAttribute('stroke',L[0]);p.setAttribute('stroke-width',L[1]);
         p.setAttribute('stroke-linecap','round');p.setAttribute('vector-effect','non-scaling-stroke');
         if(L[2]){p.setAttribute('stroke-dasharray',L[2]);p.setAttribute('opacity','.8');}
@@ -1492,7 +1517,7 @@
       svg.appendChild(g);});}
   /* деревья, кусты, цветы и грибы — по краям и в промежутках между дорожками, не поверх них */
   const DECOR=[[6,22,'tree',0],[5,68,'tree',0],[94,22,'tree',0],[95,68,'tree',0],[30,6,'tree',0],[70,7,'bush',0],[88,92,'tree',0],[9,93,'bush',0],
-    [40,30,'flower',1],[60,30,'mushroom',0],[39,70,'mushroom',0],[62,68,'flower',2],[28,42,'bush',0],[70,40,'flower',3],[27,60,'flower',0],[72,58,'bush',0],
+    [40,30,'flower',1],[64,32,'mushroom',0],[39,70,'mushroom',0],[67,64,'flower',2],[28,42,'bush',0],[70,40,'flower',3],[25,63,'flower',0],[72,58,'bush',0],
     [15,36,'flower',2],[86,34,'bush',0],[14,64,'mushroom',0],[88,58,'flower',1],[44,94,'bush',0],[73,94,'mushroom',0],[24,6,'mushroom',0],[60,6,'flower',3]];
   function buildDecor(){DECOR.forEach(d=>{const el=document.createElement('div');el.className='deco';el.style.left=d[0]+'%';el.style.top=d[1]+'%';el.innerHTML=decoSVG(d[2],d[3]);topmap.appendChild(el);});}
   const FCOL=['#F368C4','#FF6B6B','#FFD23F','#9B5DE5'];
@@ -1511,14 +1536,42 @@
     if(k==='station')return S+'<rect x="20" y="42" width="26" height="20" rx="4" fill="#4DB6E5"/><rect x="42" y="34" width="16" height="28" rx="3" fill="#3E97C0"/><rect x="26" y="34" width="7" height="11" fill="#37344F"/><circle cx="27" cy="30" r="4" fill="#fff"/><circle cx="34" cy="26" r="3" fill="#fff"/><circle cx="29" cy="66" r="6" fill="#37344F"/><circle cx="49" cy="66" r="6" fill="#37344F"/><circle cx="29" cy="66" r="2.5" fill="#9aa0a6"/><circle cx="49" cy="66" r="2.5" fill="#9aa0a6"/>'+E;
     if(k==='park')return S+'<path d="M40 36 L27 70" stroke="#8C93B8" stroke-width="4.5" stroke-linecap="round"/><path d="M40 36 L53 70" stroke="#8C93B8" stroke-width="4.5" stroke-linecap="round"/><rect x="22" y="68" width="36" height="6" rx="3" fill="#B77A47"/><circle cx="40" cy="36" r="24" fill="none" stroke="#7A86A8" stroke-width="7.5"/><circle cx="40" cy="36" r="24" fill="none" stroke="#FFF8EC" stroke-width="4"/><g stroke="#FFF8EC" stroke-width="3" stroke-linecap="round"><path d="M40 36 L64 36"/><path d="M40 36 L52 15.2"/><path d="M40 36 L28 15.2"/><path d="M40 36 L16 36"/><path d="M40 36 L28 56.8"/><path d="M40 36 L52 56.8"/></g><g stroke="#FFF8EC" stroke-width="1.5"><circle cx="64" cy="36" r="5.5" fill="#FF6B6B"/><circle cx="52" cy="15.2" r="5.5" fill="#FFD23F"/><circle cx="28" cy="15.2" r="5.5" fill="#4DB6E5"/><circle cx="16" cy="36" r="5.5" fill="#9B5DE5"/><circle cx="28" cy="56.8" r="5.5" fill="#7BC950"/><circle cx="52" cy="56.8" r="5.5" fill="#F368C4"/></g><circle cx="40" cy="36" r="5" fill="#FFD23F" stroke="#7A86A8" stroke-width="2"/><path d="M40 12 L40 5" stroke="#7A86A8" stroke-width="2.2" stroke-linecap="round"/><path d="M41 5 L50 8 L41 11 Z" fill="#E4573B"/>'+E;
     return S+E;}
-  /* герой стоит РЯДОМ со зданием, а не поверх него: у Домика дальше, там домик крупнее */
-  function placeToken(){const n=NODES[curNode];token.style.left=(n.x+(curNode===0?10:8))+'%';token.style.top=(n.y+(curNode===0?6:4))+'%';}
+  /* герой стоит РЯДОМ со зданием, а не поверх него; у Домика — на площадке, откуда идут дорожки */
+  function placeToken(){const p=curNode===0?HUB:stopAt(NODES[curNode]);
+    token.style.left=p[0]+'%';token.style.top=p[1]+'%';}
   /* герой всегда живёт у Домика: возвращаясь на карту, он оказывается дома, а не там, где был */
   function goWorld(){show('world');curNode=0;buildNodes();placeToken();const tn=$('#tokname');if(tn)tn.textContent=playerName;updateHUD();}
-  /* короткая пробежка по дорожке и сразу локация — ребёнок не должен ждать */
+  /* ХОДЬБА ПО ТРОПИНКЕ: герой идёт ровно по той кривой, что нарисована на карте.
+     Длину меряем в пикселях сцены (карта шире, чем выше) — иначе на вертикальных
+     участках шаг получался бы вдвое быстрее, чем на горизонтальных. */
+  const WALK_SPEED=160;   /* пикселей в секунду — спокойный прогулочный шаг */
+  let measurePath=null;
+  function ensureMeasure(){if(measurePath)return;
+    const s=document.createElementNS(SVGNS,'svg');
+    s.style.cssText='position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;';
+    measurePath=document.createElementNS(SVGNS,'path');s.appendChild(measurePath);topmap.appendChild(s);}
   function walkTo(idx){if(walking)return;if(idx===0){actAt(0);return;}
-    walking=true;token.classList.add('walk');curNode=idx;placeToken();
-    setTimeout(function(){walking=false;token.classList.remove('walk');save();actAt(idx);},820);}
+    const n=NODES[idx];if(!n.pts)n.pts=nodePts(n);
+    ensureMeasure();measurePath.setAttribute('d',smoothD(n.pts,mapW/100,mapH/100));
+    const total=measurePath.getTotalLength();
+    /* останавливаемся у порога локации: дальше тропинка уходит за здание */
+    const st=stopAt(n),tx=st[0]*mapW/100,ty=st[1]*mapH/100;
+    let end=total,bd=Infinity;
+    for(let s=total;s>=0;s-=4){const q=measurePath.getPointAtLength(s);
+      const d2=(q.x-tx)*(q.x-tx)+(q.y-ty)*(q.y-ty);if(d2<bd){bd=d2;end=s;}}
+    walking=true;token.classList.add('walk');
+    const t0=performance.now();
+    function step(t){
+      const s=Math.min(end,(t-t0)/1000*WALK_SPEED),p=measurePath.getPointAtLength(s);
+      token.style.left=(p.x/mapW*100)+'%';token.style.top=(p.y/mapH*100)+'%';
+      const q=measurePath.getPointAtLength(Math.min(end,s+8));   /* куда ведёт тропинка дальше */
+      if(Math.abs(q.x-p.x)>0.6)token.classList.toggle('flip',q.x<p.x);
+      if(s<end){requestAnimationFrame(step);return;}
+      walking=false;token.classList.remove('walk');token.classList.remove('flip');
+      curNode=idx;placeToken();save();
+      /* локация открывается только когда герой дошёл — короткая пауза «пришёл» */
+      setTimeout(function(){actAt(idx);},280);}
+    requestAnimationFrame(step);}
   function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakeryMenu();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStation();else openSoon(n);}
   function openSoon(n){const ic={shop:'🛒',bakery:'🍰',workshop:'🛠️',station:'🚂',park:'🎡'}[n.room]||'✨';$('#stubIc').textContent=ic;$('#stubTitle').textContent=n.nm;$('#stubTxt').textContent='Здесь скоро будут игры! Заходи позже ✨';show('stub');}$('#stubBack').onclick=goWorld;
 
