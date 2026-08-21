@@ -51,6 +51,7 @@
   .wtop{display:flex;align-items:center;justify-content:space-between;padding:12px 22px 6px;width:100%;z-index:3;} .wtop h1{font-size:27px;color:var(--grape);text-shadow:0 2px 0 #fff;}
   .wbtn{font-family:'Fredoka';font-size:17px;background:#fff;border:none;border-radius:12px;padding:7px 11px;cursor:pointer;box-shadow:0 3px 8px rgba(0,0,0,.12);color:var(--ink);}
   .topmap{position:relative;flex:1;width:100%;overflow:hidden;background:radial-gradient(150px 90px at 80% 18%, rgba(255,255,255,.20), transparent 70%),radial-gradient(170px 110px at 20% 52%, rgba(255,255,255,.16), transparent 70%),radial-gradient(150px 90px at 78% 80%, rgba(255,255,255,.14), transparent 70%),linear-gradient(180deg,#A6DE86,#8FD26E 55%,#7CC65C);}
+  .patches{position:absolute;inset:0;width:100%;height:100%;z-index:0;}
   .road2{position:absolute;inset:0;width:100%;height:100%;z-index:1;}
   .node{position:absolute;transform:translate(-50%,-70%);display:flex;flex-direction:column;align-items:center;cursor:pointer;z-index:2;}
   .node .building{width:172px;height:172px;filter:drop-shadow(0 5px 4px rgba(0,0,0,.2));transition:transform .1s;}
@@ -63,6 +64,8 @@
   .node .nlbl{font-family:'Fredoka';font-size:21px;font-weight:600;color:#3a2f1a;background:rgba(255,255,255,.92);border-radius:10px;padding:3px 16px;margin-top:-6px;white-space:nowrap;box-shadow:0 2px 5px rgba(0,0,0,.16);}
   .deco{position:absolute;transform:translate(-50%,-70%) scale(1.6);pointer-events:none;z-index:0;filter:drop-shadow(0 3px 3px rgba(0,0,0,.12));}
   .deco svg{display:block;}
+  /* у Домика подпись уходит влево: иначе она попадает ровно на калитку и героя */
+  .node.nhome .nlbl{transform:translateX(-96px);}
   .node .nstar{position:absolute;top:-10px;right:-6px;font-size:20px;filter:grayscale(1) opacity(.4);transition:.2s;} .node.done .nstar{filter:none;transform:scale(1.15);}
   /* положение героя ведёт скрипт по точкам тропинки, поэтому переходов по left/top тут нет */
   .map-token{position:absolute;width:82px;height:82px;transform:translate(-50%,-72%);z-index:3;pointer-events:none;}
@@ -1460,84 +1463,336 @@
   /* WORLD */
   /* Городок-ромашка: Домик в центре (всегда NODES[0]), от него своя дорожка к каждой локации.
      Ребёнку не нужно проходить локации по очереди — любая доступна сразу. */
-  /* road=[[доля пути, сдвиг вбок в пикселях], ...] — свой маршрут у каждой тропинки */
+  /* via — вся ломаная тропинки после площадки; последняя точка лежит внутри рисунка здания,
+     поэтому хвост дорожки прячется за домиком и нигде не обрывается в траве.
+     Соседние тропинки нарочно начинаются одними и теми же точками (RS — правая улица,
+     LS — левая): тогда они сливаются в улицу и расходятся развилкой, а не восемью лучами.
+     stop — где останавливается герой: рядом со зданием, но на самой тропинке. */
+  const RS=[58,57], LS=[43,58];
   const NODES=[{x:50,y:50,b:'home',nm:'Домик',room:'home'},
-    {x:82,y:45,b:'letters',nm:'Дом букв',room:'letters',road:[[0.35,30],[0.72,-26]]},
-    {x:69,y:21,b:'circus',nm:'Цирк',room:'circus',road:[[0.5,42]]},
-    {x:57,y:83,b:'shop',nm:'Мир чисел',room:'shop',road:[[0.4,-26],[0.78,-6]]},
-    {x:77,y:73,b:'bakery',nm:'Пекарня',room:'bakery',road:[[0.3,22],[0.68,-20]]},
-    {x:33,y:83,b:'forest',nm:'Лес',room:'forest',road:[[0.45,30],[0.8,8]]},
-    {x:28,y:23,b:'workshop',nm:'Мастерская',room:'workshop',road:[[0.28,-26],[0.62,20],[0.85,-8]]},
-    {x:49,y:20,b:'station',nm:'Вокзал',room:'station',road:[[0.45,30]]},
-    {x:18,y:52,b:'park',nm:'Парк',room:'park',road:[[0.25,24],[0.55,-26],[0.82,-8]]}];
+    {x:82,y:45,b:'letters',nm:'Дом букв',room:'letters',stop:[74,50],via:[RS,[66,53.5],[74,50]]},
+    {x:69,y:21,b:'circus',nm:'Цирк',room:'circus',stop:[68,28],via:[RS,[63,53],[67,45],[68,36]]},
+    {x:57,y:83,b:'shop',nm:'Мир чисел',room:'shop',stop:[46,84],via:[[48,66],[45,75],[46,83],[49,85]]},
+    {x:77,y:73,b:'bakery',nm:'Пекарня',room:'bakery',stop:[69,71],via:[[56,63],[63,68],[69,71]]},
+    {x:33,y:83,b:'forest',nm:'Лес',room:'forest',stop:[42,83],via:[LS,[43,69],[42,79],[40,85]]},
+    {x:28,y:23,b:'workshop',nm:'Мастерская',room:'workshop',stop:[36,31],via:[LS,[40,49],[38,40],[36,31]]},
+    {x:49,y:20,b:'station',nm:'Вокзал',room:'station',stop:[55,28],via:[RS,[61,51],[62,44],[60,36]]},
+    {x:18,y:52,b:'park',nm:'Парк',room:'park',stop:[26,56],via:[LS,[36,60],[29,58]]}];
   const done={letters:false,circus:false,shop:false};
   const topmap=$('#topmap'),token=$('#mapToken');let curNode=0,walking=false,nodeEls=[];
   let mapInit=false;
   function buildNodes(){if(!mapInit){setRoad();buildDecor();mapInit=true;}nodeEls.forEach(e=>e.remove());nodeEls=[];NODES.forEach((n,i)=>{const el=document.createElement('div');el.className='node'+(n.soon?' soon':'')+(i===0?' nhome':'')+(done[n.room]?' done':'');
     el.style.left=n.x+'%';el.style.top=n.y+'%';el.innerHTML='<div class="building">'+buildingSVG(n.b)+'</div><div class="nlbl">'+n.nm+'</div>'+(n.soon?'<div class="nlock">🔒</div>':'')+(done[n.room]?'<div class="nstar">⭐</div>':'');
     el.onclick=()=>walkTo(i);topmap.appendChild(el);nodeEls.push(el);});}
-  /* дорожка = живая тропинка от площадки перед Домиком к локации: своя дуга у каждой */
+
   const SVGNS='http://www.w3.org/2000/svg';
-  const HUB=[56,62];        /* площадка перед Домиком: отсюда расходятся все дорожки */
-  let mapW=1360,mapH=707;   /* размер поля карты в пикселях сцены */
-  /* герой останавливается сбоку от здания, со стороны Домика, а не под крышей */
-  function stopAt(n){return [n.x+(n.x>=50?-8:8),n.y+4];}
-  /* точки маршрута в процентах: площадка → изгибы → порог локации → само здание */
-  function nodePts(n){
-    const st=stopAt(n),hx=HUB[0]*mapW/100,hy=HUB[1]*mapH/100;
-    const dx=st[0]*mapW/100-hx,dy=st[1]*mapH/100-hy,L=Math.hypot(dx,dy)||1,ux=dx/L,uy=dy/L;
-    const pts=[[HUB[0],HUB[1]]];
-    (n.road||[]).forEach(function(w){
-      pts.push([(hx+dx*w[0]-uy*w[1])/mapW*100,(hy+dy*w[0]+ux*w[1])/mapH*100]);});
-    pts.push(st);pts.push([n.x,n.y]);return pts;}
-  /* ломаная → плавная кривая (Catmull-Rom кубическими Безье): изгибы мягкие, без углов */
+  const HUB=[50,58];        /* площадка перед калиткой Домика: там сходятся все тропинки */
+  const TOK=[50,61];        /* герой стоит на площадке, чуть ниже калитки */
+  let mapW=1360,mapH=710;   /* размер поля карты в пикселях сцены */
+  /* маршрут начинается ровно там, где стоит герой, — иначе он дёрнулся бы в начале шага */
+  function roadPts(n){return [TOK.slice(),HUB.slice()].concat(n.via||[],[[n.x,n.y]]);}
+  /* Скругление тропинки. Ломаную разбиваем на равные шажки, а потом много раз подтягиваем
+     каждую точку к середине между соседями: углы расплываются в широкие дуги, концы закреплены.
+     Считаем в пикселях поля — карта вдвое шире, чем выше, и в процентах углы врут. */
+  const STEP=16, RELAX=34;
+  function smoothPts(p){
+    let q=[[p[0][0]*mapW/100,p[0][1]*mapH/100]];
+    for(let i=1;i<p.length;i++){
+      const a=[p[i-1][0]*mapW/100,p[i-1][1]*mapH/100],b=[p[i][0]*mapW/100,p[i][1]*mapH/100];
+      const dx=b[0]-a[0],dy=b[1]-a[1],n=Math.max(1,Math.round(Math.hypot(dx,dy)/STEP));
+      for(let j=1;j<=n;j++)q.push([a[0]+dx*j/n,a[1]+dy*j/n]);}
+    for(let t=0;t<RELAX;t++){
+      const r=q.map(a=>a.slice());
+      for(let k=1;k<q.length-1;k++){
+        r[k][0]=(q[k][0]+q[k-1][0]/2+q[k+1][0]/2)/2;
+        r[k][1]=(q[k][1]+q[k-1][1]/2+q[k+1][1]/2)/2;}
+      q=r;}
+    return q.map(a=>[a[0]/mapW*100,a[1]/mapH*100]);}
+  /* сглаженные точки → кривая Безье. kx/ky=1 даёт проценты для карты,
+     kx=mapW/100 — те же пиксели, по которым потом шагает герой */
   function smoothD(pts,kx,ky){
-    const P=pts.map(function(p){return [p[0]*kx,p[1]*ky];});
-    let d='M'+P[0][0].toFixed(1)+' '+P[0][1].toFixed(1);
-    for(let i=0;i<P.length-1;i++){
-      const a=P[i-1]||P[i],b=P[i],c=P[i+1],e=P[i+2]||P[i+1];
-      d+='C'+(b[0]+(c[0]-a[0])/6).toFixed(1)+' '+(b[1]+(c[1]-a[1])/6).toFixed(1)
-        +' '+(c[0]-(e[0]-b[0])/6).toFixed(1)+' '+(c[1]-(e[1]-b[1])/6).toFixed(1)
-        +' '+c[0].toFixed(1)+' '+c[1].toFixed(1);}
+    const p=smoothPts(pts);
+    let d='M'+(p[0][0]*kx).toFixed(2)+' '+(p[0][1]*ky).toFixed(2);
+    for(let i=0;i<p.length-1;i++){
+      const a=p[i-1]||p[i],b=p[i],c=p[i+1],e=p[i+2]||p[i+1];
+      d+='C'+((b[0]+(c[0]-a[0])/6)*kx).toFixed(2)+' '+((b[1]+(c[1]-a[1])/6)*ky).toFixed(2)
+        +' '+((c[0]-(e[0]-b[0])/6)*kx).toFixed(2)+' '+((c[1]-(e[1]-b[1])/6)*ky).toFixed(2)
+        +' '+(c[0]*kx).toFixed(2)+' '+(c[1]*ky).toFixed(2);}
     return d;}
   function setRoad(){const svg=document.querySelector('.road2');if(!svg)return;svg.innerHTML='';
     mapW=topmap.offsetWidth||mapW;mapH=topmap.offsetHeight||mapH;
-    NODES.forEach(function(n,i){if(i)n.pts=nodePts(n);});
-    /* три слоя поверх друг друга: тёмный край, светлая насыпь, пунктир — рисуем слоями,
-       иначе край одной дорожки ляжет поверх соседней */
-    [['#CDB07E',27,''],['#F6E7C6',18,''],['#ffffff',4,'0.3 9']].forEach(function(L){
-      const g=document.createElementNS(SVGNS,'g');
-      NODES.forEach(function(n,i){if(i===0)return;
-        const p=document.createElementNS(SVGNS,'path');
-        p.setAttribute('d',smoothD(n.pts,1,1));p.setAttribute('fill','none');
-        p.setAttribute('stroke',L[0]);p.setAttribute('stroke-width',L[1]);
-        p.setAttribute('stroke-linecap','round');p.setAttribute('vector-effect','non-scaling-stroke');
-        if(L[2]){p.setAttribute('stroke-dasharray',L[2]);p.setAttribute('opacity','.8');}
-        g.appendChild(p);});
-      svg.appendChild(g);});}
-  /* деревья, кусты, цветы и грибы — по краям и в промежутках между дорожками, не поверх них */
-  const DECOR=[[6,22,'tree',0],[5,68,'tree',0],[94,22,'tree',0],[95,68,'tree',0],[30,6,'tree',0],[70,7,'bush',0],[88,92,'tree',0],[9,93,'bush',0],
-    [40,30,'flower',1],[64,32,'mushroom',0],[39,70,'mushroom',0],[67,64,'flower',2],[28,42,'bush',0],[70,40,'flower',3],[25,63,'flower',0],[72,58,'bush',0],
-    [15,36,'flower',2],[86,34,'bush',0],[14,64,'mushroom',0],[88,58,'flower',1],[44,94,'bush',0],[73,94,'mushroom',0],[24,6,'mushroom',0],[60,6,'flower',3]];
-  function buildDecor(){DECOR.forEach(d=>{const el=document.createElement('div');el.className='deco';el.style.left=d[0]+'%';el.style.top=d[1]+'%';el.innerHTML=decoSVG(d[2],d[3]);topmap.appendChild(el);});}
+    NODES.forEach((n,i)=>{if(i)n.d=smoothD(roadPts(n),1,1);});
+    /* мягкие тёмные пятна травы: поле перестаёт быть ровно-зелёным */
+    let ps=document.querySelector('.patches');
+    if(!ps){ps=document.createElementNS(SVGNS,'svg');ps.setAttribute('class','patches');
+      ps.setAttribute('viewBox','0 0 1360 710');ps.setAttribute('preserveAspectRatio','none');
+      topmap.insertBefore(ps,svg);}
+    ps.innerHTML=PATCH.map(p=>'<ellipse cx="'+(p[0]/100*1360)+'" cy="'+(p[1]/100*710)+'" rx="'+p[2]+'" ry="'+p[3]+'" fill="#6DB84C" opacity=".38"/>').join('');
+    /* четыре слоя поверх друг друга: тёмный край, песчаная насыпь, светлая середина, пунктир.
+       Каждый слой рисуем сразу для всех тропинок, иначе край одной ляжет поверх соседней. */
+    const plaza=(fill,grow)=>'<ellipse cx="'+HUB[0]+'" cy="'+HUB[1]+'" rx="'+(5.9+grow)+'" ry="'+(5.2+grow*1.9)+
+      '" fill="'+fill+'" stroke="'+fill+'" stroke-width="1" vector-effect="non-scaling-stroke"/>';
+    let html='';
+    [['#C2A167',45,'',1.1],['#EBD7AB',36,'',.5],['#F7EDD3',20,'',-2],['#ffffff',5.6,'0.4 12',null]].forEach(L=>{
+      html+='<g>'+NODES.map((n,i)=>i?'<path d="'+n.d+'" fill="none" stroke="'+L[0]+'" stroke-width="'+L[1]+
+        '" stroke-linecap="round" vector-effect="non-scaling-stroke"'+
+        (L[2]?' stroke-dasharray="'+L[2]+'" opacity=".85"':'')+'/>':'').join('')+
+        (L[3]===null?'':plaza(L[0],L[3]))+'</g>';});
+    svg.innerHTML=html;}
+  /* трава и декор расставлены в стороне от тропинок и зданий — проверено скриптом */
+  const PATCH=[[11,17,150,58],[31,90,170,52],[87,28,160,60],[63,10,140,50],[7,55,130,46],
+    [91,74,150,54],[24,40,120,44],[76,60,120,42],[42,93,140,46],[13,80,120,44]];
+  const DECOR=[[5,20,'tree'],[4,66,'tree'],[95,18,'tree'],[96,64,'tree'],[20.5,7.5,'tree'],[80,7,'tree'],
+    [90,92,'tree'],[7,92,'tree'],[38,7,'bush'],[13,32,'bush'],[89.5,44,'bush'],[22,72,'bush'],
+    [67,90,'bush'],[3,44,'stone'],[97,40,'stone'],[19,90,'stone'],[85,84,'stone'],
+    [11,10,'stump'],[73,84,'stump'],[26,62,'stump'],
+    [10.5,44,'flower0'],[9,76,'flower1'],[90,54,'flower2'],[94,80,'flower3'],
+    [35,15,'flower1'],[61,7,'flower3'],[25.5,51.5,'flower2'],[71,40,'flower0'],
+    [40,34,'mush'],[80,24,'mush'],[15,63.5,'mush'],[59,94.5,'mush'],[37.5,24,'mush']];
+  function buildDecor(){DECOR.forEach(d=>{const el=document.createElement('div');el.className='deco';el.style.left=d[0]+'%';el.style.top=d[1]+'%';el.innerHTML=decoSVG(d[2]);topmap.appendChild(el);});}
   const FCOL=['#F368C4','#FF6B6B','#FFD23F','#9B5DE5'];
-  function decoSVG(t,ci){if(t==='tree')return '<svg width="46" height="52" viewBox="0 0 40 50"><rect x="17" y="30" width="6" height="17" rx="2" fill="#8B5E3C"/><circle cx="20" cy="22" r="15" fill="#5CA836"/><circle cx="12" cy="26" r="9" fill="#6FBF52"/><circle cx="28" cy="26" r="9" fill="#6FBF52"/><circle cx="20" cy="16" r="8" fill="#7BC950"/></svg>';
-    if(t==='bush')return '<svg width="42" height="34" viewBox="0 0 44 34"><ellipse cx="22" cy="24" rx="19" ry="10" fill="#5CA836"/><circle cx="13" cy="20" r="9" fill="#6FBF52"/><circle cx="28" cy="19" r="10" fill="#6FBF52"/></svg>';
-    if(t==='flower')return '<svg width="26" height="34" viewBox="0 0 28 36"><rect x="12.5" y="18" width="2.5" height="16" fill="#5CA836"/><circle cx="14" cy="8" r="5" fill="'+FCOL[ci%4]+'"/><circle cx="7" cy="14" r="5" fill="'+FCOL[ci%4]+'"/><circle cx="21" cy="14" r="5" fill="'+FCOL[ci%4]+'"/><circle cx="14" cy="18" r="5" fill="'+FCOL[ci%4]+'"/><circle cx="14" cy="13" r="3.2" fill="#FFD23F"/></svg>';
-    return '<svg width="28" height="30" viewBox="0 0 40 40"><rect x="16" y="24" width="8" height="12" rx="3" fill="#FFF3E0"/><path d="M6 26 Q20 6 34 26 Z" fill="#E4573B"/><circle cx="15" cy="19" r="2.5" fill="#fff"/><circle cx="25" cy="22" r="2.5" fill="#fff"/></svg>';}
-  function buildingSVG(k){const S='<svg viewBox="0 0 80 80" style="width:100%;height:100%">',E='</svg>';
-    if(k==='home')return S+'<rect x="22" y="42" width="36" height="28" rx="4" fill="#FFE1B0"/><path d="M17 44 L40 24 L63 44 Z" fill="#E4573B"/><rect x="34" y="54" width="12" height="16" rx="2" fill="#B77A47"/><rect x="25" y="47" width="9" height="8" rx="1.5" fill="#BFE3F5" stroke="#fff" stroke-width="1.5"/><rect x="50" y="28" width="6" height="12" fill="#C0645A"/>'+E;
-    if(k==='letters')return S+'<rect x="20" y="42" width="40" height="28" rx="4" fill="#FFE1B0"/><path d="M15 44 L40 26 L65 44 Z" fill="#9B5DE5"/><rect x="34" y="56" width="12" height="14" rx="2" fill="#B77A47"/><rect x="27" y="48" width="26" height="12" rx="3" fill="#fff"/><text x="40" y="57" font-family="Fredoka" font-size="11" font-weight="700" fill="#9B5DE5" text-anchor="middle">АБВ</text>'+E;
-    if(k==='circus')return S+'<path d="M40 20 L20 66 L60 66 Z" fill="#fff"/><path d="M40 20 L27 66 L35 66 Z" fill="#E4573B"/><path d="M40 20 L45 66 L53 66 Z" fill="#E4573B"/><path d="M34 66 L40 50 L46 66 Z" fill="#B23A3A"/><rect x="39" y="10" width="2" height="11" fill="#8B5E3C"/><path d="M41 11 L50 14 L41 17 Z" fill="#FFD23F"/>'+E;
-    if(k==='shop')return S+'<rect x="18" y="42" width="44" height="28" rx="4" fill="#FFE1B0"/><path d="M14 44 L40 26 L66 44 Z" fill="#E4573B"/><g><rect x="16" y="44" width="8" height="9" fill="#E4573B"/><rect x="24" y="44" width="8" height="9" fill="#FFF6E2"/><rect x="32" y="44" width="8" height="9" fill="#E4573B"/><rect x="40" y="44" width="8" height="9" fill="#FFF6E2"/><rect x="48" y="44" width="8" height="9" fill="#E4573B"/><rect x="56" y="44" width="8" height="9" fill="#FFF6E2"/></g><rect x="34" y="56" width="12" height="14" rx="2" fill="#3E97C0"/><rect x="22" y="56" width="9" height="8" rx="2" fill="#BFE3F5"/><rect x="49" y="56" width="9" height="8" rx="2" fill="#BFE3F5"/><circle cx="40" cy="30" r="7" fill="#FFD23F" stroke="#E9B21E" stroke-width="2"/><text x="40" y="34" text-anchor="middle" font-family="Fredoka" font-size="9" font-weight="700" fill="#fff">+</text>'+E;
-    if(k==='bakery')return S+'<rect x="20" y="44" width="40" height="26" rx="3" fill="#F7E0C0"/><path d="M16 45 L40 28 L64 45 Z" fill="#B5764A"/><rect x="34" y="56" width="12" height="14" rx="2" fill="#8B5E3C"/><path d="M33 40 h14 l-2 8 h-10 Z" fill="#E7B98C"/><path d="M32 40 q8 -9 16 0 Z" fill="#F5A6C0"/><circle cx="40" cy="33" r="2.4" fill="#E4573B"/>'+E;
-    if(k==='forest')return S+'<rect x="24" y="48" width="5" height="16" fill="#8B5E3C"/><rect x="51" y="50" width="5" height="14" fill="#8B5E3C"/><rect x="37" y="46" width="6" height="20" fill="#8B5E3C"/><circle cx="26" cy="44" r="13" fill="#5CA836"/><circle cx="54" cy="46" r="12" fill="#6FBF52"/><circle cx="40" cy="38" r="16" fill="#7BC950"/>'+E;
-    if(k==='workshop')return S+'<rect x="20" y="44" width="40" height="26" rx="3" fill="#CFC6BA"/><path d="M16 45 L40 30 L64 45 Z" fill="#7A8087"/><rect x="34" y="56" width="12" height="14" rx="2" fill="#5a5f66"/><g transform="translate(40,40)"><circle r="9" fill="#FFD23F"/><circle r="3.5" fill="#EFE7DA"/><rect x="-2" y="-13" width="4" height="4" fill="#FFD23F"/><rect x="-2" y="9" width="4" height="4" fill="#FFD23F"/><rect x="-13" y="-2" width="4" height="4" fill="#FFD23F"/><rect x="9" y="-2" width="4" height="4" fill="#FFD23F"/></g>'+E;
-    if(k==='station')return S+'<rect x="20" y="42" width="26" height="20" rx="4" fill="#4DB6E5"/><rect x="42" y="34" width="16" height="28" rx="3" fill="#3E97C0"/><rect x="26" y="34" width="7" height="11" fill="#37344F"/><circle cx="27" cy="30" r="4" fill="#fff"/><circle cx="34" cy="26" r="3" fill="#fff"/><circle cx="29" cy="66" r="6" fill="#37344F"/><circle cx="49" cy="66" r="6" fill="#37344F"/><circle cx="29" cy="66" r="2.5" fill="#9aa0a6"/><circle cx="49" cy="66" r="2.5" fill="#9aa0a6"/>'+E;
-    if(k==='park')return S+'<path d="M40 36 L27 70" stroke="#8C93B8" stroke-width="4.5" stroke-linecap="round"/><path d="M40 36 L53 70" stroke="#8C93B8" stroke-width="4.5" stroke-linecap="round"/><rect x="22" y="68" width="36" height="6" rx="3" fill="#B77A47"/><circle cx="40" cy="36" r="24" fill="none" stroke="#7A86A8" stroke-width="7.5"/><circle cx="40" cy="36" r="24" fill="none" stroke="#FFF8EC" stroke-width="4"/><g stroke="#FFF8EC" stroke-width="3" stroke-linecap="round"><path d="M40 36 L64 36"/><path d="M40 36 L52 15.2"/><path d="M40 36 L28 15.2"/><path d="M40 36 L16 36"/><path d="M40 36 L28 56.8"/><path d="M40 36 L52 56.8"/></g><g stroke="#FFF8EC" stroke-width="1.5"><circle cx="64" cy="36" r="5.5" fill="#FF6B6B"/><circle cx="52" cy="15.2" r="5.5" fill="#FFD23F"/><circle cx="28" cy="15.2" r="5.5" fill="#4DB6E5"/><circle cx="16" cy="36" r="5.5" fill="#9B5DE5"/><circle cx="28" cy="56.8" r="5.5" fill="#7BC950"/><circle cx="52" cy="56.8" r="5.5" fill="#F368C4"/></g><circle cx="40" cy="36" r="5" fill="#FFD23F" stroke="#7A86A8" stroke-width="2"/><path d="M40 12 L40 5" stroke="#7A86A8" stroke-width="2.2" stroke-linecap="round"/><path d="M41 5 L50 8 L41 11 Z" fill="#E4573B"/>'+E;
-    return S+E;}
-  /* герой стоит РЯДОМ со зданием, а не поверх него; у Домика — на площадке, откуда идут дорожки */
-  function placeToken(){const p=curNode===0?HUB:stopAt(NODES[curNode]);
+  function decoSVG(t){
+    if(t==='tree')return '<svg width="52" height="58" viewBox="0 0 44 50">'+
+      '<rect x="18.5" y="30" width="7" height="18" rx="2.4" fill="#8B5E3C" stroke="#6A4527" stroke-width="1.6"/>'+
+      '<circle cx="22" cy="21" r="15" fill="#4C9B33" stroke="#2F6B24" stroke-width="1.6"/>'+
+      '<circle cx="13" cy="25" r="9" fill="#5FB441" stroke="#2F6B24" stroke-width="1.5"/>'+
+      '<circle cx="31" cy="25" r="9" fill="#5FB441" stroke="#2F6B24" stroke-width="1.5"/>'+
+      '<circle cx="22" cy="15" r="8" fill="#6FC64C" stroke="#2F6B24" stroke-width="1.5"/></svg>';
+    if(t==='bush')return '<svg width="46" height="34" viewBox="0 0 46 34">'+
+      '<ellipse cx="23" cy="24" rx="20" ry="9.5" fill="#4C9B33" stroke="#2F6B24" stroke-width="1.6"/>'+
+      '<circle cx="14" cy="19" r="9" fill="#5FB441" stroke="#2F6B24" stroke-width="1.5"/>'+
+      '<circle cx="30" cy="18" r="10" fill="#5FB441" stroke="#2F6B24" stroke-width="1.5"/></svg>';
+    if(t==='stone')return '<svg width="34" height="26" viewBox="0 0 34 26">'+
+      '<path d="M4 22 Q2 10 12 6 Q25 1 30 12 Q33 22 25 24 Z" fill="#B9BCC4" stroke="#8B9099" stroke-width="1.6" stroke-linejoin="round"/>'+
+      '<path d="M9 20 Q11 12 18 9" stroke="#D8DBE1" stroke-width="2.2" fill="none" stroke-linecap="round"/></svg>';
+    if(t==='stump')return '<svg width="32" height="30" viewBox="0 0 32 30">'+
+      '<rect x="6" y="9" width="20" height="18" rx="3" fill="#A0703F" stroke="#7A5330" stroke-width="1.6"/>'+
+      '<ellipse cx="16" cy="9.5" rx="10" ry="4.4" fill="#C9954F" stroke="#7A5330" stroke-width="1.6"/>'+
+      '<ellipse cx="16" cy="9.5" rx="5" ry="2.1" fill="none" stroke="#A87B3F" stroke-width="1.3"/></svg>';
+    if(t==='mush')return '<svg width="30" height="30" viewBox="0 0 30 30">'+
+      '<rect x="11" y="16" width="8" height="12" rx="3" fill="#FFF3E0" stroke="#D7C4A6" stroke-width="1.5"/>'+
+      '<path d="M2 18 Q15 1 28 18 Z" fill="#E4573B" stroke="#B23A2A" stroke-width="1.6" stroke-linejoin="round"/>'+
+      '<circle cx="10" cy="12" r="2.6" fill="#fff"/><circle cx="19" cy="14" r="2.6" fill="#fff"/></svg>';
+    const c=FCOL[+t.slice(6)%4];
+    return '<svg width="28" height="36" viewBox="0 0 28 36">'+
+      '<path d="M14 34 V20" stroke="#4F9E33" stroke-width="2.2" stroke-linecap="round"/>'+
+      '<circle cx="14" cy="9" r="5.2" fill="'+c+'"/><circle cx="7.4" cy="15" r="5.2" fill="'+c+'"/>'+
+      '<circle cx="20.6" cy="15" r="5.2" fill="'+c+'"/><circle cx="14" cy="20" r="5.2" fill="'+c+'"/>'+
+      '<circle cx="14" cy="14.5" r="3.3" fill="#FFD23F"/></svg>';}
+
+  /* ——— картинки локаций: объём, обводка, черепица, кустики и цветы ——— */
+  function bGrad(id,a,b){return '<linearGradient id="'+id+'" x1="0" y1="0" x2="0" y2="1"><stop offset="0" stop-color="'+a+'"/><stop offset="1" stop-color="'+b+'"/></linearGradient>';}
+  function bShadow(rx){return '<ellipse cx="40" cy="72.6" rx="'+rx+'" ry="4.5" fill="#000" opacity=".16"/>';}
+  function bBush(y){y=y||69.6;return '<g>'+
+    '<circle cx="15.5" cy="'+y+'" r="5" fill="#4F9E33"/><circle cx="20" cy="'+(y+1.3)+'" r="3.9" fill="#69BC48"/>'+
+    '<circle cx="64.5" cy="'+y+'" r="5" fill="#4F9E33"/><circle cx="60" cy="'+(y+1.3)+'" r="3.9" fill="#69BC48"/></g>';}
+  function bFlower(x,y,c){return '<g>'+
+    '<path d="M'+x+' '+(y+4.6)+' V'+(y+1.4)+'" stroke="#4F9E33" stroke-width="1.1" stroke-linecap="round"/>'+
+    '<circle cx="'+x+'" cy="'+(y-1.5)+'" r="1.6" fill="'+c+'"/><circle cx="'+(x-1.9)+'" cy="'+(y+0.7)+'" r="1.6" fill="'+c+'"/>'+
+    '<circle cx="'+(x+1.9)+'" cy="'+(y+0.7)+'" r="1.6" fill="'+c+'"/><circle cx="'+x+'" cy="'+(y+2.4)+'" r="1.6" fill="'+c+'"/>'+
+    '<circle cx="'+x+'" cy="'+(y+0.5)+'" r="1.05" fill="#FFD23F"/></g>';}
+  function bTiles(rows){return '<g stroke="#fff" opacity=".3" stroke-width="1.2" stroke-linecap="round">'+rows+'</g>';}
+  function bWin(x,y,w,h){return '<g><rect x="'+x+'" y="'+y+'" width="'+w+'" height="'+h+'" rx="1.8" fill="#8FD4F3" stroke="#fff" stroke-width="2.2"/>'+
+    '<g stroke="#fff" stroke-width="1.7" stroke-linecap="round"><path d="M'+(x+w/2)+' '+y+' v'+h+'"/><path d="M'+x+' '+(y+h/2)+' h'+w+'"/></g></g>';}
+  function bPicket(x,y){return '<rect x="'+x+'" y="'+y+'" width="3.4" height="8.8" rx="1.7" fill="#FFFDF5" stroke="#C6AC7C" stroke-width="1.1"/>';}
+  var ART={};
+
+  /* ДОМИК: площадка, заборчик с калиткой, цветы */
+  ART.home=
+    '<defs>'+bGrad('hw','#FFF1D6','#EDCB95')+bGrad('hr','#F7856A','#CE3E2B')+bGrad('hd','#BC8149','#8A552B')+bGrad('hp','#F7F0D4','#E4D7A8')+'</defs>'+
+    '<ellipse cx="40" cy="67.5" rx="35" ry="12" fill="#E5D7A4" stroke="#C3AC6E" stroke-width="1.5"/>'+
+    '<ellipse cx="40" cy="67.5" rx="30" ry="9" fill="url(#hp)"/>'+
+    '<g fill="#fff" opacity=".55"><circle cx="55" cy="10.6" r="2.5"/><circle cx="58.4" cy="6.6" r="1.9"/><circle cx="55.4" cy="3.4" r="1.4"/></g>'+
+    '<rect x="50" y="15.6" width="7.2" height="16" rx="1.6" fill="#C8695C" stroke="#95412F" stroke-width="1.5"/>'+
+    '<rect x="48.3" y="13.3" width="10.6" height="4.1" rx="1.7" fill="#AE5645" stroke="#95412F" stroke-width="1.5"/>'+
+    '<rect x="20" y="36.5" width="40" height="29.5" rx="2.6" fill="url(#hw)" stroke="#B0834F" stroke-width="1.7"/>'+
+    '<path d="M20.5 59.5 h39" stroke="#D9B27C" stroke-width="1.2" opacity=".7"/>'+
+    '<path d="M40 11 L67 40.5 H13 Z" fill="url(#hr)" stroke="#9C2C1B" stroke-width="1.9" stroke-linejoin="round"/>'+
+    bTiles('<path d="M23 36 h34"/><path d="M27 30 h26"/><path d="M32 24 h16"/>')+
+    '<rect x="11.5" y="38.9" width="57" height="5.2" rx="2.6" fill="#C13826" stroke="#9C2C1B" stroke-width="1.5"/>'+
+    bWin(22.5,46.5,12,11)+bWin(45.5,46.5,12,11)+
+    '<path d="M34 66 v-9 a6 6 0 0 1 12 0 v9 z" fill="url(#hd)" stroke="#6C4520" stroke-width="1.6"/>'+
+    '<circle cx="43.4" cy="61.5" r="1.2" fill="#FFD23F"/>'+
+    '<rect x="30.6" y="64.8" width="18.8" height="3.4" rx="1.5" fill="#EBD8B2" stroke="#B7975F" stroke-width="1.2"/>'+
+    '<path d="M35.6 68 h8.8 v8 h-8.8 z" fill="#F1E3BC" stroke="#D3C08E" stroke-width="1"/>'+
+    '<g><circle cx="14.5" cy="62.5" r="4.6" fill="#4F9E33"/><circle cx="18.4" cy="63.8" r="3.6" fill="#69BC48"/>'+
+    '<circle cx="65.5" cy="62.5" r="4.6" fill="#4F9E33"/><circle cx="61.6" cy="63.8" r="3.6" fill="#69BC48"/></g>'+
+    bFlower(24,65.5,'#F368C4')+bFlower(56,65.5,'#FF6B6B')+bFlower(10,68,'#FFD23F')+bFlower(70,68,'#9B5DE5')+
+    '<g>'+bPicket(7,67.5)+bPicket(12.5,67.5)+bPicket(18,67.5)+bPicket(23.5,67.5)+bPicket(29,67.5)+
+    bPicket(47.5,67.5)+bPicket(53,67.5)+bPicket(58.5,67.5)+bPicket(64,67.5)+bPicket(69.5,67.5)+
+    '<rect x="6.5" y="70.2" width="26.4" height="2.2" rx="1.1" fill="#FFFDF5" stroke="#C6AC7C" stroke-width="1"/>'+
+    '<rect x="47" y="70.2" width="26.4" height="2.2" rx="1.1" fill="#FFFDF5" stroke="#C6AC7C" stroke-width="1"/></g>';
+
+  /* ДОМ БУКВ: жёлтые стены, фиолетовая крыша, вывеска АБВ */
+  ART.letters=
+    '<defs>'+bGrad('lw','#FFF3C9','#F3D67E')+bGrad('lr','#B57BEE','#7B3FC4')+'</defs>'+
+    bShadow(27)+
+    '<path d="M40 18 L70 45 H10 Z" fill="url(#lr)" stroke="#5E2D9B" stroke-width="1.9" stroke-linejoin="round"/>'+
+    bTiles('<path d="M21 40.5 h38"/><path d="M26 34.5 h28"/><path d="M31 28.5 h18"/>')+
+    '<rect x="8.5" y="43.4" width="63" height="5.2" rx="2.6" fill="#8B4FD0" stroke="#5E2D9B" stroke-width="1.5"/>'+
+    '<rect x="13.5" y="47.5" width="53" height="23" rx="2.5" fill="url(#lw)" stroke="#C39B44" stroke-width="1.7"/>'+
+    '<rect x="25.5" y="50.5" width="29" height="12.5" rx="3" fill="#FFFDF2" stroke="#7B3FC4" stroke-width="1.8"/>'+
+    '<text x="40" y="60.2" text-anchor="middle" font-family="Fredoka,sans-serif" font-size="9.6" font-weight="700" fill="#7B3FC4">АБВ</text>'+
+    bWin(15.5,51,8.5,9)+bWin(56,51,8.5,9)+
+    '<path d="M34 70.5 v-8 a6 6 0 0 1 12 0 v8 z" fill="#BC8149" stroke="#6C4520" stroke-width="1.6"/>'+
+    '<circle cx="43.4" cy="66.4" r="1.2" fill="#FFD23F"/>'+
+    '<rect x="30.6" y="69.4" width="18.8" height="3.3" rx="1.4" fill="#EBD8B2" stroke="#B7975F" stroke-width="1.1"/>'+
+    bBush()+bFlower(27,68,'#F368C4')+bFlower(53,68,'#4DB6E5');
+
+  /* ПЕКАРНЯ: круассан на коньке, маркиза, витрина */
+  ART.bakery=
+    '<defs>'+bGrad('bw','#FFF9EC','#F6E2BC')+bGrad('br','#FFDE83','#EFB024')+'</defs>'+
+    bShadow(27)+
+    '<g transform="translate(40,23)">'+
+    '<path d="M-10.5 5 C -10 -8.5 10 -8.5 10.5 5 C 6.5 1.6 -6.5 1.6 -10.5 5 Z" fill="#F3C176" stroke="#B8802F" stroke-width="1.5" stroke-linejoin="round"/>'+
+    '<g stroke="#D19B45" stroke-width="1.1" stroke-linecap="round"><path d="M-4.6 1.4 v3"/><path d="M0 0.6 v3.4"/><path d="M4.6 1.4 v3"/></g>'+
+    '<circle cx="-10" cy="5" r="1.7" fill="#F3C176" stroke="#B8802F" stroke-width="1.3"/>'+
+    '<circle cx="10" cy="5" r="1.7" fill="#F3C176" stroke="#B8802F" stroke-width="1.3"/></g>'+
+    '<rect x="19.5" y="30" width="6.4" height="12" rx="1.5" fill="#C8695C" stroke="#95412F" stroke-width="1.4"/>'+
+    '<path d="M40 29 L69 48 H11 Z" fill="url(#br)" stroke="#BC8A12" stroke-width="1.8" stroke-linejoin="round"/>'+
+    bTiles('<path d="M19 44 h42"/><path d="M25 40 h30"/><path d="M31 36 h18"/>')+
+    '<rect x="9.5" y="46.2" width="61" height="5.2" rx="2.6" fill="#E8AC1C" stroke="#BC8A12" stroke-width="1.4"/>'+
+    '<rect x="16.5" y="50.5" width="47" height="20.2" rx="2.4" fill="url(#bw)" stroke="#C0904F" stroke-width="1.7"/>'+
+    '<path d="M19.5 70.5 v-8 a8 8 0 0 1 16 0 v8 z" fill="#8FD4F3" stroke="#fff" stroke-width="2.2" stroke-linejoin="round"/>'+
+    '<path d="M23.5 69.5 h8 v-3.4 h-8 z" fill="#FFF1DC" stroke="#D9B27C" stroke-width="1"/>'+
+    '<path d="M23.2 66.1 q4.3 -3.2 8.6 0 z" fill="#F5A6C0"/><circle cx="27.5" cy="63.9" r="1.2" fill="#E4573B"/>'+
+    '<path d="M17.6 54.8 h19.8 v3.4 h-19.8 z" fill="#FFF7E8" stroke="#C93F26" stroke-width="1.2" stroke-linejoin="round"/>'+
+    '<g fill="#E8503A"><rect x="21.3" y="54.8" width="3.6" height="3.4"/><rect x="28.6" y="54.8" width="3.6" height="3.4"/></g>'+
+    '<g fill="#FFF7E8" stroke="#C93F26" stroke-width="1"><circle cx="20.1" cy="58.2" r="2.2"/><circle cx="24.4" cy="58.2" r="2.2"/><circle cx="28.7" cy="58.2" r="2.2"/><circle cx="33" cy="58.2" r="2.2"/></g>'+
+    '<path d="M44 70.7 v-8.5 a5.5 5.5 0 0 1 11 0 v8.5 z" fill="#BC8149" stroke="#6C4520" stroke-width="1.6"/>'+
+    '<circle cx="52.6" cy="66.4" r="1.1" fill="#FFD23F"/>'+
+    '<rect x="41.5" y="69.6" width="16" height="3.2" rx="1.4" fill="#EBD8B2" stroke="#B7975F" stroke-width="1.1"/>'+
+    bBush()+bFlower(70,67,'#F368C4');
+
+  /* МИР ЧИСЕЛ: цифры 1 2 3 на стене */
+  ART.shop=
+    '<defs>'+bGrad('sw','#FFF6E0','#F2DDB0')+bGrad('sr','#F4785A','#C8371F')+'</defs>'+
+    bShadow(27)+
+    '<path d="M40 20 L70 46 H10 Z" fill="url(#sr)" stroke="#9C2C1B" stroke-width="1.9" stroke-linejoin="round"/>'+
+    bTiles('<path d="M21 41.5 h38"/><path d="M26 35.5 h28"/><path d="M31 29.5 h18"/>')+
+    '<rect x="8.5" y="44.4" width="63" height="5.2" rx="2.6" fill="#C13826" stroke="#9C2C1B" stroke-width="1.5"/>'+
+    '<rect x="15" y="48.5" width="50" height="22" rx="2.5" fill="url(#sw)" stroke="#C09A55" stroke-width="1.7"/>'+
+    '<rect x="25" y="50.5" width="30" height="11.5" rx="3" fill="#FFFDF6" stroke="#D6B36A" stroke-width="1.5"/>'+
+    '<g font-family="Fredoka,sans-serif" font-size="10.5" font-weight="700" text-anchor="middle">'+
+    '<text x="32" y="59.6" fill="#3E97C0">1</text><text x="40" y="59.6" fill="#E4573B">2</text><text x="48" y="59.6" fill="#7BC950">3</text></g>'+
+    '<path d="M34 70.5 v-6.5 a6 6 0 0 1 12 0 v6.5 z" fill="#3E97C0" stroke="#255F80" stroke-width="1.6"/>'+
+    '<circle cx="43.4" cy="67.2" r="1.2" fill="#FFD23F"/>'+
+    bWin(16.5,51,8.5,9)+bWin(55,51,8.5,9)+
+    '<rect x="30.6" y="69.6" width="18.8" height="3.2" rx="1.4" fill="#EBD8B2" stroke="#B7975F" stroke-width="1.1"/>'+
+    bBush()+bFlower(26,68,'#FFD23F')+bFlower(54,68,'#9B5DE5');
+
+  /* ЦИРК: полосатый шатёр, занавес, флаг */
+  ART.circus=(function(){
+    var s='',x0=12,x1=68,n=8,w=(x1-x0)/n;
+    for(var i=0;i<n;i++){
+      s+='<path d="M40 16 L'+(x0+i*w).toFixed(1)+' 50 L'+(x0+(i+1)*w).toFixed(1)+' 50 Z" fill="'+(i%2?'#FFF6E8':'#E8503A')+'"/>';}
+    var scal='';
+    for(var j=0;j<8;j++){scal+='<circle cx="'+(x0+w/2+j*w).toFixed(1)+'" cy="50" r="'+(w/2).toFixed(1)+'" fill="'+(j%2?'#FFF6E8':'#E8503A')+'" stroke="#A5301C" stroke-width="1.1"/>';}
+    return bShadow(26)+
+      '<rect x="39.1" y="6" width="1.9" height="11" rx=".9" fill="#8B5E3C"/>'+
+      '<path d="M41 6.5 L52.5 10 L41 13.5 Z" fill="#FFD23F" stroke="#DFA81B" stroke-width="1.2" stroke-linejoin="round"/>'+
+      '<g>'+s+'</g>'+
+      '<path d="M40 16 L12 50 H68 Z" fill="none" stroke="#A5301C" stroke-width="1.8" stroke-linejoin="round"/>'+
+      scal+
+      '<rect x="15" y="52" width="50" height="19" rx="2.4" fill="#FFF6E8" stroke="#A5301C" stroke-width="1.7"/>'+
+      '<g fill="#E8503A"><rect x="18" y="53" width="6" height="17"/><rect x="30" y="53" width="6" height="17"/><rect x="44" y="53" width="6" height="17"/><rect x="56" y="53" width="6" height="17"/></g>'+
+      '<path d="M31 71 v-9 a9 9 0 0 1 18 0 v9 z" fill="#7A2E2E" stroke="#5A1F1F" stroke-width="1.6"/>'+
+      '<path d="M31 71 v-9 a9 9 0 0 1 6 -8.4 V71 Z" fill="#E8503A" stroke="#A5301C" stroke-width="1.3"/>'+
+      '<path d="M49 71 v-9 a9 9 0 0 0 -6 -8.4 V71 Z" fill="#E8503A" stroke="#A5301C" stroke-width="1.3"/>'+
+      '<circle cx="40" cy="58" r="2.6" fill="#FFD23F" stroke="#DFA81B" stroke-width="1.2"/>'+
+      bBush()+bFlower(72,68,'#F368C4')+bFlower(8,68,'#FFD23F');
+  })();
+
+  /* ВОКЗАЛ: паровозик с часами */
+  ART.station=
+    '<defs>'+bGrad('tb','#63C7EE','#2C7FA8')+bGrad('tc','#4FB0DE','#22688C')+'</defs>'+
+    bShadow(28)+
+    '<g fill="#fff" opacity=".6"><circle cx="21" cy="16" r="3"/><circle cx="26" cy="11" r="2.3"/><circle cx="22.5" cy="7" r="1.7"/></g>'+
+    '<rect x="16.5" y="24" width="7.6" height="11" rx="1.4" fill="#37344F" stroke="#22203A" stroke-width="1.4"/>'+
+    '<rect x="14.4" y="21.5" width="11.8" height="4" rx="1.8" fill="#4A465F" stroke="#22203A" stroke-width="1.4"/>'+
+    '<rect x="44" y="26" width="21" height="27" rx="3" fill="url(#tc)" stroke="#1B5170" stroke-width="1.7"/>'+
+    '<rect x="48" y="30" width="13" height="10" rx="1.8" fill="#CDEEFB" stroke="#fff" stroke-width="2"/>'+
+    '<path d="M43 24 h23 v4 h-23 z" rx="2" fill="#1B5170"/>'+
+    '<rect x="11" y="35" width="36" height="19" rx="9.5" fill="url(#tb)" stroke="#1B5170" stroke-width="1.7"/>'+
+    '<circle cx="18.5" cy="44.5" r="6.6" fill="#FFF7E8" stroke="#1B5170" stroke-width="1.7"/>'+
+    '<g stroke="#37344F" stroke-width="1.4" stroke-linecap="round"><path d="M18.5 44.5 V40.5"/><path d="M18.5 44.5 L21.4 46.6"/></g>'+
+    '<rect x="10" y="53" width="57" height="4.4" rx="2.2" fill="#37344F" stroke="#22203A" stroke-width="1.3"/>'+
+    '<g fill="#37344F" stroke="#22203A" stroke-width="1.5">'+
+    '<circle cx="21" cy="62" r="8"/><circle cx="41" cy="63.5" r="6"/><circle cx="57" cy="63.5" r="6"/></g>'+
+    '<g fill="#C9CED6"><circle cx="21" cy="62" r="3"/><circle cx="41" cy="63.5" r="2.3"/><circle cx="57" cy="63.5" r="2.3"/></g>'+
+    '<rect x="6" y="69" width="68" height="3.2" rx="1.6" fill="#A9A296" stroke="#87806F" stroke-width="1.2"/>'+
+    '<g fill="#8B5E3C"><rect x="12" y="67" width="4" height="7" rx="1.2"/><rect x="30" y="67" width="4" height="7" rx="1.2"/><rect x="48" y="67" width="4" height="7" rx="1.2"/><rect x="64" y="67" width="4" height="7" rx="1.2"/></g>';
+
+  /* МАСТЕРСКАЯ: каменный дом, синяя крыша, шестерня на коньке */
+  ART.workshop=(function(){
+    var teeth='';
+    for(var i=0;i<8;i++){teeth+='<rect x="-2.3" y="-12.6" width="4.6" height="4.6" rx="1.2" transform="rotate('+(i*45)+')"/>';}
+    return '<defs>'+bGrad('ww','#EDE6DA','#CFC4B2')+bGrad('wr','#6FA8DC','#2F6499')+'</defs>'+
+      bShadow(26)+
+      '<g transform="translate(40,20)" fill="#FFD23F" stroke="#D8A21A" stroke-width="1.5" stroke-linejoin="round">'+teeth+
+      '<circle r="8.6"/></g><circle cx="40" cy="20" r="3.4" fill="#EFE7DA" stroke="#D8A21A" stroke-width="1.4"/>'+
+      '<path d="M40 30 L69 48 H11 Z" fill="url(#wr)" stroke="#204A75" stroke-width="1.8" stroke-linejoin="round"/>'+
+      bTiles('<path d="M19 44 h42"/><path d="M25 40 h30"/><path d="M31 36 h18"/>')+
+      '<rect x="9.5" y="46.2" width="61" height="5.2" rx="2.6" fill="#2F6499" stroke="#204A75" stroke-width="1.4"/>'+
+      '<rect x="16.5" y="50.5" width="47" height="20.2" rx="2.4" fill="url(#ww)" stroke="#A2977F" stroke-width="1.7"/>'+
+      '<g stroke="#BDB2A0" stroke-width="1.2" stroke-linecap="round"><path d="M17 57 h46"/><path d="M17 63.5 h46"/>'+
+      '<path d="M28 50.7 v6.3"/><path d="M44 50.7 v6.3"/><path d="M22 57 v6.5"/><path d="M36 57 v6.5"/><path d="M52 57 v6.5"/></g>'+
+      bWin(18.5,53,9,8.5)+bWin(52.5,53,9,8.5)+
+      '<path d="M34 70.7 v-8.5 a6 6 0 0 1 12 0 v8.5 z" fill="#8A7A63" stroke="#5B4F3E" stroke-width="1.6"/>'+
+      '<circle cx="43.4" cy="66.4" r="1.2" fill="#FFD23F"/>'+
+      '<rect x="30.6" y="69.6" width="18.8" height="3.2" rx="1.4" fill="#DCD2BE" stroke="#A2977F" stroke-width="1.1"/>'+
+      bBush()+bFlower(70,67,'#4DB6E5');
+  })();
+
+  /* ПАРК: колесо обозрения с кабинками */
+  ART.park=(function(){
+    var pods='',cols=['#FF6B6B','#FFD23F','#4DB6E5','#9B5DE5','#7BC950','#F368C4'],sp='';
+    for(var i=0;i<6;i++){
+      var a=(i*60-90)*Math.PI/180,x=(40+24*Math.cos(a)).toFixed(1),y=(36+24*Math.sin(a)).toFixed(1);
+      sp+='<path d="M40 36 L'+x+' '+y+'"/>';
+      pods+='<g><path d="M'+x+' '+y+' v3.4" stroke="#7A86A8" stroke-width="1.4"/>'+
+        '<rect x="'+(x-5.4)+'" y="'+(+y+3.2)+'" width="10.8" height="8.6" rx="3.4" fill="'+cols[i]+'" stroke="#FFF8EC" stroke-width="1.8"/>'+
+        '<rect x="'+(x-3.2)+'" y="'+(+y+5.2)+'" width="6.4" height="3.6" rx="1.6" fill="#FFF8EC" opacity=".75"/></g>';}
+    return bShadow(24)+
+      '<path d="M40 36 L26 71" stroke="#6E7A9C" stroke-width="5.2" stroke-linecap="round"/>'+
+      '<path d="M40 36 L54 71" stroke="#6E7A9C" stroke-width="5.2" stroke-linecap="round"/>'+
+      '<rect x="20" y="68.5" width="40" height="6" rx="3" fill="#B77A47" stroke="#8A5730" stroke-width="1.5"/>'+
+      '<circle cx="40" cy="36" r="24" fill="none" stroke="#5F6B8C" stroke-width="8"/>'+
+      '<circle cx="40" cy="36" r="24" fill="none" stroke="#FFF8EC" stroke-width="4.4"/>'+
+      '<g stroke="#FFF8EC" stroke-width="3" stroke-linecap="round">'+sp+'</g>'+
+      pods+
+      '<circle cx="40" cy="36" r="5.4" fill="#FFD23F" stroke="#7A86A8" stroke-width="2"/>'+
+      '<path d="M40 12 V5" stroke="#7A86A8" stroke-width="2.2" stroke-linecap="round"/>'+
+      '<path d="M41 5 L51 8.4 L41 11.8 Z" fill="#E4573B" stroke="#B23A2A" stroke-width="1.2" stroke-linejoin="round"/>';
+  })();
+
+  /* ЛЕС: ёлки и деревянная арка */
+  ART.forest=(function(){
+    function fir(x,y,s,c1,c2){return '<g transform="translate('+x+','+y+') scale('+s+')">'+
+      '<rect x="-2.4" y="-2" width="4.8" height="10" rx="1.6" fill="#8B5E3C" stroke="#6A4527" stroke-width="1.4"/>'+
+      '<path d="M0 -34 L11 -14 H-11 Z" fill="'+c1+'" stroke="#2F6B24" stroke-width="1.5" stroke-linejoin="round"/>'+
+      '<path d="M0 -24 L13 -6 H-13 Z" fill="'+c2+'" stroke="#2F6B24" stroke-width="1.5" stroke-linejoin="round"/>'+
+      '<path d="M0 -14 L15 2 H-15 Z" fill="'+c1+'" stroke="#2F6B24" stroke-width="1.5" stroke-linejoin="round"/></g>';}
+    return bShadow(28)+
+      fir(13.5,62,.78,'#4C9B33','#5FB441')+fir(66.5,62,.78,'#4C9B33','#5FB441')+fir(40,52,1,'#3F8C2C','#55A93A')+
+      fir(26,60,.6,'#43912C','#54A63C')+fir(54,60,.6,'#43912C','#54A63C')+
+      '<g fill="#B77A47" stroke="#8A5730" stroke-width="1.6">'+
+      '<rect x="9" y="44" width="7" height="28" rx="2.4"/><rect x="64" y="44" width="7" height="28" rx="2.4"/></g>'+
+      '<path d="M8 46 Q40 33 72 46 L72 51 Q40 38.5 8 51 Z" fill="#C98C51" stroke="#8A5730" stroke-width="1.6" stroke-linejoin="round"/>'+
+      '<rect x="30" y="40.5" width="20" height="10" rx="2.6" fill="#E9C48C" stroke="#8A5730" stroke-width="1.5"/>'+
+      '<path d="M40 42.6 L44 48.4 H36 Z" fill="#3F8C2C"/><rect x="39.2" y="47.6" width="1.6" height="2" fill="#8B5E3C"/>'+
+      '<g fill="#4F9E33"><circle cx="22" cy="70" r="4.4"/><circle cx="26" cy="71.3" r="3.4"/><circle cx="58" cy="70" r="4.4"/><circle cx="54" cy="71.3" r="3.4"/></g>'+
+      '<g><rect x="32.8" y="70.4" width="4" height="4.6" rx="1.6" fill="#FFF3E0" stroke="#D7C4A6" stroke-width="1"/>'+
+      '<path d="M28.6 71 Q34.8 63.6 41 71 Z" fill="#E4573B" stroke="#B23A2A" stroke-width="1.2" stroke-linejoin="round"/>'+
+      '<circle cx="32.6" cy="68.6" r="1.1" fill="#fff"/><circle cx="36.6" cy="69.4" r="1.1" fill="#fff"/></g>'+
+      bFlower(48,70,'#FFD23F')+bFlower(12,70,'#F368C4');
+  })();
+
+  function buildingSVG(k){return '<svg viewBox="0 0 80 80" style="width:100%;height:100%">'+(ART[k]||'')+'</svg>';}
+  /* герой стоит РЯДОМ со зданием, а не поверх него; у Домика — на площадке, откуда идут дорожки.
+     rest — точка, где он реально встал: сглаженная тропинка проходит чуть в стороне от опорной
+     stop, и без этого в конце пути он дёргался бы к ней скачком. */
+  function placeToken(){const n=NODES[curNode],p=curNode===0?TOK:(n.rest||n.stop);
     token.style.left=p[0]+'%';token.style.top=p[1]+'%';}
   /* герой всегда живёт у Домика: возвращаясь на карту, он оказывается дома, а не там, где был */
   function goWorld(){show('world');curNode=0;buildNodes();placeToken();const tn=$('#tokname');if(tn)tn.textContent=playerName;updateHUD();}
@@ -1551,14 +1806,15 @@
     s.style.cssText='position:absolute;left:0;top:0;width:0;height:0;overflow:hidden;';
     measurePath=document.createElementNS(SVGNS,'path');s.appendChild(measurePath);topmap.appendChild(s);}
   function walkTo(idx){if(walking)return;if(idx===0){actAt(0);return;}
-    const n=NODES[idx];if(!n.pts)n.pts=nodePts(n);
-    ensureMeasure();measurePath.setAttribute('d',smoothD(n.pts,mapW/100,mapH/100));
+    const n=NODES[idx];
+    ensureMeasure();measurePath.setAttribute('d',smoothD(roadPts(n),mapW/100,mapH/100));
     const total=measurePath.getTotalLength();
     /* останавливаемся у порога локации: дальше тропинка уходит за здание */
-    const st=stopAt(n),tx=st[0]*mapW/100,ty=st[1]*mapH/100;
+    const st=n.stop,tx=st[0]*mapW/100,ty=st[1]*mapH/100;
     let end=total,bd=Infinity;
     for(let s=total;s>=0;s-=4){const q=measurePath.getPointAtLength(s);
       const d2=(q.x-tx)*(q.x-tx)+(q.y-ty)*(q.y-ty);if(d2<bd){bd=d2;end=s;}}
+    const rp=measurePath.getPointAtLength(end);n.rest=[rp.x/mapW*100,rp.y/mapH*100];
     walking=true;token.classList.add('walk');
     const t0=performance.now();
     function step(t){
@@ -1568,7 +1824,7 @@
       if(Math.abs(q.x-p.x)>0.6)token.classList.toggle('flip',q.x<p.x);
       if(s<end){requestAnimationFrame(step);return;}
       walking=false;token.classList.remove('walk');token.classList.remove('flip');
-      curNode=idx;placeToken();save();
+      curNode=idx;save();
       /* локация открывается только когда герой дошёл — короткая пауза «пришёл» */
       setTimeout(function(){actAt(idx);},280);}
     requestAnimationFrame(step);}
