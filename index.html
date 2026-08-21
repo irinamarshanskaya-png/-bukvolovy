@@ -778,8 +778,12 @@
   .hhdoor svg{width:100%;height:100%;display:block;}
   /* вторая дверь — во дворик; во дворике она же ведёт обратно в дом */
   .hhdoor2{left:auto;right:5%;}
+  /* дверь на кухню — слева внизу, у самого пола */
+  .hhdoor3{left:3%;bottom:3%;width:120px;height:170px;}
   .hhwrap.yard .hhdoor:not(.hhdoor2){display:none;}
   .hhwrap.yard .hhdoor2{left:4%;right:auto;}
+  .hhwrap.kit .hhdoor:not(.hhdoor3){display:none;}
+  .hhwrap.kit .hhdoor3{left:4%;bottom:38%;width:132px;height:196px;}
   .hhdlbl{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);background:rgba(255,255,255,.94);
     border-radius:11px;padding:2px 9px;font-family:'Fredoka';font-size:13px;color:#3a2f1a;white-space:nowrap;
     box-shadow:0 3px 8px rgba(0,0,0,.18);pointer-events:none;z-index:200;}
@@ -1229,6 +1233,7 @@
         <div class="hhfloor" id="hhFloor"></div>
         <div class="hhdoor" id="hhDoor"></div>
         <div class="hhdoor hhdoor2" id="hhDoor2"></div>
+        <div class="hhdoor hhdoor3" id="hhDoor3"></div>
         <div class="hhitems" id="hhItems"></div>
         <div class="hhpet" id="hhPet"><div class="hhpbub" id="hhPbub"></div><div class="hhpimg" id="hhPetArt"></div></div>
         <div class="hhero" id="hhHero"><div class="hhname" id="hhName"></div><div class="hhbub" id="hhBub"></div><img id="hhImg" alt="герой"></div>
@@ -1574,7 +1579,7 @@
   function earnedPies(){return pies+piesSpent;}
   /* дом героя: что куплено и где стоит. Живёт рядом с остальным состоянием, потому что
      load() разбирает сохранение раньше, чем объявлен код комнаты. */
-  let houseSt={wall:'w0',floor:'f0',own:[],items:[],yard:[],pet:''};
+  let houseSt={wall:'w0',floor:'f0',own:[],items:[],yard:[],kitchen:[],kit:0,pet:''};
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
   function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,starsSpent,keysSpent,piesSpent,house:houseSt};}
@@ -1600,7 +1605,7 @@
     stars=s.stars||0;coins=s.coins||0;keys=s.keys||0;pies=s.pies||0;recipes=s.recipes||[];
     games=s.games||{};levels=s.levels||{};coinsSpent=s.coinsSpent||0;starsSpent=s.starsSpent||0;
     keysSpent=s.keysSpent||0;piesSpent=s.piesSpent||0;
-    if(s.house&&s.house.items){houseSt=Object.assign(houseSt,s.house);if(!houseSt.yard)houseSt.yard=[];}
+    if(s.house&&s.house.items){houseSt=Object.assign(houseSt,s.house);if(!houseSt.yard)houseSt.yard=[];if(!houseSt.kitchen)houseSt.kitchen=[];}
     save();  /* переносим данные со старого ключа/копии на основной */
     return true;}
   function markGame(id){if(games[id])return;games[id]=true;save();}
@@ -4843,35 +4848,64 @@
     {k:'chest',c:'cozy',n:'Сундук',cur:'key',p:3,w:130,act:'play',sx:.45,sy:0,v:[['с ключами','#E0B072','#7A4E28']]},
     {k:'wheel',c:'cozy',n:'Колесо из Парка',cur:'star',p:3,w:130,act:'play',sx:.45,sy:0,lk:{k:'game',g:'park_win',t:'Пройди Парк 🎡'},v:[['из Парка','#FFD23F','#7A86A8']]},
     {k:'train',c:'cozy',n:'Паровозик',cur:'star',p:4,w:150,act:'play',sx:.45,sy:0,lk:{k:'game',g:'station_all',t:'Пройди Вокзал 🚂'},v:[['с Вокзала','#4DB6E5','#1B5170']]},
-    /* ——— дворик: out:1 — эти вещи живут только на улице ——— */
-    {k:'tree',c:'grow',n:'Дерево',out:1,cur:'star',p:3,w:200,act:'look',sx:.42,sy:0,
+    /* ——— дворик: sc:'yard' — эти вещи живут только на улице ——— */
+    {k:'tree',c:'grow',n:'Дерево',sc:'yard',cur:'star',p:3,w:200,act:'look',sx:.42,sy:0,
      v:[['зелёное','#6FC64C','#2F6B24'],['с яблоками','#7BD055','#2F6B24'],['осеннее','#F0A83C','#B4671B']]},
-    {k:'fir',c:'grow',n:'Ёлочка',out:1,cur:'star',p:2,w:160,act:'look',sx:.42,sy:0,
+    {k:'fir',c:'grow',n:'Ёлочка',sc:'yard',cur:'star',p:2,w:160,act:'look',sx:.42,sy:0,
      v:[['зелёная','#5FB441','#2F6B24'],['голубая','#7FC6C0','#2E7A72']]},
-    {k:'bush',c:'grow',n:'Кустик',out:1,cur:'star',p:1,w:120,act:'look',sx:.42,sy:0,
+    {k:'bush',c:'grow',n:'Кустик',sc:'yard',cur:'star',p:1,w:120,act:'look',sx:.42,sy:0,
      v:[['зелёный','#7BD055','#2F6B24'],['с ягодами','#6FC64C','#2F6B24'],['цветущий','#8FD96A','#4E8F2E']]},
-    {k:'flowerbed',c:'grow',n:'Клумба',out:1,cur:'star',p:2,w:150,act:'look',sx:.42,sy:0,
+    {k:'flowerbed',c:'grow',n:'Клумба',sc:'yard',cur:'star',p:2,w:150,act:'look',sx:.42,sy:0,
      v:[['розовая','#F5A6C0','#CE6E8C'],['жёлтая','#FFD86B','#D8A21A'],['синяя','#8FB4F5','#3E63B5']]},
-    {k:'swing',c:'play',n:'Качели',out:1,cur:'key',p:3,w:190,act:'sit',sx:0,sy:.28,
+    {k:'swing',c:'play',n:'Качели',sc:'yard',cur:'key',p:3,w:190,act:'sit',sx:0,sy:.28,
      v:[['красные','#FF6B6B','#C0483A'],['синие','#4DB6E5','#2C7FA8']]},
-    {k:'slide',c:'play',n:'Горка',out:1,cur:'key',p:3,w:200,act:'play',sx:-.3,sy:0,
+    {k:'slide',c:'play',n:'Горка',sc:'yard',cur:'key',p:3,w:200,act:'play',sx:-.3,sy:0,
      v:[['жёлтая','#FFD23F','#D8A21A'],['зелёная','#8FD96A','#4E8F2E']]},
-    {k:'sandbox',c:'play',n:'Песочница',out:1,cur:'key',p:2,w:180,act:'play',sx:.4,sy:0,
+    {k:'sandbox',c:'play',n:'Песочница',sc:'yard',cur:'key',p:2,w:180,act:'play',sx:.4,sy:0,
      v:[['с лопаткой','#EFD6AC','#B78C4E']]},
-    {k:'treehouse',c:'play',n:'Домик на дереве',out:1,cur:'key',p:6,w:210,act:'play',sx:.44,sy:0,
+    {k:'treehouse',c:'play',n:'Домик на дереве',sc:'yard',cur:'key',p:6,w:210,act:'play',sx:.44,sy:0,
      v:[['с лесенкой','#E0B072','#7A4E28']]},
-    {k:'pool',c:'play',n:'Бассейн',out:1,cur:'pie',p:4,w:220,act:'play',flat:1,sx:0,sy:.05,
+    {k:'pool',c:'play',n:'Бассейн',sc:'yard',cur:'pie',p:4,w:220,act:'play',flat:1,sx:0,sy:.05,
      v:[['голубой','#7FD4F5','#3E93C0'],['синий','#5FB4E5','#2C6FA8']]},
-    {k:'bench',c:'gard',n:'Скамейка',out:1,p:12,w:180,act:'sit',sx:0,sy:.30,
+    {k:'bench',c:'gard',n:'Скамейка',sc:'yard',p:12,w:180,act:'sit',sx:0,sy:.30,
      v:[['деревянная','#E0B072','#8A5A2B'],['белая','#FFF4E4','#B79A6E'],['зелёная','#9ED17C','#4E8F2E']]},
-    {k:'umbrella',c:'gard',n:'Столик с зонтом',out:1,p:16,w:190,act:'look',sx:.4,sy:0,
+    {k:'umbrella',c:'gard',n:'Столик с зонтом',sc:'yard',p:16,w:190,act:'look',sx:.4,sy:0,
      v:[['красный','#FF8E7A','#C0483A'],['жёлтый','#FFD86B','#D8A21A'],['мятный','#8FE0C4','#2E8F72']]},
-    {k:'lantern',c:'gard',n:'Фонарик',out:1,p:10,w:100,act:'look',sx:.4,sy:0,
+    {k:'lantern',c:'gard',n:'Фонарик',sc:'yard',p:10,w:100,act:'look',sx:.4,sy:0,
      v:[['жёлтый','#FFE08A','#7A6438'],['белый','#FFF6E6','#6E6E78']]},
-    {k:'fountain',c:'gard',n:'Фонтанчик',out:1,cur:'pie',p:5,w:170,act:'look',sx:.42,sy:0,
+    {k:'fountain',c:'gard',n:'Фонтанчик',sc:'yard',cur:'pie',p:5,w:170,act:'look',sx:.42,sy:0,
      v:[['каменный','#D6DBE2','#8B9099']]},
-    {k:'path',c:'gard',n:'Дорожка',out:1,p:8,w:230,flat:1,
-     v:[['камешки','#E7DCC4','#B7A98A'],['песочная','#EFD6AC','#C9A063']]}];
+    {k:'path',c:'gard',n:'Дорожка',sc:'yard',p:8,w:230,flat:1,
+     v:[['камешки','#E7DCC4','#B7A98A'],['песочная','#EFD6AC','#C9A063']]},
+    /* ——— кухня: sc:'kit' ——— */
+    {k:'fridge',c:'kfurn',n:'Холодильник',sc:'kit',p:26,w:150,act:'look',sx:.45,sy:0,
+     v:[['белый','#FFF6E6','#B7A98A'],['мятный','#BFE9D6','#2E8F72'],['голубой','#CDEEFB','#4A90B5']]},
+    {k:'stove',c:'kfurn',n:'Плита',sc:'kit',p:22,w:160,act:'look',sx:.45,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['красная','#FF9A8A','#C0483A']]},
+    {k:'sink',c:'kfurn',n:'Мойка',sc:'kit',p:18,w:170,act:'look',sx:.45,sy:0,
+     v:[['деревянная','#E0B072','#8A5A2B'],['белая','#FFF6E6','#B7A98A']]},
+    {k:'ktable',c:'kfurn',n:'Кухонный стол',sc:'kit',p:18,w:190,act:'look',sx:.42,sy:0,
+     v:[['деревянный','#E0B072','#8A5A2B'],['белый','#FFF4E4','#C2A98A'],['мятный','#BFE9D6','#2E8F72']]},
+    {k:'stool',c:'kfurn',n:'Табуретка',sc:'kit',p:9,w:100,act:'sit',sx:0,sy:.36,
+     v:[['жёлтая','#FFD86B','#D8A21A'],['красная','#FF8E7A','#C0483A'],['синяя','#8FB4F5','#3E63B5']]},
+    {k:'cupboard',c:'kfurn',n:'Шкафчик',sc:'kit',p:16,w:160,wall:1,
+     v:[['деревянный','#E0B072','#8A5A2B'],['белый','#FFF4E4','#C2A98A']]},
+    {k:'kshelf',c:'kfurn',n:'Полка с посудой',sc:'kit',p:14,w:160,wall:1,
+     v:[['с тарелками','#E0B072','#8A5A2B']]},
+    {k:'pot',c:'kware',n:'Кастрюлька',sc:'kit',cur:'star',p:2,w:100,act:'look',sx:.42,sy:0,
+     v:[['красная','#FF8E7A','#C0483A'],['синяя','#8FB4F5','#3E63B5']]},
+    {k:'kettle',c:'kware',n:'Чайник',sc:'kit',cur:'star',p:2,w:100,act:'look',sx:.42,sy:0,
+     v:[['в горошек','#FFF6E6','#C0483A'],['зелёный','#A9E3C6','#2E8F72']]},
+    {k:'cups',c:'kware',n:'Кружки',sc:'kit',cur:'star',p:1,w:100,act:'look',sx:.42,sy:0,
+     v:[['розовые','#FFC2D8','#CE6E8C'],['голубые','#CDEEFB','#4A90B5']]},
+    {k:'fruit',c:'kfood',n:'Ваза с фруктами',sc:'kit',cur:'star',p:2,w:110,act:'look',sx:.42,sy:0,
+     v:[['яблочки','#FF6B6B','#C0483A'],['апельсинки','#FFAE4A','#C4701F']]},
+    {k:'cake',c:'kfood',n:'Тортик',sc:'kit',cur:'pie',p:3,w:120,act:'play',sx:.42,sy:0,
+     v:[['с вишенкой','#FFE3EE','#CE6E8C'],['шоколадный','#C08A5A','#7A4E28']]},
+    {k:'cookies',c:'kfood',n:'Печенье',sc:'kit',cur:'pie',p:2,w:110,act:'play',sx:.42,sy:0,
+     v:[['на тарелке','#E7C58A','#B08040']]},
+    {k:'krug',c:'kfood',n:'Половичок',sc:'kit',p:10,w:200,flat:1,sx:0,sy:.05,
+     v:[['полосатый','#FFD9DE','#D98BAA'],['клетчатый','#CDE9FB','#7FB4CE']]}];
   const HH_K={};HH_KINDS.forEach(function(t){HH_K[t.k]=t;});
   /* id вещи = вид + номер варианта. Старые записи без номера читаем как первый вариант */
   function hhKind(id){const m=/^([a-z]+)(\d*)$/.exec(id||'');return m?HH_K[m[1]]:null;}
@@ -5227,6 +5261,82 @@
       '<path d="M50 38 V18" stroke="#8FD4F3" stroke-width="4" stroke-linecap="round"/>'+
       '<path d="M50 20 q-14 6 -18 22 M50 20 q14 6 18 22" stroke="#8FD4F3" stroke-width="4" fill="none" stroke-linecap="round"/>'+
       '<circle cx="50" cy="14" r="6" fill="#CDEEFB" stroke="#4A90B5" stroke-width="2.6"/>'+E;
+    /* ——— кухня ——— */
+    if(k==='fridge')return S+'<rect x="20" y="6" width="60" height="90" rx="9" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M20 40 h60" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="68" y="16" width="6" height="18" rx="3" fill="'+B+'"/><rect x="68" y="46" width="6" height="22" rx="3" fill="'+B+'"/>'+
+      '<rect x="30" y="52" width="16" height="12" rx="3" fill="#FF6B6B" opacity=".8"/>'+
+      '<rect x="30" y="16" width="14" height="10" rx="3" fill="#8FD4F3" opacity=".8"/>'+E;
+    if(k==='stove')return S+'<rect x="14" y="34" width="72" height="60" rx="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="14" y="26" width="72" height="12" rx="5" fill="'+B+'"/>'+
+      '<circle cx="32" cy="20" r="8" fill="#4A5670"/><circle cx="56" cy="20" r="8" fill="#4A5670"/>'+
+      '<circle cx="32" cy="20" r="3" fill="#FF6B6B"/><circle cx="56" cy="20" r="3" fill="#FF6B6B"/>'+
+      '<rect x="24" y="48" width="52" height="34" rx="6" fill="#4A5670" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="30" y="54" width="40" height="22" rx="4" fill="#FFD79A" opacity=".85"/>'+
+      '<rect x="22" y="40" width="56" height="5" rx="2.5" fill="'+B+'"/>'+E;
+    if(k==='sink')return S+'<rect x="8" y="40" width="84" height="54" rx="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="6" y="32" width="88" height="12" rx="5" fill="#E7EDF3" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<ellipse cx="40" cy="38" rx="20" ry="6" fill="#C9D6E2" stroke="'+B+'" stroke-width="2.6"/>'+
+      '<path d="M70 32 v-14 q0 -6 -8 -6" stroke="#9AA6B8" stroke-width="4.5" fill="none" stroke-linecap="round"/>'+
+      '<path d="M20 56 h24 M20 66 h24" stroke="'+B+'" stroke-width="2.6" opacity=".5"/>'+
+      '<circle cx="72" cy="62" r="4.4" fill="'+B+'"/>'+E;
+    if(k==='ktable')return S+'<rect x="6" y="38" width="88" height="13" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="16" y="49" width="11" height="44" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="73" y="49" width="11" height="44" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="24" y="60" width="52" height="7" rx="3" fill="'+A+'" stroke="'+B+'" stroke-width="2.8"/>'+
+      '<ellipse cx="50" cy="34" rx="15" ry="5" fill="#FFF6E6" stroke="#D8BE94" stroke-width="2.6"/>'+
+      '<circle cx="50" cy="30" r="5" fill="#FF6B6B" stroke="#C0483A" stroke-width="2.2"/>'+E;
+    if(k==='stool')return S+'<ellipse cx="50" cy="40" rx="30" ry="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="22" y="44" width="9" height="48" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="69" y="44" width="9" height="48" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="26" y="64" width="48" height="7" rx="3" fill="'+A+'" stroke="'+B+'" stroke-width="2.8"/>'+E;
+    if(k==='cupboard')return S+'<rect x="8" y="16" width="84" height="62" rx="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M50 18 v58" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="14" y="22" width="30" height="24" rx="4" fill="#FFF6E6" opacity=".55"/>'+
+      '<rect x="56" y="22" width="30" height="24" rx="4" fill="#FFF6E6" opacity=".55"/>'+
+      '<circle cx="44" cy="52" r="3.6" fill="'+B+'"/><circle cx="56" cy="52" r="3.6" fill="'+B+'"/>'+E;
+    if(k==='kshelf')return S+'<rect x="6" y="62" width="88" height="9" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="6" y="30" width="88" height="9" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<circle cx="26" cy="52" r="11" fill="#FFF6E6" stroke="'+B+'" stroke-width="2.8"/>'+
+      '<circle cx="50" cy="52" r="11" fill="#FFC2D8" stroke="'+B+'" stroke-width="2.8"/>'+
+      '<circle cx="74" cy="52" r="11" fill="#CDEEFB" stroke="'+B+'" stroke-width="2.8"/>'+
+      '<path d="M22 22 h14 v8 h-14 z" fill="#A9E3C6" stroke="'+B+'" stroke-width="2.6"/>'+
+      '<path d="M56 20 h16 v10 h-16 z" fill="#FFD86B" stroke="'+B+'" stroke-width="2.6"/>'+E;
+    if(k==='pot')return S+'<path d="M18 46 h64 l-6 40 q-1 8 -10 8 H34 q-9 0 -10 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<rect x="12" y="40" width="76" height="10" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<ellipse cx="50" cy="34" rx="26" ry="8" fill="#E7EDF3" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<circle cx="50" cy="28" r="5" fill="'+B+'"/>'+
+      '<path d="M28 20 q4 -10 0 -14 M50 16 q4 -10 0 -14 M72 20 q4 -10 0 -14" stroke="#C9D6E2" stroke-width="3.4" fill="none" stroke-linecap="round"/>'+E;
+    if(k==='kettle')return S+'<path d="M26 44 h48 q10 0 10 12 v22 q0 12 -12 12 H28 q-12 0 -12 -12 V56 q0 -12 10 -12 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<path d="M84 56 l12 -6 v22 l-12 -6" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M34 44 q16 -22 32 0" stroke="'+B+'" stroke-width="4.5" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="38" cy="66" r="5" fill="'+B+'" opacity=".55"/><circle cx="56" cy="72" r="4" fill="'+B+'" opacity=".55"/>'+E;
+    if(k==='cups')return S+'<path d="M14 50 h30 v22 q0 8 -8 8 H22 q-8 0 -8 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M44 56 q10 0 10 7 q0 7 -10 7" fill="none" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<path d="M56 42 h30 v30 q0 8 -8 8 H64 q-8 0 -8 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M86 48 q10 0 10 8 q0 8 -10 8" fill="none" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<ellipse cx="50" cy="86" rx="42" ry="7" fill="#FFF6E6" stroke="'+B+'" stroke-width="3"/>'+E;
+    if(k==='fruit')return S+'<path d="M22 56 h56 l-8 26 q-2 8 -12 8 H42 q-10 0 -12 -8 z" fill="#FFF6E6" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<circle cx="36" cy="46" r="13" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="62" cy="44" r="13" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="50" cy="30" r="12" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M50 18 q4 -8 10 -8" stroke="#4E8F2E" stroke-width="3.4" fill="none" stroke-linecap="round"/>'+
+      '<ellipse cx="50" cy="92" rx="20" ry="5" fill="'+B+'" opacity=".25"/>'+E;
+    if(k==='cake')return S+'<ellipse cx="50" cy="88" rx="42" ry="8" fill="#FFF6E6" stroke="#D8BE94" stroke-width="3"/>'+
+      '<path d="M16 52 h68 v28 q0 8 -10 8 H26 q-10 0 -10 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M16 52 q8 12 17 0 q9 12 17 0 q8 12 17 0 q8 12 17 0 v-8 q0 -10 -12 -10 H28 q-12 0 -12 10 z" fill="#FFF6E6" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M50 34 v-8" stroke="#7BC950" stroke-width="3" stroke-linecap="round"/>'+
+      '<circle cx="50" cy="30" r="7" fill="#E4573B" stroke="#A83A22" stroke-width="2.6"/>'+E;
+    if(k==='cookies')return S+'<ellipse cx="50" cy="76" rx="42" ry="16" fill="#FFF6E6" stroke="#D8BE94" stroke-width="3.4"/>'+
+      '<ellipse cx="50" cy="72" rx="34" ry="11" fill="#FFFDF6"/>'+
+      '<circle cx="34" cy="62" r="14" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="64" cy="60" r="14" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="49" cy="46" r="13" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<g fill="#7A4E28"><circle cx="31" cy="60" r="2.6"/><circle cx="38" cy="66" r="2.6"/><circle cx="61" cy="56" r="2.6"/>'+
+      '<circle cx="68" cy="63" r="2.6"/><circle cx="46" cy="43" r="2.6"/><circle cx="53" cy="50" r="2.6"/></g>'+E;
+    if(k==='krug')return S+'<ellipse cx="50" cy="62" rx="46" ry="26" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="50" cy="62" rx="34" ry="18" fill="none" stroke="'+B+'" stroke-width="3" opacity=".6"/>'+
+      '<ellipse cx="50" cy="62" rx="20" ry="9" fill="none" stroke="'+B+'" stroke-width="3" opacity=".6"/>'+E;
     if(k==='path')return S+'<g fill="'+A+'" stroke="'+B+'" stroke-width="2.8">'+
       '<ellipse cx="16" cy="70" rx="13" ry="9"/><ellipse cx="42" cy="62" rx="14" ry="9"/>'+
       '<ellipse cx="68" cy="70" rx="13" ry="9"/><ellipse cx="90" cy="60" rx="10" ry="7"/>'+
@@ -5257,17 +5367,32 @@
     'radial-gradient(circle at 22% 30%,#fff 22px,transparent 23px),radial-gradient(circle at 32% 34%,#fff 16px,transparent 17px),'+
     'linear-gradient(180deg,#9FDDF3,#D6F0FA 68%,#EAF7E2)';
   const YARD_GRASS='repeating-linear-gradient(90deg,#8FD06A 0 46px,#85C862 46px 92px)';
+  /* дверь на кухню: за неё платят один раз, дальше ходи сколько хочешь */
+  const HH_KITDOOR='<svg viewBox="0 0 66 100" style="width:100%;height:100%">'+
+    '<rect x="2" y="6" width="62" height="94" rx="7" fill="#EBD7AB" stroke="#8A5A2B" stroke-width="3.6"/>'+
+    '<rect x="9" y="13" width="48" height="80" rx="5" fill="#FFF6E6" stroke="#8A5A2B" stroke-width="3"/>'+
+    '<g fill="#CFE7F5" stroke="#8A5A2B" stroke-width="2.4">'+
+    '<rect x="14" y="18" width="18" height="18" rx="3"/><rect x="34" y="18" width="18" height="18" rx="3"/>'+
+    '<rect x="14" y="40" width="18" height="18" rx="3"/><rect x="34" y="40" width="18" height="18" rx="3"/></g>'+
+    '<path d="M22 74 h22 l-3 14 H25 z" fill="#FF8E7A" stroke="#C0483A" stroke-width="2.6" stroke-linejoin="round"/>'+
+    '<circle cx="33" cy="70" r="4" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.4"/></svg>';
+  const KIT_PRICE=150;
+  const KIT_WALL='repeating-linear-gradient(90deg,#EAF6FA 0 46px,#DCEFF6 46px 92px),linear-gradient(180deg,#F2FAFD,#DCEFF6)';
+  const KIT_FLOOR='repeating-conic-gradient(#FFF2E0 0 25%,#E4CDAE 0 50%) 0 0/62px 62px';
+  const KIT_CATS=[['kfurn','🍽️','Мебель'],['kware','🍳','Посуда'],['kfood','🍰','Вкусняшки'],['store','📦','Склад']];
   const YARD_KEYS=30;   /* дворик открывается, когда заработано столько ключиков */
   const YARD_CATS=[['grow','🌳','Растения'],['play','🎠','Качели и горки'],
                    ['gard','🪑','Садовая мебель'],['store','📦','Склад']];
 
   /* houseSt объявлен выше, рядом с остальным состоянием: load() читает его раньше этого места */
-  let hhPut=null,hhDrag=null,hhCat='furn',hhRaf=0;
+  let hhPut=null,hhDrag=null,hhCat='furn',hhRaf=0,hhAsk=null;
 
   /* комната и дворик — одна сцена с двумя наборами вещей */
   let hhWhere='room';
-  function hhIt(){return hhWhere==='yard'?houseSt.yard:houseSt.items;}
+  function hhIt(){return hhWhere==='yard'?houseSt.yard:hhWhere==='kit'?houseSt.kitchen:houseSt.items;}
+  function hhSc(t){return t.sc||'room';}          /* в какой сцене живёт вид вещи */
   function hhYardOpen(){return earnedKeys()>=YARD_KEYS;}
+  function hhKitOpen(){return !!houseSt.kit;}
   function hhOwned(id){return houseSt.own.indexOf(id)>=0;}
   function hhPlaced(id){return hhIt().some(function(o){return o.id===id;});}
   /* «Уют и игрушки» покупаются за звёздочки, остальное — за монетки */
@@ -5288,14 +5413,17 @@
 
   function hhBg(list,id){const f=list.filter(function(o){return o.id===id;})[0]||list[0];return f.bg;}
   function hhPaint(){
-    const yard=hhWhere==='yard';
-    $('#hhWall').style.background=yard?YARD_SKY:hhBg(HH_WALLS,houseSt.wall);
-    $('#hhFloor').style.background=yard?YARD_GRASS:hhBg(HH_FLOORS,houseSt.floor);
+    const yard=hhWhere==='yard',kit=hhWhere==='kit';
+    $('#hhWall').style.background=yard?YARD_SKY:kit?KIT_WALL:hhBg(HH_WALLS,houseSt.wall);
+    $('#hhFloor').style.background=yard?YARD_GRASS:kit?KIT_FLOOR:hhBg(HH_FLOORS,houseSt.floor);
     $('#hhDoor').innerHTML=HH_DOOR+'<div class="hhdlbl">🗺️ На карту</div>';
     $('#hhDoor2').innerHTML=yard?(HH_HOMEDOOR+'<div class="hhdlbl">🏠 Домой</div>')
       :(HH_GARDEN+'<div class="hhdlbl">'+(hhYardOpen()?'🌳 Во дворик':'🔒 '+earnedKeys()+' / '+YARD_KEYS+' 🔑')+'</div>');
+    $('#hhDoor3').innerHTML=kit?(HH_DOOR+'<div class="hhdlbl">🛋️ В комнату</div>')
+      :(HH_KITDOOR+'<div class="hhdlbl">'+(hhKitOpen()?'🍽️ На кухню':(coins>=KIT_PRICE?'🛒 ':'🔒 ')+KIT_PRICE+' 🪙')+'</div>');
     $('#hhWrap').classList.toggle('yard',yard);
-    $('#hhTitle').textContent=yard?'🌳 Мой дворик':'🏠 Мой дом';
+    $('#hhWrap').classList.toggle('kit',kit);
+    $('#hhTitle').textContent=yard?'🌳 Мой дворик':kit?'🍽️ Моя кухня':'🏠 Мой дом';
     const pt=houseSt.pet,pel=$('#hhPet');
     pel.classList.toggle('on',!!pt);
     if(pt){const st=hhPetStage();
@@ -5315,7 +5443,7 @@
       el.innerHTML=hhArt(o.id);
       el.addEventListener('pointerdown',function(e){hhDown(i,e);});
       box.appendChild(el);});
-    $('#hhTip').classList.toggle('on',!!hhPut||hhPetAsk);}
+    $('#hhTip').classList.toggle('on',!!hhPut||!!hhAsk);}
 
   /* палец: короткий тап — герой идёт к вещи, потянул — вещь переезжает */
   function hhDown(i,e){
@@ -5398,30 +5526,32 @@
     hhStartPut(hhIt().length-1,'back');
     hhShut(true);blip();hhGrid();
     flash(screens.house,'Поставь, куда хочешь 🏠');}
-  $('#hhOk').onclick=function(){if(hhPetAsk){hhPetDone(true);return;}chime(true);hhEndPut(true);};
-  $('#hhNo').onclick=function(){if(hhPetAsk){hhPetDone(false);return;}blip();hhEndPut(false);};
+  $('#hhOk').onclick=function(){if(hhAsk){hhAskEnd(true);return;}chime(true);hhEndPut(true);};
+  $('#hhNo').onclick=function(){if(hhAsk){hhAskEnd(false);return;}blip();hhEndPut(false);};
   $('#hhBox').onclick=function(){if(hhPut)hhStore(hhPut.i);};
 
   /* ——— питомец: покупается за звёздочки и ходит следом ——— */
-  let hhPetAsk=null,hhPetX=40,hhPetY=90;
+  /* общий вопрос «да/нет» на той же подсказке: покупка питомца, открытие кухни */
+  function hhAskDo(txt,fn){
+    hhEndPut(true);hhAsk=fn;
+    $('#hhTipTxt').textContent=txt;$('#hhBox').style.display='none';
+    $('#hhTip').classList.add('on');hhShut(true);blip();}
+  function hhAskEnd(yes){
+    const f=hhAsk;hhAsk=null;
+    $('#hhBox').style.display='';$('#hhTip').classList.remove('on');
+    if(yes&&f)f();else blip();}
+  let hhPetX=40,hhPetY=90;
   /* стадия считается от звёздочек, заработанных после покупки */
   function hhPetGrow(){const p=houseSt.pet;return p?Math.max(0,earnedStars()-(p.at||0)):0;}
   function hhPetStage(){const g=hhPetGrow();return g>=PET_GROWN?3:g>=PET_TEEN?2:g>=PET_HATCH?1:0;}
   function hhPetLeft(){const g=hhPetGrow();return g>=PET_GROWN?0:g>=PET_TEEN?PET_GROWN-g:g>=PET_HATCH?PET_TEEN-g:PET_HATCH-g;}
   function hhAskPet(p){
-    hhEndPut(true);hhPetAsk=p;
-    $('#hhTipTxt').textContent=p.n+' за '+HH_PET_PRICE+' ⭐?';
-    $('#hhBox').style.display='none';
-    $('#hhTip').classList.add('on');hhShut(true);blip();}
-  function hhPetDone(yes){
-    const p=hhPetAsk;hhPetAsk=null;
-    $('#hhBox').style.display='';$('#hhTip').classList.remove('on');
-    if(!yes||!p){blip();return;}
-    stars-=HH_PET_PRICE;starsSpent+=HH_PET_PRICE;
-    houseSt.pet={k:p.k,at:earnedStars(),seen:0};
-    hhPetX=Math.max(8,Math.min(92,hhX-10));hhPetY=hhY;
-    chime(true);confetti(screens.house);save();updateHUD();hhPaint();hhGrid();
-    flash(screens.house,'Яйцо у тебя! Зарабатывай звёздочки 🥚');}
+    hhAskDo(p.n+' за '+HH_PET_PRICE+' ⭐?',function(){
+      stars-=HH_PET_PRICE;starsSpent+=HH_PET_PRICE;
+      houseSt.pet={k:p.k,at:earnedStars(),seen:0};
+      hhPetX=Math.max(8,Math.min(92,hhX-10));hhPetY=hhY;
+      chime(true);confetti(screens.house);save();updateHUD();hhPaint();hhGrid();
+      flash(screens.house,'Яйцо у тебя! Зарабатывай звёздочки 🥚');});}
   /* яйцо не ходит, а вылупившийся идёт за героем, но не наступает на пятки */
   function hhPetStep(dt){
     if(!houseSt.pet)return;
@@ -5458,7 +5588,7 @@
       flash(screens.house,st===1?'Питомец вылупился! 🐣':st===3?'Питомец совсем вырос! 🎉':'Питомец подрос! 🌿');},700);}
 
   /* ——— витрина ——— */
-  function hhCats(){return hhWhere==='yard'?YARD_CATS:HH_CATS;}
+  function hhCats(){return hhWhere==='yard'?YARD_CATS:hhWhere==='kit'?KIT_CATS:HH_CATS;}
   function hhTabs(){
     const box=$('#hhCats');box.innerHTML='';
     hhCats().forEach(function(c){const b=document.createElement('button');
@@ -5475,7 +5605,7 @@
     if(hhCat==='store'){
       /* на складе показываем только то, что подходит этой сцене: дворовое — во дворике */
       const left=houseSt.own.filter(function(id){const t=hhKind(id);
-        return t&&!!t.out===(hhWhere==='yard')&&!hhPlaced(id);});
+        return t&&hhSc(t)===hhWhere&&!hhPlaced(id);});
       if(!left.length){const d=document.createElement('div');
         d.className='hhnote';d.textContent='Склад пустой. Убери сюда вещь из комнаты — и место освободится для новой.';
         box.appendChild(d);return;}
@@ -5589,7 +5719,8 @@
     const dx=(hhTx-hhX)*hhRW/100,dy=(hhTy-hhY)*hhRH/100,L=Math.hypot(dx,dy);
     if(L<4){
       if(hhAct==='exit'){hhAct='';hhPose('');hhEndPut(true);goWorld();return;}
-      if(hhAct==='yard'||hhAct==='home'){const w=hhAct==='yard'?'yard':'room';hhAct='';hhPose('');hhSwitch(w);return;}
+      if(hhAct==='yard'||hhAct==='kit'||hhAct==='home'){
+        const w=hhAct==='home'?'room':hhAct;hhAct='';hhPose('');hhSwitch(w);return;}
       if(hhAct){hhPose(hhAct);hhActT=2.6;hhAct='';}
       else{hhPose('');hhWait=0.5+Math.random()*1.1;}
       return;}
@@ -5600,16 +5731,18 @@
 
   function openHouse(){
     show('house');hhPut=null;hhDrag=null;
-    hhWhere='room';if(hhCat==='grow'||hhCat==='play'||hhCat==='gard')hhCat='furn';
+    hhWhere='room';if(hhCat!=='store'&&!HH_CATS.some(function(c){return c[0]===hhCat;}))hhCat='furn';
     if(!houseSt.yard)houseSt.yard=[];
+    if(!houseSt.kitchen)houseSt.kitchen=[];
     /* первые записи хранили питомца строкой — он уже вырос */
     if(typeof houseSt.pet==='string')houseSt.pet=houseSt.pet?{k:'cat',at:0,seen:3}:'';
     /* записи первых дней хранили id без номера варианта — дописываем нулевой */
-    houseSt.items.concat(houseSt.yard).forEach(function(o){if(!/[0-9]$/.test(o.id))o.id+='0';});
+    houseSt.items.concat(houseSt.yard,houseSt.kitchen).forEach(function(o){if(!/[0-9]$/.test(o.id))o.id+='0';});
     houseSt.own=houseSt.own.map(function(s){return /[0-9]$/.test(s)?s:s+'0';});
     /* шторы убрали из каталога — чистим старые записи, обои и полы (w0,f1…) оставляем */
-    houseSt.yard=houseSt.yard.filter(function(o){const t=hhKind(o.id);return t&&!!t.out;});
-    houseSt.items=houseSt.items.filter(function(o){const t=hhKind(o.id);return t&&!t.out;});
+    houseSt.yard=houseSt.yard.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='yard';});
+    houseSt.kitchen=houseSt.kitchen.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='kit';});
+    houseSt.items=houseSt.items.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='room';});
     houseSt.own=houseSt.own.filter(function(s){return hhKind(s)||/^[wf]\d+$/.test(s);});
     if(heroSrc)$('#hhImg').src=heroSrc;
     $('#hhName').textContent=playerName;
@@ -5633,14 +5766,27 @@
     if(!hhYardOpen()){chime(false);
       flash(screens.house,'Дворик откроется за '+YARD_KEYS+' 🔑 — нужно ещё '+(YARD_KEYS-earnedKeys()));return;}
     hhWalkToDoor(this,'yard');flash(screens.house,'Идём во дворик 🌳');};
-  /* переход комната ↔ дворик: вещи у каждой сцены свои, всё сохраняется */
+  $('#hhDoor3').onclick=function(){
+    if(hhWhere==='kit'){hhWalkToDoor(this,'home');flash(screens.house,'Идём в комнату 🛋️');return;}
+    if(!hhKitOpen()){
+      if(coins<KIT_PRICE){chime(false);flash(screens.house,'Нужно ещё '+(KIT_PRICE-coins)+' 🪙 на кухню');return;}
+      hhAskDo('Откроем кухню за '+KIT_PRICE+' 🪙?',function(){
+        coins-=KIT_PRICE;coinsSpent+=KIT_PRICE;houseSt.kit=1;
+        chime(true);confetti(screens.house);save();updateHUD();hhPaint();hhGrid();
+        flash(screens.house,'Кухня открыта! 🍽️');});
+      return;}
+    hhWalkToDoor(this,'kit');flash(screens.house,'Идём на кухню 🍽️');};
+  /* переход между комнатой, двориком и кухней: вещи у каждой сцены свои, всё сохраняется */
   function hhSwitch(w){
+    const from=hhWhere;
     hhEndPut(true);
-    hhWhere=w;hhCat=w==='yard'?'grow':'furn';
-    hhX=w==='yard'?12:86;hhY=88;hhTx=hhX;hhTy=hhY;hhAct='';hhActT=0;hhActZ=0;hhWait=.5;
+    hhWhere=w;hhCat=w==='yard'?'grow':w==='kit'?'kfurn':'furn';
+    /* появляемся у той двери, из которой вышли */
+    hhX=w==='room'?(from==='kit'?14:86):12;
+    hhY=88;hhTx=hhX;hhTy=hhY;hhAct='';hhActT=0;hhActZ=0;hhWait=.5;
     hhPaint();hhTabs();hhGrid();hhRender();
     const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';h.style.zIndex=4+Math.round(hhY);
-    hhPetX=Math.max(6,Math.min(94,hhX+(w==='yard'?9:-9)));hhPetY=hhY;
+    hhPetX=Math.max(6,Math.min(94,hhX+9));hhPetY=hhY;
     hhPose('');chime(true);save();}
   $('#hhSleep').onclick=function(){hhEndPut(true);enterSleep();};
 })();
