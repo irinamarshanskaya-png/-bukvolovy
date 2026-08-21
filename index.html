@@ -773,7 +773,8 @@
   /* плинтус на стыке стены и пола */
   .hhbase{position:absolute;left:0;right:0;top:62%;height:14px;transform:translateY(-14px);
     background:linear-gradient(180deg,#FFF6E4,#E8D6B4);border-top:3px solid rgba(0,0,0,.10);}
-  .hhdoor{position:absolute;left:4%;bottom:38%;width:132px;height:196px;}
+  .hhdoor{position:absolute;left:4%;bottom:38%;width:132px;height:196px;cursor:pointer;transition:transform .15s;}
+  .hhdoor:hover{transform:scale(1.04);}
   .hhdoor svg{width:100%;height:100%;display:block;}
   .hhitems{position:absolute;inset:0;}
   .hhit{position:absolute;transform:translate(-50%,-100%);cursor:grab;touch-action:none;
@@ -4648,40 +4649,59 @@
     {id:'w1',n:'Полоска',p:10,bg:'repeating-linear-gradient(90deg,#FFF0F5 0 26px,#FBD9E6 26px 52px)'},
     {id:'w2',n:'Горошек',p:10,bg:'radial-gradient(#BFE3F5 5px,transparent 6px) 0 0/38px 38px,linear-gradient(180deg,#F2FAFF,#DFF1FB)'},
     {id:'w3',n:'Мятные',p:12,bg:'repeating-linear-gradient(90deg,#EAFBE6 0 30px,#D3F2CB 30px 60px)'},
-    {id:'w4',n:'Звёздные',p:14,bg:'radial-gradient(#FFE08A 4px,transparent 5px) 12px 12px/46px 46px,linear-gradient(180deg,#E9E1FB,#D6C9F5)'}];
+    {id:'w4',n:'Звёздные',p:14,bg:'radial-gradient(#FFE08A 4px,transparent 5px) 12px 12px/46px 46px,linear-gradient(180deg,#E9E1FB,#D6C9F5)'},
+    {id:'w5',n:'Радуга',p:0,lk:{k:'pie',n:6},bg:'linear-gradient(180deg,#FFD9DE,#FFE9C2 22%,#E6F7C2 45%,#CFEFFB 70%,#E4DAFB)'}];
   const HH_FLOORS=[
     {id:'f0',n:'Доски',p:0,bg:'repeating-linear-gradient(90deg,#E2AF6B 0 44px,#CE9450 44px 47px)'},
     {id:'f1',n:'Ковролин',p:10,bg:'linear-gradient(180deg,#BFE0A8,#9CCB84)'},
     {id:'f2',n:'Плитка',p:12,bg:'repeating-conic-gradient(#FFF2E0 0 25%,#E4CDAE 0 50%) 0 0/56px 56px'},
-    {id:'f3',n:'Розовый',p:12,bg:'repeating-linear-gradient(45deg,#FFE3EE 0 30px,#FBCEDF 30px 60px)'}];
+    {id:'f3',n:'Розовый',p:12,bg:'repeating-linear-gradient(45deg,#FFE3EE 0 30px,#FBCEDF 30px 60px)'},
+    {id:'f4',n:'Облака',p:0,lk:{k:'key',n:5},bg:'radial-gradient(circle at 30% 60%,#fff 16px,transparent 17px) 0 0/90px 70px,radial-gradient(circle at 70% 25%,#fff 13px,transparent 14px) 0 0/90px 70px,linear-gradient(180deg,#CFEFFB,#A8DDF5)'}];
   /* v — варианты: [название, светлый цвет, тёмный цвет]. w — ширина в px.
      wall — вешается на стену. act — что делает герой. sx/sy — куда он встаёт,
      в долях от размера вещи: на матрас кровати, на сиденье стула, рядом с игрушкой. */
   const HH_KINDS=[
     {k:'bed',c:'furn',n:'Кровать',p:22,w:210,act:'lie',sx:.17,sy:.42,
      v:[['розовая','#F5A6C0','#CE6E8C'],['голубая','#9AD4F5','#4A90B5'],['зелёная','#C4E79C','#69A83E']]},
+    {k:'bedr',c:'furn',n:'Кровать наоборот',p:22,w:210,act:'lie',sx:-.17,sy:.42,
+     v:[['розовая','#F5A6C0','#CE6E8C'],['голубая','#9AD4F5','#4A90B5'],['зелёная','#C4E79C','#69A83E']]},
+    {k:'bedbig',c:'furn',n:'Двуспальная кровать',p:30,w:250,act:'lie',sx:0,sy:.30,
+     v:[['розовая','#F5A6C0','#CE6E8C'],['голубая','#9AD4F5','#4A90B5'],['мятная','#9EE3C6','#2E8F72']]},
+    {k:'bunk',c:'furn',n:'Кровать в два этажа',p:0,w:200,act:'lie',sx:.1,sy:.36,lk:{k:'key',n:4},
+     v:[['с лесенкой','#8FD4F3','#2C7FA8']]},
     {k:'sofa',c:'furn',n:'Диван',p:20,w:190,act:'sit',sx:0,sy:.30,
-     v:[['коралловый','#FF8E7A','#C0483A'],['мятный','#8FE0C4','#2E8F72'],['сиреневый','#C9A8F0','#7B4FC0']]},
+     v:[['коралловый','#FF8E7A','#C0483A'],['мятный','#8FE0C4','#2E8F72'],['сиреневый','#C9A8F0','#7B4FC0'],
+        ['жёлтый','#FFD86B','#D8A21A'],['синий','#7FB6F0','#2C5FA8'],['малиновый','#F58BB8','#B03E71']]},
+    {k:'armchair',c:'furn',n:'Кресло',p:14,w:130,act:'sit',sx:0,sy:.34,
+     v:[['коралловое','#FF8E7A','#C0483A'],['мятное','#8FE0C4','#2E8F72'],['сиреневое','#C9A8F0','#7B4FC0'],['жёлтое','#FFD86B','#D8A21A']]},
     {k:'chair',c:'furn',n:'Стул',p:10,w:110,act:'sit',sx:0,sy:.38,
      v:[['зелёный','#8FD96A','#4E8F2E'],['жёлтый','#FFD86B','#D8A21A'],['голубой','#8FD4F3','#2C7FA8']]},
     {k:'table',c:'furn',n:'Столик',p:14,w:150,act:'look',sx:.42,sy:0,
      v:[['деревянный','#E0B072','#8A5A2B'],['белый','#FFF4E4','#C2A98A']]},
     {k:'wardrobe',c:'furn',n:'Шкаф',p:24,w:150,act:'look',sx:.45,sy:0,
      v:[['деревянный','#E0B072','#8A5A2B'],['мятный','#A9E3C6','#2E8F72']]},
-    {k:'pic',c:'deco',n:'Картина',p:15,w:120,wall:1,
+    {k:'pic',c:'deco',n:'Картина',cur:'star',p:4,w:120,wall:1,
      v:[['горы','#7BC950','#4E8F2E'],['море','#4DB6E5','#2C7FA8'],['цветок','#F368C4','#C4478F']]},
-    {k:'shelf',c:'deco',n:'Полка',p:14,w:140,wall:1,
+    {k:'shelf',c:'deco',n:'Полка',cur:'star',p:3,w:140,wall:1,
      v:[['с книжками','#E0B072','#8A5A2B'],['белая','#FFF4E4','#C2A98A']]},
-    {k:'lamp',c:'deco',n:'Лампа',p:12,w:120,act:'look',sx:.42,sy:0,
+    {k:'lamp',c:'deco',n:'Лампа',cur:'star',p:3,w:120,act:'look',sx:.42,sy:0,
      v:[['жёлтая','#FFE08A','#D8A21A'],['розовая','#FFC2D8','#CE6E8C']]},
+    {k:'clock',c:'deco',n:'Часы с кукушкой',p:0,w:120,wall:1,lk:{k:'pie',n:5},
+     v:[['из Пекарни','#E0B072','#7A4E28']]},
     {k:'books',c:'deco',n:'Книжки',p:0,w:120,act:'look',sx:.4,sy:0,lk:{k:'page',n:3},v:[['стопка','#FFD23F','#D8A21A']]},
     {k:'stars',c:'deco',n:'Гирлянда',p:0,w:200,wall:1,lk:{k:'star',n:12},v:[['звёздная','#FFD23F','#B58A20']]},
     {k:'win',c:'win',n:'Окно',p:16,w:170,wall:1,
      v:[['белое','#fff','#7FB4CE'],['голубое','#CDEEFB','#4A90B5']]},
     {k:'winr',c:'win',n:'Круглое окно',p:14,w:120,wall:1,
      v:[['белое','#fff','#7FB4CE'],['жёлтое','#FFEFC4','#D8A21A']]},
-    {k:'curt',c:'win',n:'Шторы',p:12,w:180,wall:1,
-     v:[['розовые','#F5A6C0','#CE6E8C'],['голубые','#9AD4F5','#4A90B5'],['мятные','#9EE3C6','#2E8F72']]},
+    {k:'vitrage',c:'win',n:'Витраж',p:0,w:150,wall:1,lk:{k:'key',n:6},
+     v:[['цветное стекло','#FFD23F','#7A4E28']]},
+    {k:'chandel',c:'cozy',n:'Люстра',cur:'star',p:3,w:150,wall:1,
+     v:[['жёлтая','#FFE08A','#D8A21A'],['голубая','#CDEEFB','#4A90B5'],['розовая','#FFC2D8','#CE6E8C'],['сиреневая','#E7DAFB','#7B4FC0']]},
+    {k:'dollhouse',c:'cozy',n:'Кукольный домик',cur:'star',p:4,w:150,act:'play',sx:.42,sy:0,
+     v:[['розовый','#F5A6C0','#CE6E8C'],['голубой','#9AD4F5','#4A90B5'],['мятный','#9EE3C6','#2E8F72']]},
+    {k:'balloon',c:'cozy',n:'Воздушный шар',p:0,w:140,act:'play',sx:.45,sy:0,lk:{k:'pie',n:8},
+     v:[['полосатый','#FF6B6B','#C0483A']]},
     {k:'teddy',c:'cozy',n:'Мишка',cur:'star',p:3,w:110,act:'play',sx:.4,sy:0,
      v:[['коричневый','#D9A15E','#7A4E28'],['белый','#FFF1DC','#B79A6E'],['розовый','#FFC2D8','#C4708F']]},
     {k:'bunny',c:'cozy',n:'Зайка',cur:'star',p:3,w:110,act:'play',sx:.4,sy:0,
@@ -4716,13 +4736,39 @@
     const t=hhKind(id);if(!t)return '';const i=hhVar(id),c=t.v[i]||t.v[0],A=c[1],B=c[2];
     const S='<svg viewBox="0 0 100 100" style="width:100%;height:100%">',E='</svg>';
     const k=t.k;
-    if(k==='bed')return S+'<rect x="3" y="30" width="12" height="44" rx="5" fill="#B77A47" stroke="#7A4E28" stroke-width="3.4"/>'+
+    if(k==='bed'||k==='bedr'){const bd='<rect x="3" y="30" width="12" height="44" rx="5" fill="#B77A47" stroke="#7A4E28" stroke-width="3.4"/>'+
       '<rect x="6" y="54" width="88" height="26" rx="7" fill="#C98F52" stroke="#7A4E28" stroke-width="3.4"/>'+
       '<rect x="10" y="44" width="82" height="16" rx="7" fill="#FFF6E6" stroke="#D8BE94" stroke-width="3.2"/>'+
       '<rect x="15" y="40" width="28" height="15" rx="6" fill="#FFFDF6" stroke="#D8BE94" stroke-width="3"/>'+
       '<path d="M46 46 h44 a6 6 0 0 1 6 6 v9 H46 z" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
       '<path d="M56 48 v11 M68 48 v11 M80 48 v11" stroke="'+B+'" stroke-width="2" opacity=".5"/>'+
-      '<rect x="9" y="78" width="9" height="14" rx="3.5" fill="#8A5A2B"/><rect x="82" y="78" width="9" height="14" rx="3.5" fill="#8A5A2B"/>'+E;
+      '<rect x="9" y="78" width="9" height="14" rx="3.5" fill="#8A5A2B"/><rect x="82" y="78" width="9" height="14" rx="3.5" fill="#8A5A2B"/>';
+      /* «наоборот» — та же кровать, отражённая: подголовник смотрит в другую сторону */
+      return S+(k==='bedr'?'<g transform="translate(100,0) scale(-1,1)">'+bd+'</g>':bd)+E;}
+    if(k==='bedbig')return S+'<rect x="6" y="16" width="88" height="18" rx="8" fill="#B77A47" stroke="#7A4E28" stroke-width="3.4"/>'+
+      '<rect x="4" y="30" width="92" height="56" rx="9" fill="#C98F52" stroke="#7A4E28" stroke-width="3.4"/>'+
+      '<rect x="9" y="35" width="82" height="47" rx="7" fill="#FFF6E6" stroke="#D8BE94" stroke-width="3"/>'+
+      '<rect x="14" y="38" width="30" height="14" rx="6" fill="#FFFDF6" stroke="#D8BE94" stroke-width="2.8"/>'+
+      '<rect x="56" y="38" width="30" height="14" rx="6" fill="#FFFDF6" stroke="#D8BE94" stroke-width="2.8"/>'+
+      '<path d="M9 57 h82 v18 a7 7 0 0 1 -7 7 H16 a7 7 0 0 1 -7 -7 z" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M50 59 v22" stroke="'+B+'" stroke-width="2.4" opacity=".5"/>'+
+      '<rect x="7" y="84" width="9" height="13" rx="3.5" fill="#8A5A2B"/><rect x="84" y="84" width="9" height="13" rx="3.5" fill="#8A5A2B"/>'+E;
+    if(k==='bunk')return S+'<rect x="8" y="6" width="10" height="88" rx="4" fill="#B77A47" stroke="#7A4E28" stroke-width="3.2"/>'+
+      '<rect x="70" y="6" width="10" height="88" rx="4" fill="#B77A47" stroke="#7A4E28" stroke-width="3.2"/>'+
+      '<rect x="10" y="26" width="68" height="12" rx="5" fill="#C98F52" stroke="#7A4E28" stroke-width="3.2"/>'+
+      '<rect x="13" y="18" width="62" height="10" rx="4" fill="#FFF6E6" stroke="#D8BE94" stroke-width="2.8"/>'+
+      '<path d="M40 19 h33 a4 4 0 0 1 4 4 v5 H40 z" fill="'+A+'" stroke="'+B+'" stroke-width="2.6"/>'+
+      '<rect x="10" y="70" width="68" height="12" rx="5" fill="#C98F52" stroke="#7A4E28" stroke-width="3.2"/>'+
+      '<rect x="13" y="62" width="62" height="10" rx="4" fill="#FFF6E6" stroke="#D8BE94" stroke-width="2.8"/>'+
+      '<path d="M40 63 h33 a4 4 0 0 1 4 4 v5 H40 z" fill="'+A+'" stroke="'+B+'" stroke-width="2.6"/>'+
+      '<path d="M84 30 v54 M92 30 v54 M84 40 h8 M84 52 h8 M84 64 h8 M84 76 h8" stroke="#B77A47" stroke-width="4" stroke-linecap="round"/>'+E;
+    /* кресло — одно место: высокая спинка «ушками» и толстые подлокотники */
+    if(k==='armchair')return S+'<path d="M22 20 h56 a12 12 0 0 1 12 12 v26 H10 V32 a12 12 0 0 1 12 -12 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<rect x="30" y="30" width="40" height="24" rx="10" fill="#fff" opacity=".28"/>'+
+      '<rect x="2" y="48" width="24" height="34" rx="11" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="74" y="48" width="24" height="34" rx="11" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="18" y="58" width="64" height="26" rx="11" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="22" y="82" width="9" height="13" rx="3.5" fill="#8A5A2B"/><rect x="69" y="82" width="9" height="13" rx="3.5" fill="#8A5A2B"/>'+E;
     if(k==='sofa')return S+'<rect x="7" y="34" width="86" height="30" rx="12" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
       '<rect x="1" y="46" width="19" height="38" rx="9" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
       '<rect x="80" y="46" width="19" height="38" rx="9" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
@@ -4792,10 +4838,51 @@
       '<circle cx="66" cy="32" r="8" fill="#FFE08A"/><ellipse cx="38" cy="40" rx="13" ry="7" fill="#fff" opacity=".85"/>'+
       '<path d="M50 8 V84 M12 46 H88" stroke="'+A+'" stroke-width="7"/>'+
       '<circle cx="50" cy="46" r="38" fill="none" stroke="'+A+'" stroke-width="7"/>'+E;
-    if(k==='curt')return S+'<rect x="4" y="8" width="92" height="11" rx="5" fill="#B77A47" stroke="#7A4E28" stroke-width="3.2"/>'+
-      '<path d="M10 18 q12 34 5 70 h26 q7 -40 -3 -70 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
-      '<path d="M90 18 q-12 34 -5 70 H59 q-7 -40 3 -70 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
-      '<path d="M20 24 q6 32 2 60 M78 24 q-6 32 -2 60" stroke="'+B+'" stroke-width="2.6" fill="none" stroke-linecap="round" opacity=".7"/>'+E;
+    /* витраж — окно с аркой и цветными стёклами */
+    if(k==='vitrage')return S+'<path d="M14 94 V46 a36 36 0 0 1 72 0 v48 z" fill="#FFF6E6" stroke="'+B+'" stroke-width="4" stroke-linejoin="round"/>'+
+      '<path d="M50 46 V11 a35 35 0 0 0 -35 35 z" fill="#F368C4"/>'+
+      '<path d="M50 46 V11 a35 35 0 0 1 35 35 z" fill="#4DB6E5"/>'+
+      '<rect x="16" y="50" width="32" height="19" fill="#FFD23F"/><rect x="52" y="50" width="32" height="19" fill="#7BC950"/>'+
+      '<rect x="16" y="73" width="32" height="19" fill="#C9A8F0"/><rect x="52" y="73" width="32" height="19" fill="#FF6B6B"/>'+
+      '<path d="M50 10 V92 M14 47 h72 M14 71 h72" stroke="'+B+'" stroke-width="4" stroke-linecap="round"/>'+
+      '<path d="M14 94 V46 a36 36 0 0 1 72 0 v48 z" fill="none" stroke="'+B+'" stroke-width="4.5" stroke-linejoin="round"/>'+
+      '<circle cx="50" cy="47" r="7" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+E;
+    if(k==='clock')return S+'<path d="M50 8 76 26 H24 z" fill="'+B+'" stroke="'+B+'" stroke-width="3" stroke-linejoin="round"/>'+
+      '<rect x="24" y="26" width="52" height="48" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<circle cx="50" cy="48" r="16" fill="#FFF6E6" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<path d="M50 48 V38 M50 48 h8" stroke="'+B+'" stroke-width="3" stroke-linecap="round"/>'+
+      '<rect x="42" y="18" width="16" height="9" rx="4" fill="#FFD23F" stroke="'+B+'" stroke-width="2.6"/>'+
+      '<circle cx="50" cy="22" r="2.4" fill="'+B+'"/>'+
+      '<path d="M50 74 v10" stroke="'+B+'" stroke-width="3" stroke-linecap="round"/>'+
+      '<circle cx="50" cy="88" r="7" fill="#FFD23F" stroke="'+B+'" stroke-width="3"/>'+E;
+    /* люстра: цепь, абажур-трапеция, три лампочки и подвески по краям */
+    if(k==='chandel')return S+'<path d="M50 2 v10" stroke="'+B+'" stroke-width="4" stroke-linecap="round"/>'+
+      '<circle cx="50" cy="14" r="5" fill="'+B+'"/>'+
+      '<path d="M24 22 h52 l12 24 H12 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<path d="M30 24 q-4 10 -10 20" stroke="#fff" stroke-width="5" opacity=".45" fill="none" stroke-linecap="round"/>'+
+      '<path d="M12 46 h76" stroke="'+B+'" stroke-width="3.6" stroke-linecap="round"/>'+
+      '<path d="M28 46 v5 M50 46 v5 M72 46 v5" stroke="'+B+'" stroke-width="2.8"/>'+
+      '<circle cx="28" cy="58" r="7.5" fill="#FFF6E6" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="50" cy="58" r="7.5" fill="#FFF6E6" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="72" cy="58" r="7.5" fill="#FFF6E6" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M16 48 q5 6 0 12 q-5 -6 0 -12 z" fill="'+A+'" stroke="'+B+'" stroke-width="2.4"/>'+
+      '<path d="M84 48 q5 6 0 12 q-5 -6 0 -12 z" fill="'+A+'" stroke="'+B+'" stroke-width="2.4"/>'+E;
+    if(k==='dollhouse')return S+'<rect x="70" y="9" width="10" height="17" rx="2.5" fill="'+B+'"/>'+
+      '<path d="M50 4 96 34 H4 z" fill="'+B+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<rect x="10" y="32" width="80" height="58" rx="5" fill="#FFF6E6" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="10" y="58" width="80" height="5" fill="'+B+'"/><rect x="47" y="32" width="5" height="58" fill="'+B+'"/>'+
+      '<rect x="15" y="45" width="26" height="10" rx="3" fill="'+A+'" stroke="'+B+'" stroke-width="2.6"/>'+
+      '<rect x="15" y="41" width="9" height="7" rx="3" fill="#fff" stroke="'+B+'" stroke-width="2.4"/>'+
+      '<path d="M70 41 a5 5 0 0 1 8.6 4 q0 4.6 -8.6 9.6 q-8.6 -5 -8.6 -9.6 a5 5 0 0 1 8.6 -4 z" fill="'+A+'" stroke="'+B+'" stroke-width="2.4"/>'+
+      '<rect x="58" y="75" width="24" height="5" rx="2.5" fill="'+A+'" stroke="'+B+'" stroke-width="2.4"/>'+
+      '<rect x="63" y="79" width="4" height="10" fill="'+B+'"/><rect x="74" y="79" width="4" height="10" fill="'+B+'"/>'+
+      '<rect x="16" y="79" width="24" height="7" rx="3.5" fill="'+A+'" stroke="'+B+'" stroke-width="2.4"/>'+E;
+    if(k==='balloon')return S+'<path d="M50 6 a30 30 0 0 1 30 30 q0 20 -30 34 q-30 -14 -30 -34 a30 30 0 0 1 30 -30 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<path d="M50 6 q-14 32 0 64 M50 6 q14 32 0 64" stroke="'+B+'" stroke-width="2.6" fill="none"/>'+
+      '<path d="M35 12 q-10 28 5 55 M65 12 q10 28 -5 55" stroke="#FFF6E6" stroke-width="7" fill="none" opacity=".55"/>'+
+      '<path d="M42 70 40 82 M58 70 60 82" stroke="'+B+'" stroke-width="2.6" stroke-linecap="round"/>'+
+      '<rect x="38" y="80" width="24" height="16" rx="5" fill="#DFA96C" stroke="#7A4E28" stroke-width="3.2"/>'+
+      '<path d="M38 87 h24" stroke="#7A4E28" stroke-width="2.4" opacity=".6"/>'+E;
     if(k==='teddy')return S+
       '<ellipse cx="16" cy="62" rx="11" ry="9" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+   /* лапы-руки */
       '<ellipse cx="84" cy="62" rx="11" ry="9" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
@@ -4924,10 +5011,10 @@
   function hhEm(t){return t.cur==='star'?'⭐':'🪙';}
   function hhHave(t){return t.cur==='star'?stars:coins;}
   function hhPay(t,n){if(t.cur==='star'){stars-=n;starsSpent+=n;}else{coins-=n;coinsSpent+=n;}}
-  function hhRefund(t,n){if(t.cur==='star'){stars+=n;starsSpent-=n;}else{coins+=n;coinsSpent-=n;}}
   function hhLock(t){const l=t.lk;if(!l)return null;
     if(l.k==='star')return earnedStars()>=l.n?null:{t:'⭐ '+earnedStars()+' / '+l.n};
     if(l.k==='key')return keys>=l.n?null:{t:'🔑 '+keys+' / '+l.n};
+    if(l.k==='pie')return pies>=l.n?null:{t:'🥧 '+pies+' / '+l.n};
     if(l.k==='page')return pages.length>=l.n?null:{t:'📖 '+pages.length+' / '+l.n};
     return games[l.g]?null:{t:l.t};}
 
@@ -4936,7 +5023,7 @@
     $('#hhWall').style.background=hhBg(HH_WALLS,houseSt.wall);
     $('#hhFloor').style.background=hhBg(HH_FLOORS,houseSt.floor);
     $('#hhDoor').innerHTML=HH_DOOR;
-    $('#hhCoins').textContent='🪙 '+coins+'   ⭐ '+stars;}
+    $('#hhCoins').textContent='🪙 '+coins+'  ⭐ '+stars+'  🔑 '+keys+'  🥧 '+pies;}
 
   function hhZ(t,y){return t.flat?1:(t.wall?2:3+Math.round(y));}
   function hhRender(){
@@ -4992,31 +5079,36 @@
 
   /* режим «поставь и подтверди»: ✅ оставить, ✕ вернуть как было (или отменить покупку) */
   /* mode: new — только что купили, move — переставляем, back — достали со склада */
-  function hhStartPut(i,mode){
+  function hhStartPut(i,mode,pay){
+    if(hhPut)hhEndPut(true);                     /* прошлую примерку засчитываем */
     const o=houseSt.items[i];if(!o)return;
-    hhPut={i:i,mode:mode||'move',x:o.x,y:o.y};
-    $('#hhTipTxt').textContent=mode==='move'?'Переставь, куда хочешь':'Поставь, куда хочешь';
+    hhPut={i:i,mode:mode||'move',x:o.x,y:o.y,pay:pay||null};
+    $('#hhTipTxt').textContent=pay?('Нравится? ✅ — беру за '+pay.n+' '+hhEm(pay.t))
+      :mode==='move'?'Переставь, куда хочешь':'Поставь, куда хочешь';
     hhRender();}
+  /* деньги списываются только по ✅ — до этого вещь просто примеряют */
+  function hhCommit(){
+    if(!hhPut||!hhPut.pay)return;
+    const p=hhPut.pay;hhPut.pay=null;
+    hhPay(p.t,p.n);updateHUD();hhPaint();}
   function hhEndPut(keep){
     if(!hhPut)return;
+    if(keep)hhCommit();
     const p=hhPut;hhPut=null;
     if(!keep){
       const o=houseSt.items[p.i];
       if(p.mode==='move'){if(o){o.x=p.x;o.y=p.y;}}
       else if(o){
-        const t=hhKind(o.id);
         houseSt.items.splice(p.i,1);
-        if(p.mode==='new'){                      /* отменили покупку — деньги назад */
-          const j=houseSt.own.indexOf(o.id);if(j>=0)houseSt.own.splice(j,1);
-          if(t&&t.p>0)hhRefund(t,t.p);
-          updateHUD();hhPaint();}
+        if(p.mode==='new'){                      /* передумал — деньги и не списывались */
+          const j=houseSt.own.indexOf(o.id);if(j>=0)houseSt.own.splice(j,1);}
         hhGrid();}}
     save();hhRender();}
   /* склад: вещь остаётся купленной, но уходит из комнаты — можно поставить другую */
   function hhStore(i){
     const o=houseSt.items[i];if(!o)return;
     const t=hhKind(o.id);
-    if(hhPut&&hhPut.i===i)hhPut=null;
+    if(hhPut&&hhPut.i===i){hhCommit();hhPut=null;}   /* убрал на склад — значит оставляет себе */
     houseSt.items.splice(i,1);
     save();hhRender();hhGrid();chime(true);
     flash(screens.house,(t?t.n:'Вещь')+' на складе 📦');}
@@ -5054,11 +5146,12 @@
       return;}
     if(hhCat==='walls'){
       HH_WALLS.concat(HH_FLOORS).forEach(function(f){
-        const isW=HH_WALLS.indexOf(f)>=0,got=f.p===0||hhOwned(f.id);
+        const isW=HH_WALLS.indexOf(f)>=0,lk=hhLock(f),got=!lk&&(f.p===0||hhOwned(f.id));
         const cur=isW?houseSt.wall===f.id:houseSt.floor===f.id;
         const pv='<div class="sw" style="background:'+f.bg+'"></div>';
-        const price=cur?'✔ выбрано':got?'выбрать':(coins>=f.p?'🛒 '+f.p+' 🪙':'ещё '+(f.p-coins)+' 🪙');
-        box.appendChild(hhCell(pv,(isW?'🎨 ':'🟫 ')+f.n,price,cur?'have':(got||coins>=f.p?'':'no'),function(){
+        const price=lk?('🔒 '+lk.t):cur?'✔ выбрано':got?'выбрать':(coins>=f.p?'🛒 '+f.p+' 🪙':'ещё '+(f.p-coins)+' 🪙');
+        box.appendChild(hhCell(pv,(isW?'🎨 ':'🟫 ')+f.n,price,cur?'have':(!lk&&(got||coins>=f.p)?'':'no'),function(){
+          if(lk){chime(false);flash(screens.house,'Открой: '+lk.t);return;}
           if(got){if(isW)houseSt.wall=f.id;else houseSt.floor=f.id;blip();hhPaint();hhGrid();save();return;}
           if(coins<f.p){chime(false);flash(screens.house,'Нужно ещё '+(f.p-coins)+' 🪙');return;}
           coins-=f.p;coinsSpent+=f.p;houseSt.own.push(f.id);
@@ -5076,17 +5169,18 @@
           if(j>=0)hhStore(j);return;}
         if(own){hhTakeBack(e.id);return;}            /* лежит на складе — ставим обратно */
         if(lk){chime(false);flash(screens.house,'Открой: '+lk.t);return;}
-        if(t.p>have){chime(false);flash(screens.house,'Нужно ещё '+(t.p-have)+' '+em);return;}
+        if(hhPut)hhEndPut(true);        /* прошлую примерку засчитываем, деньги уходят сейчас */
+        const nowHave=hhHave(t);
+        if(t.p>nowHave){chime(false);flash(screens.house,'Нужно ещё '+(t.p-nowHave)+' '+em);return;}
         hhBuy(e.id,t);}));});}
 
   function hhBuy(id,t){
-    if(t.p>0)hhPay(t,t.p);
     houseSt.own.push(id);
     houseSt.items.push({id:id,x:50,y:t.wall?46:82});
-    chime(true);save();updateHUD();hhPaint();hhGrid();
-    hhStartPut(houseSt.items.length-1,'new');
+    chime(true);save();hhGrid();
+    hhStartPut(houseSt.items.length-1,'new',t.p>0?{t:t,n:t.p}:null);
     hhShut(true);
-    flash(screens.house,t.n+' куплен! 🎉');}
+    flash(screens.house,t.n+' — примерь! 🎉');}
 
   function hhShut(v){$('#hhWrap').classList.toggle('shut',v);setTimeout(hhSize,360);}
   $('#hhClose').onclick=function(){blip();hhShut(true);};
@@ -5132,6 +5226,7 @@
     if(hhWait>0){hhWait-=dt;if(hhWait<=0)hhPick();return;}
     const dx=(hhTx-hhX)*hhRW/100,dy=(hhTy-hhY)*hhRH/100,L=Math.hypot(dx,dy);
     if(L<4){
+      if(hhAct==='exit'){hhAct='';hhPose('');hhEndPut(true);goWorld();return;}
       if(hhAct){hhPose(hhAct);hhActT=2.6;hhAct='';}
       else{hhPose('');hhWait=0.5+Math.random()*1.1;}
       return;}
@@ -5145,6 +5240,9 @@
     /* записи первых дней хранили id без номера варианта — дописываем нулевой */
     houseSt.items.forEach(function(o){if(!/[0-9]$/.test(o.id))o.id+='0';});
     houseSt.own=houseSt.own.map(function(s){return /[0-9]$/.test(s)?s:s+'0';});
+    /* шторы убрали из каталога — чистим старые записи, обои и полы (w0,f1…) оставляем */
+    houseSt.items=houseSt.items.filter(function(o){return !!hhKind(o.id);});
+    houseSt.own=houseSt.own.filter(function(s){return hhKind(s)||/^[wf]\d+$/.test(s);});
     if(heroSrc)$('#hhImg').src=heroSrc;
     $('#hhName').textContent=playerName;
     hhPaint();hhTabs();hhGrid();hhRender();hhSize();
@@ -5153,6 +5251,12 @@
     if(!hhRaf){hhStep.p=0;hhRaf=requestAnimationFrame(hhStep);}}
   $('#hhHero').addEventListener('pointerdown',hhHeroDown);
   $('#hhBack').onclick=function(){hhEndPut(true);goWorld();};
+  /* дверь — выход на карту: герой сам доходит до неё и выходит */
+  $('#hhDoor').onclick=function(){
+    const r=$('#hhRoom').getBoundingClientRect(),d=this.getBoundingClientRect();
+    hhTx=Math.max(8,Math.min(92,(d.left+d.width/2-r.left)/r.width*100));
+    hhTy=90;hhAct='exit';hhActT=0;hhWait=0;hhActZ=0;
+    blip();flash(screens.house,'Идём на карту 🗺️');};
   $('#hhSleep').onclick=function(){hhEndPut(true);enterSleep();};
 })();
 </script>
