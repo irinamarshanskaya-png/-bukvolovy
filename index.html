@@ -797,7 +797,8 @@
   .hhpet{position:absolute;width:84px;height:84px;transform:translate(-50%,-100%);display:none;z-index:5;
     cursor:pointer;touch-action:none;}
   .hhpet.on{display:block;}
-  .hhpet.st0{width:58px;height:58px;} .hhpet.st1{width:84px;height:84px;} .hhpet.st2{width:114px;height:114px;}
+  .hhpet.st0{width:58px;height:58px;} .hhpet.st1{width:84px;height:84px;}
+  .hhpet.st2{width:100px;height:100px;} .hhpet.st3{width:118px;height:118px;}
   @keyframes petjump{0%,100%{transform:translateY(0)}35%{transform:translateY(-20px)}65%{transform:translateY(0)}}
   .hhpet.jump .hhpimg{animation:petjump .55s ease;}
   .hhpimg{width:100%;height:100%;transform-origin:50% 100%;animation:alive 1.7s ease-in-out infinite;
@@ -4680,11 +4681,11 @@
   const HH_PET_PRICE=150;   /* питомец — большая цель: копится долго */
   /* Питомцы: ребёнок выбирает одного, тот вылупляется из яйца и подрастает,
      когда ребёнок зарабатывает звёздочки в играх. */
-  const HH_PETS=[{k:'dog',n:'Щенок',a:'#F7DCA8',b:'#BE8A44'},
-                 {k:'cat',n:'Котёнок',a:'#93D6F3',b:'#3E8FBE'},
-                 {k:'robot',n:'Робот',a:'#CFD6E8',b:'#6E7A96'},
-                 {k:'bird',n:'Птичка',a:'#FF9A5A',b:'#C4501F'}];
-  const PET_HATCH=5,PET_GROWN=20;   /* сколько ⭐ заработать после покупки */
+  const HH_PETS=[{k:'dog',n:'Щенок',n2:'Пёс',a:'#F7DCA8',b:'#BE8A44'},
+                 {k:'cat',n:'Котёнок',n2:'Кот',a:'#93D6F3',b:'#3E8FBE'},
+                 {k:'robot',n:'Робот',n2:'Большой робот',a:'#CFD6E8',b:'#6E7A96'},
+                 {k:'bird',n:'Птичка',n2:'Птица',a:'#FF9A5A',b:'#C4501F'}];
+  const PET_HATCH=15,PET_TEEN=30,PET_GROWN=50;   /* сколько ⭐ заработать после покупки */
   function hhPetKind(k){return HH_PETS.filter(function(p){return p.k===k;})[0]||HH_PETS[0];}
   function hhPetPic(k,st){
     const p=hhPetKind(k),A=p.a,B=p.b;
@@ -4696,9 +4697,9 @@
       '<ellipse cx="39" cy="43" rx="9" ry="7" fill="'+A+'"/><ellipse cx="63" cy="57" rx="8" ry="6.4" fill="'+A+'"/>'+
       '<ellipse cx="43" cy="74" rx="9" ry="7" fill="'+A+'"/><ellipse cx="66" cy="84" rx="6" ry="4.8" fill="'+A+'"/>'+
       '<path d="M35 33 q6 -7 14 -5" stroke="#fff" stroke-width="5" fill="none" opacity=".75" stroke-linecap="round"/>'+E;
-    const big=st===2;
+    const big=st>=2;
     /* взрослому — ошейник с бубенчиком, чтобы «подрос» было видно сразу */
-    const collar=function(hy,hr){return big?'<path d="M'+(50-17)+' '+(hy+hr-1)+' q17 10 34 0" stroke="#E4573B" stroke-width="5.5" fill="none" stroke-linecap="round"/>'+
+    const collar=function(hy,hr){return st===3?'<path d="M'+(50-17)+' '+(hy+hr-1)+' q17 10 34 0" stroke="#E4573B" stroke-width="5.5" fill="none" stroke-linecap="round"/>'+
       '<circle cx="50" cy="'+(hy+hr+5)+'" r="5.2" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.4"/>':'';};
     if(k==='cat'){
       const hy=big?30:42,hr=big?21:26;
@@ -4746,7 +4747,7 @@
         '<rect x="'+(big?76:72)+'" y="'+(big?58:64)+'" width="12" height="26" rx="6" fill="'+B+'"/>'+
         '<rect x="30" y="'+(big?92:90)+'" width="16" height="7" rx="3.5" fill="'+B+'"/>'+
         '<rect x="54" y="'+(big?92:90)+'" width="16" height="7" rx="3.5" fill="'+B+'"/>'+
-        '<rect x="'+(big?28:26)+'" y="'+(hy-24)+'" width="'+(big?44:48)+'" height="'+(big?44:46)+'" rx="14" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+        '<rect x="'+(big?28:26)+'" y="'+(hy-24)+'" width="'+(big?44:48)+'" height="'+(big?44:46)+'" rx="14" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+collar(hy,big?21:22)+
         '<rect x="'+(big?34:32)+'" y="'+(hy-16)+'" width="'+(big?32:36)+'" height="'+(big?26:28)+'" rx="10" fill="#4A5670"/>'+
         eye(50-11,hy-3,big?5.4:6)+eye(50+11,hy-3,big?5.4:6)+
         '<path d="M44 '+(hy+9)+' q6 4 12 0" stroke="#8FD4F3" stroke-width="2.8" fill="none" stroke-linecap="round"/>'+E;}
@@ -4758,7 +4759,7 @@
       '<path d="M'+(big?24:26)+' '+(big?66:70)+' q-16 6 -6 20 q10 12 20 2 z" fill="'+B+'" stroke="'+B+'" stroke-width="3" stroke-linejoin="round"/>'+
       '<path d="M40 94 l-6 5 M44 94 l0 6 M56 94 l0 6 M60 94 l6 5" stroke="#D8A21A" stroke-width="3.4" stroke-linecap="round"/>'+
       '<circle cx="50" cy="'+hy+'" r="'+hr+'" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
-      '<path d="M44 '+(hy-hr-2)+' q4 -12 10 -3 q5 -9 8 2" fill="'+B+'" stroke="'+B+'" stroke-width="2.6" stroke-linejoin="round"/>'+
+      '<path d="M44 '+(hy-hr-2)+' q4 -12 10 -3 q5 -9 8 2" fill="'+B+'" stroke="'+B+'" stroke-width="2.6" stroke-linejoin="round"/>'+collar(hy,hr)+
       eye(50-8,hy-2,big?5.2:6)+eye(50+8,hy-2,big?5.2:6)+
       '<path d="M50 '+(hy+5)+' l-8 5 l8 5 z" fill="#FFC93F" stroke="#D8A21A" stroke-width="2.4" stroke-linejoin="round"/>'+E;}
   const HH_WALLS=[
@@ -5298,7 +5299,7 @@
     const pt=houseSt.pet,pel=$('#hhPet');
     pel.classList.toggle('on',!!pt);
     if(pt){const st=hhPetStage();
-      pel.classList.remove('st0','st1','st2');pel.classList.add('st'+st);
+      pel.classList.remove('st0','st1','st2','st3');pel.classList.add('st'+st);
       $('#hhPetArt').innerHTML=hhPetPic(pt.k,st);}
     else $('#hhPetArt').innerHTML='';
     $('#hhCoins').textContent='🪙 '+coins+'  ⭐ '+stars+'  🔑 '+keys+'  🥧 '+pies;}
@@ -5405,8 +5406,8 @@
   let hhPetAsk=null,hhPetX=40,hhPetY=90;
   /* стадия считается от звёздочек, заработанных после покупки */
   function hhPetGrow(){const p=houseSt.pet;return p?Math.max(0,earnedStars()-(p.at||0)):0;}
-  function hhPetStage(){const g=hhPetGrow();return g>=PET_GROWN?2:g>=PET_HATCH?1:0;}
-  function hhPetLeft(){const g=hhPetGrow();return g>=PET_GROWN?0:g>=PET_HATCH?PET_GROWN-g:PET_HATCH-g;}
+  function hhPetStage(){const g=hhPetGrow();return g>=PET_GROWN?3:g>=PET_TEEN?2:g>=PET_HATCH?1:0;}
+  function hhPetLeft(){const g=hhPetGrow();return g>=PET_GROWN?0:g>=PET_TEEN?PET_GROWN-g:g>=PET_HATCH?PET_TEEN-g:PET_HATCH-g;}
   function hhAskPet(p){
     hhEndPut(true);hhPetAsk=p;
     $('#hhTipTxt').textContent=p.n+' за '+HH_PET_PRICE+' ⭐?';
@@ -5454,7 +5455,7 @@
     setTimeout(function(){
       if(!screens.house.classList.contains('active'))return;
       confetti(screens.house);chime(true);
-      flash(screens.house,st===1?'Питомец вылупился! 🐣':'Питомец подрос! 🎉');},700);}
+      flash(screens.house,st===1?'Питомец вылупился! 🐣':st===3?'Питомец совсем вырос! 🎉':'Питомец подрос! 🌿');},700);}
 
   /* ——— витрина ——— */
   function hhCats(){return hhWhere==='yard'?YARD_CATS:HH_CATS;}
@@ -5485,12 +5486,14 @@
       const pt=houseSt.pet;
       if(pt){                                   /* питомец уже есть — показываем, как он растёт */
         const st=hhPetStage(),left=hhPetLeft(),p=hhPetKind(pt.k);
-        const nm=st===0?'Яйцо':st===1?p.n:p.n+' подрос';
+        const nm=st===0?'Яйцо':st===1?p.n:st===2?p.n+' подрос':p.n2;
         box.appendChild(hhCell(hhPetPic(pt.k,st),nm,
-          st===0?'🥚 вылупится через '+left+' ⭐':st===1?'🌱 подрастёт через '+left+' ⭐':'💛 совсем взрослый','have'));
+          st===0?'🥚 вылупится через '+left+' ⭐':st===1?'🌱 подрастёт через '+left+' ⭐'
+          :st===2?'🌿 вырастет через '+left+' ⭐':'💛 совсем взрослый','have'));
         const d=document.createElement('div');d.className='hhnote';
         d.textContent=st===0?'Зарабатывай звёздочки в играх — и из яйца вылупится твой питомец.'
-          :'Питомец ходит за тобой и по комнате, и по дворику. Погладь его — он обрадуется.';
+          :st===3?'Питомец вырос! Ходит за тобой и по комнате, и по дворику.'
+          :'Питомец ходит за тобой и по комнате, и по дворику. Зарабатывай звёздочки — он подрастёт.';
         box.appendChild(d);return;}
       HH_PETS.forEach(function(p){
         const price=stars>=HH_PET_PRICE?'🛒 '+HH_PET_PRICE+' ⭐':'ещё '+(HH_PET_PRICE-stars)+' ⭐';
@@ -5600,7 +5603,7 @@
     hhWhere='room';if(hhCat==='grow'||hhCat==='play'||hhCat==='gard')hhCat='furn';
     if(!houseSt.yard)houseSt.yard=[];
     /* первые записи хранили питомца строкой — он уже вырос */
-    if(typeof houseSt.pet==='string')houseSt.pet=houseSt.pet?{k:'cat',at:0,seen:2}:'';
+    if(typeof houseSt.pet==='string')houseSt.pet=houseSt.pet?{k:'cat',at:0,seen:3}:'';
     /* записи первых дней хранили id без номера варианта — дописываем нулевой */
     houseSt.items.concat(houseSt.yard).forEach(function(o){if(!/[0-9]$/.test(o.id))o.id+='0';});
     houseSt.own=houseSt.own.map(function(s){return /[0-9]$/.test(s)?s:s+'0';});
