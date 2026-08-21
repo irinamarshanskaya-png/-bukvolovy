@@ -782,7 +782,7 @@
   .hhwrap.yard .hhdoor2{left:4%;right:auto;}
   .hhdlbl{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);background:rgba(255,255,255,.94);
     border-radius:11px;padding:2px 9px;font-family:'Fredoka';font-size:13px;color:#3a2f1a;white-space:nowrap;
-    box-shadow:0 3px 8px rgba(0,0,0,.18);pointer-events:none;}
+    box-shadow:0 3px 8px rgba(0,0,0,.18);pointer-events:none;z-index:200;}
   /* дворик: небо вместо обоев, трава вместо пола, заборчик по горизонту */
   .hhwrap.yard .hhbase{height:26px;transform:translateY(-26px);border-top:none;
     background:repeating-linear-gradient(90deg,#EFD6AC 0 15px,#C9A063 15px 21px);
@@ -793,6 +793,16 @@
     filter:drop-shadow(0 5px 5px rgba(0,0,0,.22));transition:filter .15s;}
   .hhit svg{width:100%;height:100%;display:block;pointer-events:none;}
   .hhit.on{filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 9px #FFD23F) drop-shadow(0 5px 5px rgba(0,0,0,.22));}
+  /* питомец ходит следом за героем */
+  .hhpet{position:absolute;width:82px;height:82px;transform:translate(-50%,-100%);display:none;z-index:5;pointer-events:none;}
+  .hhpet.on{display:block;}
+  .hhpimg{width:100%;height:100%;transform-origin:50% 100%;animation:alive 1.7s ease-in-out infinite;
+    filter:drop-shadow(0 4px 5px rgba(0,0,0,.26));transition:scale .18s;}
+  .hhpet svg{width:100%;height:100%;display:block;}
+  .hhpet.walk .hhpimg{animation:waddle .42s ease-in-out infinite;}
+  .hhpet.flip .hhpimg{scale:-1 1;}
+  .hhpbub{position:absolute;bottom:100%;left:50%;transform:translateX(-50%) scale(0);font-size:22px;
+    margin-bottom:6px;transition:transform .2s;} .hhpbub.on{transform:translateX(-50%) scale(1);}
   /* герой живёт в комнате: ходит сам, реагирует на мебель */
   .hhero{position:absolute;width:124px;height:124px;transform:translate(-50%,-100%);z-index:6;cursor:grab;touch-action:none;}
   .hhero.grab img{filter:drop-shadow(0 0 10px #FFD23F) drop-shadow(0 5px 6px rgba(0,0,0,.28));}
@@ -817,8 +827,8 @@
     border-radius:22px;box-shadow:0 10px 26px rgba(40,60,90,.22);display:flex;flex-direction:column;
     padding:10px 10px 12px;transform:translateX(0);transition:transform .34s ease;z-index:8;}
   .hhwrap.shut .hhpanel{transform:translateX(108%);}
-  .hhcats{display:flex;gap:6px;}
-  .hhcat{flex:1;font-size:26px;background:#fff;border:none;border-radius:14px;padding:7px 0;cursor:pointer;
+  .hhcats{display:flex;gap:5px;}
+  .hhcat{flex:1;font-size:24px;background:#fff;border:none;border-radius:14px;padding:7px 0;cursor:pointer;
     box-shadow:0 3px 7px rgba(0,0,0,.12);transition:transform .07s;}
   .hhcat:active{transform:translateY(2px);} .hhcat.sel{outline:4px solid var(--grape);outline-offset:1px;}
   .hhhead{display:flex;align-items:center;justify-content:space-between;margin:9px 2px 6px;}
@@ -1215,6 +1225,7 @@
         <div class="hhdoor" id="hhDoor"></div>
         <div class="hhdoor hhdoor2" id="hhDoor2"></div>
         <div class="hhitems" id="hhItems"></div>
+        <div class="hhpet" id="hhPet"><div class="hhpbub" id="hhPbub"></div><div class="hhpimg" id="hhPetArt"></div></div>
         <div class="hhero" id="hhHero"><div class="hhname" id="hhName"></div><div class="hhbub" id="hhBub"></div><img id="hhImg" alt="герой"></div>
         <div class="hhtip" id="hhTip"><span id="hhTipTxt">Двигай пальцем</span><button class="btn small" id="hhOk">✅</button><button class="btn small coral" id="hhNo">✕</button><button class="btn small" id="hhBox" style="background:#8C93B8;box-shadow:0 6px 0 #6b7192">📦</button></div>
       </div>
@@ -1558,7 +1569,7 @@
   function earnedPies(){return pies+piesSpent;}
   /* дом героя: что куплено и где стоит. Живёт рядом с остальным состоянием, потому что
      load() разбирает сохранение раньше, чем объявлен код комнаты. */
-  let houseSt={wall:'w0',floor:'f0',own:[],items:[],yard:[]};
+  let houseSt={wall:'w0',floor:'f0',own:[],items:[],yard:[],pet:''};
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
   function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,starsSpent,keysSpent,piesSpent,house:houseSt};}
@@ -4660,7 +4671,27 @@
      Тап по мебели — герой идёт и садится, потаскивание — вещь переезжает.
      Купленное и его места лежат в houseSt и сохраняются вместе с прогрессом. */
   const HH_CATS=[['furn','🛏️','Мебель'],['deco','🖼️','Украшения'],['win','🪟','Окна'],
-                 ['cozy','🧸','Уют и игрушки'],['walls','🌈','Стены и пол'],['store','📦','Склад']];
+                 ['cozy','🧸','Уют и игрушки'],['walls','🌈','Стены и пол'],['pet','🐾','Питомец'],
+                 ['store','📦','Склад']];
+  const HH_PET_PRICE=150;   /* питомец — большая цель: копится долго */
+  /* Картинка питомца. Меняется одной строкой, если нужен другой зверь. */
+  const HH_PET='<svg viewBox="0 0 100 100" style="width:100%;height:100%">'+
+    '<path d="M76 78 q18 -3 15 -21 q-2 -11 -11 -9" fill="none" stroke="#B77A47" stroke-width="11" stroke-linecap="round"/>'+
+    '<path d="M76 78 q18 -3 15 -21 q-2 -11 -11 -9" fill="none" stroke="#F5C486" stroke-width="6" stroke-linecap="round"/>'+
+    '<ellipse cx="50" cy="72" rx="29" ry="23" fill="#F5C486" stroke="#B77A47" stroke-width="3.6"/>'+
+    '<ellipse cx="50" cy="79" rx="17" ry="13" fill="#FFF1DC"/>'+
+    '<ellipse cx="35" cy="92" rx="9" ry="5.5" fill="#FFF1DC" stroke="#B77A47" stroke-width="3"/>'+
+    '<ellipse cx="65" cy="92" rx="9" ry="5.5" fill="#FFF1DC" stroke="#B77A47" stroke-width="3"/>'+
+    '<path d="M27 33 L23 13 L43 23 z" fill="#F5C486" stroke="#B77A47" stroke-width="3.4" stroke-linejoin="round"/>'+
+    '<path d="M73 33 L77 13 L57 23 z" fill="#F5C486" stroke="#B77A47" stroke-width="3.4" stroke-linejoin="round"/>'+
+    '<path d="M29 29 L27 19 L37 24 z" fill="#FFC2D8"/><path d="M71 29 L73 19 L63 24 z" fill="#FFC2D8"/>'+
+    '<circle cx="50" cy="42" r="26" fill="#F5C486" stroke="#B77A47" stroke-width="3.6"/>'+
+    '<circle cx="31" cy="49" r="4.6" fill="#FFC2D8" opacity=".85"/><circle cx="69" cy="49" r="4.6" fill="#FFC2D8" opacity=".85"/>'+
+    '<circle cx="40" cy="40" r="6.2" fill="#37344F"/><circle cx="60" cy="40" r="6.2" fill="#37344F"/>'+
+    '<circle cx="42" cy="38" r="2.3" fill="#fff"/><circle cx="62" cy="38" r="2.3" fill="#fff"/>'+
+    '<path d="M50 50 l-5 -5 h10 z" fill="#E4573B"/>'+
+    '<path d="M44 55 q6 5 12 0" stroke="#B77A47" stroke-width="2.8" fill="none" stroke-linecap="round"/>'+
+    '<path d="M14 44 h12 M14 51 h12 M86 44 h-12 M86 51 h-12" stroke="#B77A47" stroke-width="2.4" stroke-linecap="round"/></svg>';
   const HH_WALLS=[
     {id:'w0',n:'Кремовые',p:0,bg:'linear-gradient(180deg,#FFF4DF,#F3E1C0)'},
     {id:'w1',n:'Полоска',p:10,bg:'repeating-linear-gradient(90deg,#FFF0F5 0 26px,#FBD9E6 26px 52px)'},
@@ -5195,6 +5226,8 @@
       :(HH_GARDEN+'<div class="hhdlbl">'+(hhYardOpen()?'🌳 Во дворик':'🔒 '+earnedKeys()+' / '+YARD_KEYS+' 🔑')+'</div>');
     $('#hhWrap').classList.toggle('yard',yard);
     $('#hhTitle').textContent=yard?'🌳 Мой дворик':'🏠 Мой дом';
+    $('#hhPet').classList.toggle('on',!!houseSt.pet);
+    $('#hhPetArt').innerHTML=houseSt.pet?HH_PET:'';
     $('#hhCoins').textContent='🪙 '+coins+'  ⭐ '+stars+'  🔑 '+keys+'  🥧 '+pies;}
 
   function hhZ(t,y){return t.flat?1:(t.wall?2:3+Math.round(y));}
@@ -5208,7 +5241,7 @@
       el.innerHTML=hhArt(o.id);
       el.addEventListener('pointerdown',function(e){hhDown(i,e);});
       box.appendChild(el);});
-    $('#hhTip').classList.toggle('on',!!hhPut);}
+    $('#hhTip').classList.toggle('on',!!hhPut||hhPetAsk);}
 
   /* палец: короткий тап — герой идёт к вещи, потянул — вещь переезжает */
   function hhDown(i,e){
@@ -5291,9 +5324,37 @@
     hhStartPut(hhIt().length-1,'back');
     hhShut(true);blip();hhGrid();
     flash(screens.house,'Поставь, куда хочешь 🏠');}
-  $('#hhOk').onclick=function(){chime(true);hhEndPut(true);};
-  $('#hhNo').onclick=function(){blip();hhEndPut(false);};
+  $('#hhOk').onclick=function(){if(hhPetAsk){hhPetDone(true);return;}chime(true);hhEndPut(true);};
+  $('#hhNo').onclick=function(){if(hhPetAsk){hhPetDone(false);return;}blip();hhEndPut(false);};
   $('#hhBox').onclick=function(){if(hhPut)hhStore(hhPut.i);};
+
+  /* ——— питомец: покупается за звёздочки и ходит следом ——— */
+  let hhPetAsk=false,hhPetX=40,hhPetY=90;
+  function hhAskPet(){
+    hhEndPut(true);hhPetAsk=true;
+    $('#hhTipTxt').textContent='Заводим питомца за '+HH_PET_PRICE+' ⭐?';
+    $('#hhBox').style.display='none';
+    $('#hhTip').classList.add('on');hhShut(true);blip();}
+  function hhPetDone(yes){
+    hhPetAsk=false;$('#hhBox').style.display='';$('#hhTip').classList.remove('on');
+    if(!yes){blip();return;}
+    stars-=HH_PET_PRICE;starsSpent+=HH_PET_PRICE;houseSt.pet='cat';
+    hhPetX=Math.max(8,Math.min(92,hhX-10));hhPetY=hhY;
+    chime(true);confetti(screens.house);save();updateHUD();hhPaint();hhGrid();
+    flash(screens.house,'Ура! Питомец теперь с тобой 🐾');}
+  /* идёт за героем, но не наступает на пятки: держится сбоку в паре шагов */
+  function hhPetStep(dt){
+    if(!houseSt.pet)return;
+    const el=$('#hhPet'),side=hhPetX<hhX?-1:1;
+    const tx=Math.max(5,Math.min(95,hhX+side*8)),ty=Math.max(64,Math.min(99,hhY+2));
+    const dx=(tx-hhPetX)*hhRW/100,dy=(ty-hhPetY)*hhRH/100,L=Math.hypot(dx,dy);
+    const walk=L>22;
+    if(walk){const v=120*dt,k=Math.min(1,v/L);
+      hhPetX+=(tx-hhPetX)*k;hhPetY+=(ty-hhPetY)*k;
+      el.classList.toggle('flip',dx<0);}
+    el.classList.toggle('walk',walk);
+    el.style.left=hhPetX+'%';el.style.top=hhPetY+'%';el.style.zIndex=4+Math.round(hhPetY);
+    const b=$('#hhPbub');b.textContent='💛';b.classList.toggle('on',hhActT>0&&!walk);}
 
   /* ——— витрина ——— */
   function hhCats(){return hhWhere==='yard'?YARD_CATS:HH_CATS;}
@@ -5320,6 +5381,17 @@
       left.forEach(function(id){const t=hhKind(id),i=hhVar(id);
         box.appendChild(hhCell(hhArt(id),t.v.length>1?t.n+' '+t.v[i][0]:t.n,'🏠 Поставить','',function(){hhTakeBack(id);}));});
       return;}
+    if(hhCat==='pet'){
+      const got=!!houseSt.pet;
+      const price=got?'✔ живёт с тобой':(stars>=HH_PET_PRICE?'🛒 '+HH_PET_PRICE+' ⭐':'ещё '+(HH_PET_PRICE-stars)+' ⭐');
+      box.appendChild(hhCell(HH_PET,'Питомец',price,got?'have':(stars>=HH_PET_PRICE?'':'no'),function(){
+        if(got){blip();flash(screens.house,'Питомец уже с тобой 🐾');return;}
+        if(stars<HH_PET_PRICE){chime(false);flash(screens.house,'Нужно ещё '+(HH_PET_PRICE-stars)+' ⭐');return;}
+        hhAskPet();}));
+      const d=document.createElement('div');d.className='hhnote';
+      d.textContent=got?'Питомец ходит за тобой и по комнате, и по дворику.'
+        :'Питомец будет ходить за тобой везде — и по комнате, и по дворику. Копи звёздочки!';
+      box.appendChild(d);return;}
     if(hhCat==='walls'){
       HH_WALLS.concat(HH_FLOORS).forEach(function(f){
         const isW=HH_WALLS.indexOf(f)>=0,lk=hhLock(f),got=!lk&&(f.p===0||hhOwned(f.id));
@@ -5398,6 +5470,8 @@
     if(!screens.house.classList.contains('active')){hhRaf=0;return;}
     hhRaf=requestAnimationFrame(hhStep);
     const dt=Math.min(0.05,(t-(hhStep.p||t))/1000);hhStep.p=t;
+    hhHeroStep(dt);hhPetStep(dt);}
+  function hhHeroStep(dt){
     if(hhDrag&&hhDrag.hero)return;                 /* пока ребёнок несёт героя — не мешаем */
     if(hhActT>0){hhActT-=dt;if(hhActT<=0){hhPose('');hhWait=0.35;hhActZ=0;}return;}
     if(hhWait>0){hhWait-=dt;if(hhWait<=0)hhPick();return;}
@@ -5429,6 +5503,7 @@
     hhPaint();hhTabs();hhGrid();hhRender();hhSize();
     const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';
     hhWait=0.3;hhActT=0;hhAct='';
+    hhPetX=Math.max(6,Math.min(94,hhX-9));hhPetY=hhY;
     if(!hhRaf){hhStep.p=0;hhRaf=requestAnimationFrame(hhStep);}}
   $('#hhHero').addEventListener('pointerdown',hhHeroDown);
   $('#hhBack').onclick=function(){hhEndPut(true);goWorld();};
@@ -5451,6 +5526,7 @@
     hhX=w==='yard'?12:86;hhY=88;hhTx=hhX;hhTy=hhY;hhAct='';hhActT=0;hhActZ=0;hhWait=.5;
     hhPaint();hhTabs();hhGrid();hhRender();
     const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';h.style.zIndex=4+Math.round(hhY);
+    hhPetX=Math.max(6,Math.min(94,hhX+(w==='yard'?9:-9)));hhPetY=hhY;
     hhPose('');chime(true);save();}
   $('#hhSleep').onclick=function(){hhEndPut(true);enterSleep();};
 })();
