@@ -68,7 +68,7 @@
   .map-token{position:absolute;width:82px;height:82px;transform:translate(-50%,-72%);z-index:3;pointer-events:none;}
   .map-token img{width:100%;height:100%;object-fit:contain;transform-origin:50% 100%;animation:alive 1.9s ease-in-out infinite;filter:drop-shadow(0 4px 5px rgba(0,0,0,.32));transition:scale .22s;}
   /* герой топает не спеша — так же, как ходил по старой карте */
-  .map-token.walk img{animation:waddle .62s ease-in-out infinite;}
+  .map-token.walk img{animation:waddle .5s ease-in-out infinite;}
   /* идёт налево — разворачиваем; scale отдельное свойство, поэтому не спорит с анимацией шага */
   .map-token.flip img{scale:-1 1;}
 
@@ -1544,7 +1544,7 @@
   /* ХОДЬБА ПО ТРОПИНКЕ: герой идёт ровно по той кривой, что нарисована на карте.
      Длину меряем в пикселях сцены (карта шире, чем выше) — иначе на вертикальных
      участках шаг получался бы вдвое быстрее, чем на горизонтальных. */
-  const WALK_SPEED=160;   /* пикселей в секунду — спокойный прогулочный шаг */
+  const WALK_SPEED=205;   /* пикселей в секунду — бодрый шаг: не бег, но и не еле-еле */
   let measurePath=null;
   function ensureMeasure(){if(measurePath)return;
     const s=document.createElementNS(SVGNS,'svg');
