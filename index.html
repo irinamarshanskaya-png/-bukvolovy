@@ -760,6 +760,76 @@
   /* ---------- ПАРК: экран локации ---------- */
   #pmenu{background:linear-gradient(180deg,#BFE9F5 0%,#DFF3FB 34%,#8FD46A 34%,#7BC950 100%);padding:0;}
   #pmenu .nwbtn{width:420px;}
+
+  /* ---------- ДОМ ГЕРОЯ ---------- */
+  #house{background:linear-gradient(180deg,#BFE9F5,#E9F9C9);}
+  .hhwrap{position:relative;flex:1;width:100%;overflow:hidden;}
+  /* комната сама двигает правый край: панель выезжает — комната чуть ужимается */
+  .hhroom{position:absolute;left:16px;top:6px;bottom:10px;right:352px;border-radius:22px;overflow:hidden;
+    box-shadow:0 10px 26px rgba(40,60,90,.22), inset 0 0 0 5px rgba(255,255,255,.7);transition:right .34s ease;}
+  .hhwrap.shut .hhroom{right:16px;}
+  .hhwall{position:absolute;left:0;right:0;top:0;height:62%;}
+  .hhfloor{position:absolute;left:0;right:0;bottom:0;height:38%;}
+  /* плинтус на стыке стены и пола */
+  .hhbase{position:absolute;left:0;right:0;top:62%;height:14px;transform:translateY(-14px);
+    background:linear-gradient(180deg,#FFF6E4,#E8D6B4);border-top:3px solid rgba(0,0,0,.10);}
+  .hhdoor{position:absolute;left:4%;bottom:38%;width:132px;height:196px;}
+  .hhdoor svg{width:100%;height:100%;display:block;}
+  .hhitems{position:absolute;inset:0;}
+  .hhit{position:absolute;transform:translate(-50%,-100%);cursor:grab;touch-action:none;
+    filter:drop-shadow(0 5px 5px rgba(0,0,0,.22));transition:filter .15s;}
+  .hhit svg{width:100%;height:100%;display:block;pointer-events:none;}
+  .hhit.on{filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 9px #FFD23F) drop-shadow(0 5px 5px rgba(0,0,0,.22));}
+  /* герой живёт в комнате: ходит сам, реагирует на мебель */
+  .hhero{position:absolute;width:124px;height:124px;transform:translate(-50%,-100%);pointer-events:none;z-index:6;}
+  .hhero img{width:100%;height:100%;object-fit:contain;transform-origin:50% 100%;
+    animation:alive 1.9s ease-in-out infinite;filter:drop-shadow(0 5px 6px rgba(0,0,0,.28));
+    transition:scale .18s, rotate .3s, translate .3s;}
+  .hhero.walk img{animation:waddle .5s ease-in-out infinite;}
+  .hhname{position:absolute;bottom:100%;left:50%;transform:translateX(-50%);background:rgba(255,255,255,.92);
+    color:#22401f;font-family:'Fredoka';font-size:13px;padding:1px 9px;border-radius:9px;white-space:nowrap;
+    box-shadow:0 2px 5px rgba(0,0,0,.16);margin-bottom:3px;}
+  .hhbub{position:absolute;bottom:100%;left:50%;transform:translateX(-50%) scale(0);font-size:30px;
+    margin-bottom:26px;transition:transform .2s;} .hhbub.on{transform:translateX(-50%) scale(1);}
+  /* подсказка и кнопка «поставить» живут внизу комнаты */
+  .hhtip{position:absolute;left:50%;bottom:16px;transform:translateX(-50%) translateY(30px);opacity:0;
+    display:flex;align-items:center;gap:12px;background:rgba(255,255,255,.94);border-radius:20px;
+    padding:8px 12px 8px 18px;box-shadow:0 6px 16px rgba(0,0,0,.2);font-family:'Fredoka';font-size:18px;
+    color:#3a2f1a;white-space:nowrap;transition:.25s;z-index:7;}
+  .hhtip.on{transform:translateX(-50%) translateY(0);opacity:1;}
+  /* панель декора */
+  .hhpanel{position:absolute;right:8px;top:6px;bottom:10px;width:336px;background:var(--cream);
+    border-radius:22px;box-shadow:0 10px 26px rgba(40,60,90,.22);display:flex;flex-direction:column;
+    padding:10px 10px 12px;transform:translateX(0);transition:transform .34s ease;z-index:8;}
+  .hhwrap.shut .hhpanel{transform:translateX(108%);}
+  .hhcats{display:flex;gap:6px;}
+  .hhcat{flex:1;font-size:26px;background:#fff;border:none;border-radius:14px;padding:7px 0;cursor:pointer;
+    box-shadow:0 3px 7px rgba(0,0,0,.12);transition:transform .07s;}
+  .hhcat:active{transform:translateY(2px);} .hhcat.sel{outline:4px solid var(--grape);outline-offset:1px;}
+  .hhhead{display:flex;align-items:center;justify-content:space-between;margin:9px 2px 6px;}
+  .hhhead b{font-family:'Fredoka';font-size:19px;color:#3a2f1a;}
+  .hhclose{font-family:'Fredoka';font-size:17px;background:var(--coral);color:#fff;border:none;
+    border-radius:13px;padding:5px 13px;cursor:pointer;box-shadow:0 3px 0 #d84a4a;}
+  .hhclose:active{transform:translateY(2px);box-shadow:0 1px 0 #d84a4a;}
+  .hhgrid{flex:1;overflow-y:auto;display:grid;grid-template-columns:1fr 1fr;gap:9px;padding:2px;}
+  .hhcell{background:#fff;border-radius:16px;padding:7px 6px 8px;box-shadow:0 3px 8px rgba(0,0,0,.12);
+    display:flex;flex-direction:column;align-items:center;gap:3px;border:3px solid transparent;cursor:pointer;}
+  .hhcell.have{border-color:var(--grass);}
+  .hhcell.no{opacity:.55;cursor:default;}
+  .hhcell .pv{width:100%;height:74px;display:flex;align-items:flex-end;justify-content:center;}
+  .hhcell .pv svg{max-width:100%;max-height:100%;}
+  .hhcell .pv .sw{width:92%;height:60px;border-radius:12px;box-shadow:inset 0 0 0 3px rgba(0,0,0,.10);}
+  .hhcell .nm{font-family:'Fredoka';font-size:13px;color:#3a2f1a;text-align:center;line-height:1.15;}
+  .hhcell .pr{font-family:'Fredoka';font-size:14px;font-weight:600;color:#8a6a1e;background:#FFF3C4;
+    border-radius:11px;padding:2px 10px;}
+  .hhcell.have .pr{color:#3d7a22;background:#E7F7D6;}
+  .hhcell.no .pr{color:#8d6a6a;background:#F6E2E2;font-size:12px;}
+  /* язычок, которым панель вызывают обратно */
+  .hhtab{position:absolute;right:8px;top:50%;transform:translate(150%,-50%);font-size:34px;background:var(--cream);
+    border:none;border-top-left-radius:18px;border-bottom-left-radius:18px;padding:16px 12px 16px 14px;
+    cursor:pointer;box-shadow:-4px 4px 14px rgba(40,60,90,.22);transition:transform .34s ease;z-index:8;}
+  .hhwrap.shut .hhtab{transform:translate(0,-50%);}
+  .hhtab:active{transform:translate(0,-50%) scale(.94);}
 </style>
 </head>
 <body>
@@ -1112,6 +1182,34 @@
     <button class="btn" id="wakeBtn">Разбудить ☀️</button>
   </section>
 
+  <section id="house" class="screen">
+    <div class="topbar">
+      <button class="backb" id="hhBack">← Карта</button>
+      <h2>🏠 Мой дом</h2>
+      <div style="display:flex;gap:8px;align-items:center">
+        <div class="prog" id="hhCoins">🪙 0</div>
+        <button class="backb" id="hhSleep">🌙 Спать</button>
+      </div>
+    </div>
+    <div class="hhwrap shut" id="hhWrap">
+      <div class="hhroom" id="hhRoom">
+        <div class="hhwall" id="hhWall"></div>
+        <div class="hhbase"></div>
+        <div class="hhfloor" id="hhFloor"></div>
+        <div class="hhdoor" id="hhDoor"></div>
+        <div class="hhitems" id="hhItems"></div>
+        <div class="hhero" id="hhHero"><div class="hhname" id="hhName"></div><div class="hhbub" id="hhBub"></div><img id="hhImg" alt="герой"></div>
+        <div class="hhtip" id="hhTip"><span id="hhTipTxt">Двигай пальцем</span><button class="btn small" id="hhOk">✅ Поставить</button></div>
+      </div>
+      <button class="hhtab" id="hhTab">🛋️</button>
+      <aside class="hhpanel" id="hhPanel">
+        <div class="hhcats" id="hhCats"></div>
+        <div class="hhhead"><b id="hhCatName">Мебель</b><button class="hhclose" id="hhClose">✕ Свернуть</button></div>
+        <div class="hhgrid" id="hhGrid"></div>
+      </aside>
+    </div>
+  </section>
+
   <section id="final" class="screen">
     <div class="fbook">📖</div>
     <h1>📖 Книга спасена! 🎉</h1>
@@ -1298,7 +1396,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={house:$('#house'),intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -1407,7 +1505,7 @@
   function inlineSVG(s){return '<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 120 120" style="width:100%;height:100%;display:block">'+composeInner(s)+'</svg>';}
   function fileURL(s){return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">'+composeInner(s)+'</svg>');}
   function renderPreview(){$('#preview').innerHTML=inlineSVG(sel);}
-  function isUnlocked(cat,id){var lk=LOCK[cat]&&LOCK[cat][id];if(!lk)return true;var have=lk.k==='star'?stars:lk.k==='page'?pages.length:coins;return have>=lk.n;}
+  function isUnlocked(cat,id){var lk=LOCK[cat]&&LOCK[cat][id];if(!lk)return true;var have=lk.k==='star'?stars:lk.k==='page'?pages.length:(coins+coinsSpent);return have>=lk.n;}
   function reqText(cat,id){var lk=LOCK[cat][id];var em=lk.k==='star'?'⭐':lk.k==='page'?'📖':'🪙';return lk.n+em;}
   function renderTabs(){const box=$('#tabs');box.innerHTML='';TABS.forEach(function(t){const b=document.createElement('button');b.className='tab'+(t[0]===activeTab?' sel':'');b.textContent=t[1];b.onclick=function(){activeTab=t[0];renderTabs();renderOpts();};box.appendChild(b);});}
   function renderOpts(){const box=$('#opts');box.innerHTML='';
@@ -1431,9 +1529,16 @@
   const OLD_KEYS=['bukvolovy_save_v3','bukvolovy_save_v2','bukvolovy_save_v1','bukvolovy_save'];
   let heroSrc=null;let cDone=[];let playerName='Герой';let pages=[];let introSeen=false;let finaleDone=false;let stars=0;let coins=0;let keys=0;let pies=0;let recipes=[];
   let games={};let levels={};
+  /* coinsSpent — сколько монет ушло на дом. Разблокировки конструктора считаются от
+     заработанного всего (coins+coinsSpent), иначе покупка мебели отняла бы у ребёнка
+     уже открытые детали монстрика. */
+  let coinsSpent=0;
+  /* дом героя: что куплено и где стоит. Живёт рядом с остальным состоянием, потому что
+     load() разбирает сохранение раньше, чем объявлен код комнаты. */
+  let houseSt={wall:'w0',floor:'f0',own:[],items:[]};
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
-  function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels};}
+  function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,house:houseSt};}
   function save(){
     if(!heroSrc&&heroStored)return;                       /* защита от записи пустого профиля поверх готового */
     const json=JSON.stringify(snapshot());let ok=false;
@@ -1454,11 +1559,12 @@
     Object.assign(done,s.done||{});chosen=s.chosen||'А';curNode=s.curNode||0;cDone=s.cDone||[];playerName=s.playerName||'Герой';
     pages=s.pages||[];introSeen=!!s.introSeen;finaleDone=!!s.finaleDone;
     stars=s.stars||0;coins=s.coins||0;keys=s.keys||0;pies=s.pies||0;recipes=s.recipes||[];
-    games=s.games||{};levels=s.levels||{};
+    games=s.games||{};levels=s.levels||{};coinsSpent=s.coinsSpent||0;
+    if(s.house&&s.house.items)houseSt=Object.assign(houseSt,s.house);
     save();  /* переносим данные со старого ключа/копии на основной */
     return true;}
   function markGame(id){if(games[id])return;games[id]=true;save();}
-  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg','wkImg','pkImg','tvImg','bdImg','bdCabImg','m3Img'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
+  function setHeroImg(src){['heroImg','mapImg','sleepImg','cheroImg','asmImg','tlImg','condImg','slogImg','gapImg','vanImg','cartImg','cashImg','bakerImg','wkImg','pkImg','tvImg','bdImg','bdCabImg','m3Img','hhImg'].forEach(id=>{const el=$('#'+id);if(el)el.src=src;});}
 
   /* WORLD */
   /* Городок-ромашка: Домик в центре (всегда NODES[0]), от него своя дорожка к каждой локации.
@@ -1828,7 +1934,7 @@
       /* локация открывается только когда герой дошёл — короткая пауза «пришёл» */
       setTimeout(function(){actAt(idx);},280);}
     requestAnimationFrame(step);}
-  function actAt(idx){const n=NODES[idx];if(n.room==='home')enterSleep();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakeryMenu();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStation();else openSoon(n);}
+  function actAt(idx){const n=NODES[idx];if(n.room==='home')openHouse();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakeryMenu();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStation();else openSoon(n);}
   function openSoon(n){const ic={shop:'🛒',bakery:'🍰',workshop:'🛠️',station:'🚂',park:'🎡'}[n.room]||'✨';$('#stubIc').textContent=ic;$('#stubTitle').textContent=n.nm;$('#stubTxt').textContent='Здесь скоро будут игры! Заходи позже ✨';show('stub');}$('#stubBack').onclick=goWorld;
 
   /* ---------- ПЕКАРНЯ: Создай свой десерт ---------- */
@@ -1881,7 +1987,7 @@
     Object.keys(bkOrder.deco).forEach(it=>{if((bkDeco[it]||0)<bkOrder.deco[it])s--;});
     return Math.max(3,Math.min(5,s));}
   function bakeFinish(){markGame('bakery');earnPage('bakery');flash(screens.bakery,'Пекарня пройдена! 🎉');confetti(screens.bakery);setTimeout(goWorld,1700);}
-  function enterSleep(){show('sleep');setTimeout(()=>speak('Спокойной ночи'),200);}$('#wakeBtn').onclick=()=>{try{speechSynthesis.cancel();}catch(e){}goWorld();};
+  function enterSleep(){show('sleep');setTimeout(()=>speak('Спокойной ночи'),200);}$('#wakeBtn').onclick=()=>{try{speechSynthesis.cancel();}catch(e){}openHouse();};
 
   /* PICKER + LETTERS */
   const ALPHABET='АБВГДЕЁЖЗИЙКЛМНОПРСТУФХЦЧШЩЪЫЬЭЮЯ'.split('');
@@ -4524,6 +4630,322 @@
   $('#odOut').onclick=function(){$('#odPrize').classList.remove('on');openBakeryMenu();};
   $('#odBack').onclick=function(){$('#odPrize').classList.remove('on');openBakeryMenu();};
 
+
+  /* ---------- ДОМ ГЕРОЯ ----------
+     Своя комната: ребёнок покупает мебель за монетки и сам расставляет её пальцем.
+     Всё купленное и его места лежат в houseSt и сохраняются вместе с остальным прогрессом. */
+  const HH_CATS=[['furn','🛏️','Мебель'],['deco','🖼️','Украшения'],['win','🪟','Окна'],
+                 ['cozy','🧸','Уют'],['walls','🌈','Стены и пол']];
+  /* обои и пол — это фон комнаты, а не предмет: купил один раз, дальше переключай бесплатно */
+  const HH_WALLS=[
+    {id:'w0',n:'Кремовые',p:0,bg:'linear-gradient(180deg,#FFF4DF,#F3E1C0)'},
+    {id:'w1',n:'Полоска',p:10,bg:'repeating-linear-gradient(90deg,#FFF0F5 0 26px,#FBD9E6 26px 52px)'},
+    {id:'w2',n:'Горошек',p:10,bg:'radial-gradient(#BFE3F5 5px,transparent 6px) 0 0/38px 38px,linear-gradient(180deg,#F2FAFF,#DFF1FB)'},
+    {id:'w3',n:'Мятные',p:12,bg:'repeating-linear-gradient(90deg,#EAFBE6 0 30px,#D3F2CB 30px 60px)'},
+    {id:'w4',n:'Звёздные',p:14,bg:'radial-gradient(#FFE08A 4px,transparent 5px) 12px 12px/46px 46px,linear-gradient(180deg,#E9E1FB,#D6C9F5)'}];
+  const HH_FLOORS=[
+    {id:'f0',n:'Доски',p:0,bg:'repeating-linear-gradient(90deg,#E2AF6B 0 44px,#CE9450 44px 47px)'},
+    {id:'f1',n:'Ковролин',p:10,bg:'linear-gradient(180deg,#BFE0A8,#9CCB84)'},
+    {id:'f2',n:'Плитка',p:12,bg:'repeating-conic-gradient(#FFF2E0 0 25%,#E4CDAE 0 50%) 0 0/56px 56px'},
+    {id:'f3',n:'Розовый',p:12,bg:'repeating-linear-gradient(45deg,#FFE3EE 0 30px,#FBCEDF 30px 60px)'}];
+  /* w — ширина предмета в пикселях сцены; wall:true — вешается на стену; act — как реагирует герой */
+  const HH_ITEMS=[
+    {id:'bed',c:'furn',n:'Кровать',p:22,w:210,act:'lie'},
+    {id:'sofa',c:'furn',n:'Диван',p:20,w:190,act:'sit'},
+    {id:'table',c:'furn',n:'Столик',p:14,w:150,act:'look'},
+    {id:'chair',c:'furn',n:'Стул',p:10,w:110,act:'sit'},
+    {id:'wardrobe',c:'furn',n:'Шкаф',p:24,w:150,act:'look'},
+    {id:'pic',c:'deco',n:'Картина',p:15,w:120,wall:1},
+    {id:'shelf',c:'deco',n:'Полка',p:14,w:140,wall:1},
+    {id:'lamp',c:'deco',n:'Лампа',p:12,w:120,act:'look'},
+    {id:'books',c:'deco',n:'Книжки',p:0,w:120,act:'look',lk:{k:'page',n:3}},
+    {id:'stars',c:'deco',n:'Гирлянда',p:0,w:200,wall:1,lk:{k:'star',n:12}},
+    {id:'win',c:'win',n:'Окно',p:16,w:170,wall:1},
+    {id:'winr',c:'win',n:'Круглое окно',p:14,w:120,wall:1},
+    {id:'curt',c:'win',n:'Шторы',p:12,w:180,wall:1},
+    {id:'teddy',c:'cozy',n:'Мишка',p:10,w:100,act:'play'},
+    {id:'plant',c:'cozy',n:'Растение',p:10,w:110,act:'look'},
+    {id:'vase',c:'cozy',n:'Вазочка',p:8,w:90,act:'look'},
+    {id:'rug',c:'cozy',n:'Коврик',p:12,w:220,act:'play',flat:1},
+    {id:'chest',c:'cozy',n:'Сундук',p:0,w:130,act:'play',lk:{k:'key',n:3}},
+    {id:'wheel',c:'cozy',n:'Колесо из Парка',p:0,w:130,act:'play',lk:{k:'game',g:'park_win',t:'Пройди Парк 🎡'}},
+    {id:'train',c:'cozy',n:'Паровозик',p:0,w:150,act:'play',lk:{k:'game',g:'station_all',t:'Пройди Вокзал 🚂'}}];
+  const HH_BY={};HH_ITEMS.forEach(function(it){HH_BY[it.id]=it;});
+
+  /* картинки мебели: те же плоские фигуры с обводкой, что и домики на карте */
+  function hhArt(id){const S='<svg viewBox="0 0 100 100" style="width:100%;height:100%">',E='</svg>';
+    if(id==='bed')return S+'<rect x="3" y="30" width="12" height="44" rx="5" fill="#B77A47" stroke="#7A4E28" stroke-width="3.4"/>'+
+      '<rect x="6" y="54" width="88" height="26" rx="7" fill="#C98F52" stroke="#7A4E28" stroke-width="3.4"/>'+
+      '<rect x="10" y="44" width="82" height="16" rx="7" fill="#FFF6E6" stroke="#D8BE94" stroke-width="3.2"/>'+
+      '<rect x="15" y="40" width="28" height="15" rx="6" fill="#BFE3F5" stroke="#7FB4CE" stroke-width="3"/>'+
+      '<path d="M46 46 h44 a6 6 0 0 1 6 6 v9 H46 z" fill="#F5A6C0" stroke="#CE6E8C" stroke-width="3"/>'+
+      '<rect x="9" y="78" width="9" height="14" rx="3.5" fill="#8A5A2B"/><rect x="82" y="78" width="9" height="14" rx="3.5" fill="#8A5A2B"/>'+E;
+    if(id==='sofa')return S+'<rect x="7" y="34" width="86" height="30" rx="12" fill="#FF8E7A" stroke="#C0483A" stroke-width="3.4"/>'+
+      '<rect x="1" y="46" width="19" height="38" rx="9" fill="#FF8E7A" stroke="#C0483A" stroke-width="3.4"/>'+
+      '<rect x="80" y="46" width="19" height="38" rx="9" fill="#FF8E7A" stroke="#C0483A" stroke-width="3.4"/>'+
+      '<rect x="10" y="58" width="80" height="26" rx="10" fill="#FF6B6B" stroke="#C0483A" stroke-width="3.4"/>'+
+      '<path d="M34 60 v22 M66 60 v22" stroke="#D9584C" stroke-width="2.6" stroke-linecap="round"/>'+
+      '<rect x="14" y="82" width="9" height="12" rx="3.5" fill="#8A5A2B"/><rect x="77" y="82" width="9" height="12" rx="3.5" fill="#8A5A2B"/>'+E;
+    if(id==='table')return S+'<ellipse cx="50" cy="34" rx="12" ry="4" fill="#F5A6C0" stroke="#CE6E8C" stroke-width="2.4"/>'+
+      '<path d="M44 34 q6 -14 12 0 z" fill="#7BC950" stroke="#4E8F2E" stroke-width="2.4"/>'+
+      '<rect x="8" y="40" width="84" height="13" rx="6" fill="#E0B072" stroke="#8A5A2B" stroke-width="3.4"/>'+
+      '<rect x="18" y="51" width="11" height="40" rx="5" fill="#B77A47" stroke="#8A5A2B" stroke-width="3.2"/>'+
+      '<rect x="71" y="51" width="11" height="40" rx="5" fill="#B77A47" stroke="#8A5A2B" stroke-width="3.2"/>'+E;
+    if(id==='chair')return S+'<rect x="27" y="10" width="46" height="40" rx="10" fill="#8FD96A" stroke="#4E8F2E" stroke-width="3.4"/>'+
+      '<rect x="35" y="20" width="30" height="6" rx="3" fill="#B6EA9A"/>'+
+      '<rect x="20" y="48" width="60" height="14" rx="6" fill="#7BC950" stroke="#4E8F2E" stroke-width="3.4"/>'+
+      '<rect x="25" y="60" width="10" height="32" rx="4" fill="#5FAF3C" stroke="#4E8F2E" stroke-width="3"/>'+
+      '<rect x="65" y="60" width="10" height="32" rx="4" fill="#5FAF3C" stroke="#4E8F2E" stroke-width="3"/>'+E;
+    if(id==='wardrobe')return S+'<rect x="15" y="8" width="70" height="84" rx="7" fill="#E0B072" stroke="#8A5A2B" stroke-width="3.6"/>'+
+      '<path d="M50 10 V90" stroke="#8A5A2B" stroke-width="3"/>'+
+      '<rect x="21" y="15" width="24" height="26" rx="4" fill="#F3D6A8"/><rect x="55" y="15" width="24" height="26" rx="4" fill="#F3D6A8"/>'+
+      '<circle cx="44" cy="52" r="4" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.2"/>'+
+      '<circle cx="56" cy="52" r="4" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.2"/>'+
+      '<rect x="19" y="90" width="10" height="8" rx="3" fill="#8A5A2B"/><rect x="71" y="90" width="10" height="8" rx="3" fill="#8A5A2B"/>'+E;
+    if(id==='pic')return S+'<rect x="8" y="14" width="84" height="66" rx="6" fill="#C98F52" stroke="#7A4E28" stroke-width="4"/>'+
+      '<rect x="16" y="22" width="68" height="50" rx="4" fill="#BFE3F5"/>'+
+      '<circle cx="32" cy="35" r="7" fill="#FFD23F" stroke="#E0A81C" stroke-width="2"/>'+
+      '<path d="M16 60 L36 42 L50 56 L62 46 L84 66 v6 H16 z" fill="#7BC950"/>'+
+      '<path d="M16 66 L34 52 L46 62 L60 54 L84 70 v2 H16 z" fill="#5FAF3C" opacity=".7"/>'+E;
+    if(id==='shelf')return S+'<rect x="18" y="26" width="12" height="30" rx="3" fill="#FF6B6B" stroke="#C0483A" stroke-width="2.8"/>'+
+      '<rect x="31" y="20" width="11" height="36" rx="3" fill="#4DB6E5" stroke="#2C7FA8" stroke-width="2.8"/>'+
+      '<rect x="43" y="30" width="12" height="26" rx="3" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.8"/>'+
+      '<rect x="56" y="24" width="11" height="32" rx="3" fill="#9B5DE5" stroke="#6E36B0" stroke-width="2.8"/>'+
+      '<rect x="6" y="56" width="88" height="12" rx="5" fill="#E0B072" stroke="#8A5A2B" stroke-width="3.4"/>'+
+      '<rect x="16" y="68" width="9" height="12" rx="3" fill="#B77A47" stroke="#8A5A2B" stroke-width="2.6"/>'+
+      '<rect x="75" y="68" width="9" height="12" rx="3" fill="#B77A47" stroke="#8A5A2B" stroke-width="2.6"/>'+E;
+    if(id==='lamp')return S+'<path d="M30 40 L70 40 L62 12 H38 Z" fill="#FFE08A" stroke="#D8A21A" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M38 12 h24" stroke="#D8A21A" stroke-width="3.4" stroke-linecap="round"/>'+
+      '<rect x="45" y="40" width="10" height="46" rx="4" fill="#C9CED6" stroke="#8B9099" stroke-width="3"/>'+
+      '<ellipse cx="50" cy="90" rx="22" ry="7" fill="#C9CED6" stroke="#8B9099" stroke-width="3"/>'+E;
+    if(id==='books')return S+'<rect x="16" y="66" width="68" height="14" rx="4" fill="#FF6B6B" stroke="#C0483A" stroke-width="3"/>'+
+      '<rect x="20" y="52" width="60" height="14" rx="4" fill="#4DB6E5" stroke="#2C7FA8" stroke-width="3"/>'+
+      '<rect x="24" y="38" width="52" height="14" rx="4" fill="#FFD23F" stroke="#D8A21A" stroke-width="3"/>'+
+      '<path d="M32 38 q18 -12 36 0 z" fill="#FFFDF2" stroke="#D8A21A" stroke-width="2.6"/>'+
+      '<path d="M22 80 h56" stroke="#C0483A" stroke-width="2.6" stroke-linecap="round"/>'+E;
+    if(id==='stars')return S+'<path d="M4 26 Q50 46 96 26" fill="none" stroke="#8A6A3F" stroke-width="3.4" stroke-linecap="round"/>'+
+      (function(){let s='';const C=['#FFD23F','#FF6B6B','#4DB6E5','#7BC950','#F368C4'];
+        for(let i=0;i<5;i++){const x=12+i*19,y=32+Math.sin(i)*4+ (i===2?9:i===1||i===3?7:0);
+          s+='<path d="M'+x+' '+(y-9)+' l3.4 6.8 7.6 1.1 -5.5 5.3 1.3 7.5 -6.8 -3.6 -6.8 3.6 1.3 -7.5 -5.5 -5.3 7.6 -1.1 Z" fill="'+C[i]+'" stroke="#B58A20" stroke-width="2" stroke-linejoin="round"/>';}
+        return s;})()+E;
+    if(id==='win')return S+'<rect x="8" y="10" width="84" height="68" rx="7" fill="#8FD4F3" stroke="#7FB4CE" stroke-width="3"/>'+
+      '<circle cx="70" cy="28" r="9" fill="#FFE08A"/>'+
+      '<ellipse cx="34" cy="34" rx="14" ry="8" fill="#fff" opacity=".85"/><ellipse cx="46" cy="38" rx="10" ry="6" fill="#fff" opacity=".85"/>'+
+      '<path d="M50 10 V78 M8 44 H92" stroke="#fff" stroke-width="7" stroke-linecap="round"/>'+
+      '<rect x="8" y="10" width="84" height="68" rx="7" fill="none" stroke="#fff" stroke-width="7"/>'+
+      '<rect x="2" y="76" width="96" height="10" rx="4" fill="#E0B072" stroke="#8A5A2B" stroke-width="3"/>'+E;
+    if(id==='winr')return S+'<circle cx="50" cy="46" r="38" fill="#8FD4F3" stroke="#7FB4CE" stroke-width="3"/>'+
+      '<circle cx="66" cy="32" r="8" fill="#FFE08A"/><ellipse cx="38" cy="40" rx="13" ry="7" fill="#fff" opacity=".85"/>'+
+      '<path d="M50 8 V84 M12 46 H88" stroke="#fff" stroke-width="7"/>'+
+      '<circle cx="50" cy="46" r="38" fill="none" stroke="#fff" stroke-width="7"/>'+E;
+    if(id==='curt')return S+'<rect x="4" y="8" width="92" height="11" rx="5" fill="#B77A47" stroke="#7A4E28" stroke-width="3.2"/>'+
+      '<path d="M10 18 q12 34 5 70 h26 q7 -40 -3 -70 z" fill="#F5A6C0" stroke="#CE6E8C" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M90 18 q-12 34 -5 70 H59 q-7 -40 3 -70 z" fill="#F5A6C0" stroke="#CE6E8C" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M20 24 q6 32 2 60 M78 24 q-6 32 -2 60" stroke="#E086A8" stroke-width="2.6" fill="none" stroke-linecap="round"/>'+E;
+    if(id==='teddy')return S+'<circle cx="27" cy="26" r="11" fill="#C98F52" stroke="#7A4E28" stroke-width="3.2"/>'+
+      '<circle cx="73" cy="26" r="11" fill="#C98F52" stroke="#7A4E28" stroke-width="3.2"/>'+
+      '<ellipse cx="50" cy="70" rx="30" ry="26" fill="#D9A15E" stroke="#7A4E28" stroke-width="3.4"/>'+
+      '<ellipse cx="50" cy="76" rx="17" ry="14" fill="#F3D6A8"/>'+
+      '<circle cx="50" cy="34" r="26" fill="#D9A15E" stroke="#7A4E28" stroke-width="3.4"/>'+
+      '<ellipse cx="50" cy="42" rx="12" ry="9" fill="#F3D6A8"/>'+
+      '<circle cx="41" cy="30" r="3.6" fill="#37344F"/><circle cx="59" cy="30" r="3.6" fill="#37344F"/>'+
+      '<ellipse cx="50" cy="39" rx="4" ry="3" fill="#37344F"/>'+
+      '<path d="M44 45 q6 5 12 0" stroke="#7A4E28" stroke-width="2.6" fill="none" stroke-linecap="round"/>'+E;
+    if(id==='plant')return S+'<path d="M50 62 q-26 -8 -30 -32 q22 0 30 22" fill="#5FB441" stroke="#2F6B24" stroke-width="3"/>'+
+      '<path d="M50 60 q26 -10 30 -34 q-22 2 -30 24" fill="#4C9B33" stroke="#2F6B24" stroke-width="3"/>'+
+      '<path d="M50 58 q-4 -26 6 -42 q10 18 2 42" fill="#6FC64C" stroke="#2F6B24" stroke-width="3"/>'+
+      '<path d="M28 62 h44 l-6 30 H34 Z" fill="#E4573B" stroke="#A5301C" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<rect x="24" y="56" width="52" height="10" rx="4" fill="#F0755A" stroke="#A5301C" stroke-width="3.2"/>'+E;
+    if(id==='vase')return S+'<path d="M42 34 q-10 -16 2 -22 M50 32 V12 M58 34 q10 -16 -2 -22" stroke="#4F9E33" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="42" cy="12" r="8" fill="#F368C4" stroke="#C4478F" stroke-width="2.6"/>'+
+      '<circle cx="58" cy="12" r="8" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.6"/>'+
+      '<circle cx="50" cy="6" r="7" fill="#FF6B6B" stroke="#C0483A" stroke-width="2.6"/>'+
+      '<path d="M36 40 q14 8 28 0 l-4 48 q-10 6 -20 0 z" fill="#8FD4F3" stroke="#4A90B5" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M42 50 q8 4 16 0" stroke="#fff" stroke-width="3" fill="none" stroke-linecap="round"/>'+E;
+    if(id==='rug')return S+'<ellipse cx="50" cy="58" rx="47" ry="30" fill="#FBCEDF" stroke="#D98BAA" stroke-width="3.4"/>'+
+      '<ellipse cx="50" cy="58" rx="33" ry="20" fill="none" stroke="#fff" stroke-width="5"/>'+
+      '<ellipse cx="50" cy="58" rx="19" ry="11" fill="#FFB3CE" stroke="#D98BAA" stroke-width="3"/>'+E;
+    if(id==='chest')return S+'<path d="M10 46 q40 -26 80 0 v6 H10 z" fill="#E0B072" stroke="#7A4E28" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<rect x="10" y="50" width="80" height="36" rx="5" fill="#C98F52" stroke="#7A4E28" stroke-width="3.4"/>'+
+      '<path d="M10 62 h80" stroke="#8A5A2B" stroke-width="3"/>'+
+      '<rect x="42" y="52" width="16" height="20" rx="4" fill="#FFD23F" stroke="#D8A21A" stroke-width="3"/>'+
+      '<circle cx="50" cy="62" r="3" fill="#8A5A2B"/>'+E;
+    if(id==='wheel')return S+'<path d="M50 46 L34 88 M50 46 L66 88" stroke="#6E7A9C" stroke-width="6" stroke-linecap="round"/>'+
+      '<rect x="26" y="84" width="48" height="8" rx="4" fill="#B77A47" stroke="#8A5A2B" stroke-width="3"/>'+
+      '<circle cx="50" cy="46" r="34" fill="none" stroke="#5F6B8C" stroke-width="9"/>'+
+      '<circle cx="50" cy="46" r="34" fill="none" stroke="#FFF8EC" stroke-width="5"/>'+
+      (function(){let s='';const C=['#FF6B6B','#FFD23F','#4DB6E5','#9B5DE5','#7BC950','#F368C4'];
+        for(let i=0;i<6;i++){const a=(i*60-90)*Math.PI/180,x=50+34*Math.cos(a),y=46+34*Math.sin(a);
+          s+='<circle cx="'+x.toFixed(1)+'" cy="'+y.toFixed(1)+'" r="7.5" fill="'+C[i]+'" stroke="#FFF8EC" stroke-width="2.6"/>';}
+        return s;})()+
+      '<circle cx="50" cy="46" r="7" fill="#FFD23F" stroke="#7A86A8" stroke-width="3"/>'+E;
+    if(id==='train')return S+'<g fill="#fff" opacity=".7"><circle cx="24" cy="18" r="5"/><circle cx="32" cy="10" r="3.6"/></g>'+
+      '<rect x="18" y="26" width="12" height="16" rx="3" fill="#37344F" stroke="#22203A" stroke-width="3"/>'+
+      '<rect x="58" y="28" width="26" height="34" rx="4" fill="#3E97C0" stroke="#1B5170" stroke-width="3.2"/>'+
+      '<rect x="64" y="34" width="15" height="12" rx="3" fill="#CDEEFB" stroke="#fff" stroke-width="3"/>'+
+      '<rect x="10" y="42" width="52" height="22" rx="11" fill="#4DB6E5" stroke="#1B5170" stroke-width="3.2"/>'+
+      '<circle cx="22" cy="53" r="7" fill="#FFF7E8" stroke="#1B5170" stroke-width="3"/>'+
+      '<g fill="#37344F" stroke="#22203A" stroke-width="3"><circle cx="26" cy="74" r="10"/><circle cx="52" cy="76" r="8"/><circle cx="74" cy="76" r="8"/></g>'+
+      '<g fill="#C9CED6"><circle cx="26" cy="74" r="3.6"/><circle cx="52" cy="76" r="3"/><circle cx="74" cy="76" r="3"/></g>'+E;
+    return S+E;}
+  const HH_DOOR='<svg viewBox="0 0 66 100" style="width:100%;height:100%">'+
+    '<rect x="3" y="8" width="60" height="92" rx="6" fill="#C98F52" stroke="#7A4E28" stroke-width="3.6"/>'+
+    '<path d="M33 10 a24 24 0 0 1 24 24" fill="none" stroke="#7A4E28" stroke-width="0"/>'+
+    '<rect x="10" y="16" width="46" height="34" rx="5" fill="#DFA96C" stroke="#8A5A2B" stroke-width="3"/>'+
+    '<rect x="10" y="56" width="46" height="34" rx="5" fill="#DFA96C" stroke="#8A5A2B" stroke-width="3"/>'+
+    '<circle cx="52" cy="54" r="4.4" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.6"/></svg>';
+
+  /* houseSt объявлен выше, рядом с остальным состоянием: load() читает его раньше этого места */
+  let hhSel=-1,hhDrag=null,hhCat='furn',hhRaf=0,hhBusy=false;
+
+  function hhOwned(id){return houseSt.own.indexOf(id)>=0;}
+  function hhPlaced(id){return houseSt.items.some(function(o){return o.id===id;});}
+  /* особенные предметы даются не за монетки, а за достижения */
+  function hhLock(it){const l=it.lk;if(!l)return null;
+    if(l.k==='star')return stars>=l.n?null:{t:'⭐ '+stars+' / '+l.n};
+    if(l.k==='key')return keys>=l.n?null:{t:'🔑 '+keys+' / '+l.n};
+    if(l.k==='page')return pages.length>=l.n?null:{t:'📖 '+pages.length+' / '+l.n};
+    return games[l.g]?null:{t:l.t};}
+
+  function hhBg(list,id){const f=list.filter(function(o){return o.id===id;})[0]||list[0];return f.bg;}
+  function hhPaint(){
+    $('#hhWall').style.background=hhBg(HH_WALLS,houseSt.wall);
+    $('#hhFloor').style.background=hhBg(HH_FLOORS,houseSt.floor);
+    $('#hhDoor').innerHTML=HH_DOOR;
+    $('#hhCoins').textContent='🪙 '+coins;}
+
+  function hhRender(){
+    const box=$('#hhItems');box.innerHTML='';
+    houseSt.items.forEach(function(o,i){
+      const it=HH_BY[o.id];if(!it)return;
+      const el=document.createElement('div');el.className='hhit'+(i===hhSel?' on':'');
+      el.style.width=it.w+'px';el.style.height=it.w+'px';
+      el.style.left=o.x+'%';el.style.top=o.y+'%';
+      el.style.zIndex=it.flat?1:(it.wall?2:3+Math.round(o.y));
+      el.innerHTML=hhArt(o.id);
+      el.addEventListener('pointerdown',function(e){hhGrab(i,e);});
+      box.appendChild(el);});
+    $('#hhTip').classList.toggle('on',hhSel>=0);}
+
+  /* перетаскивание: координаты берём от самой комнаты, поэтому масштаб сцены не мешает */
+  function hhGrab(i,e){e.preventDefault();hhSel=i;hhRender();
+    const r=$('#hhRoom').getBoundingClientRect();
+    hhDrag={i:i,r:r};hhMove(e);blip();}
+  function hhMove(e){if(!hhDrag)return;
+    const r=hhDrag.r,o=houseSt.items[hhDrag.i];if(!o)return;
+    o.x=Math.max(6,Math.min(94,(e.clientX-r.left)/r.width*100));
+    o.y=Math.max(14,Math.min(99,(e.clientY-r.top)/r.height*100));
+    const el=$('#hhItems').children[hhDrag.i];
+    if(el){el.style.left=o.x+'%';el.style.top=o.y+'%';
+      const it=HH_BY[o.id];el.style.zIndex=it.flat?1:(it.wall?2:3+Math.round(o.y));}}
+  window.addEventListener('pointermove',hhMove);
+  window.addEventListener('pointerup',function(){if(hhDrag){hhDrag=null;save();}});
+
+  function hhCats(){
+    const box=$('#hhCats');box.innerHTML='';
+    HH_CATS.forEach(function(c){const b=document.createElement('button');
+      b.className='hhcat'+(c[0]===hhCat?' sel':'');b.textContent=c[1];b.title=c[2];
+      b.onclick=function(){hhCat=c[0];blip();hhCats();hhGrid();};box.appendChild(b);});
+    const cur=HH_CATS.filter(function(c){return c[0]===hhCat;})[0];
+    $('#hhCatName').textContent=cur?cur[2]:'';}
+
+  function hhCell(pv,name,price,cls,onTap){
+    const d=document.createElement('div');d.className='hhcell '+cls;
+    d.innerHTML='<div class="pv">'+pv+'</div><div class="nm">'+name+'</div><div class="pr">'+price+'</div>';
+    if(onTap)d.onclick=onTap;return d;}
+
+  function hhGrid(){
+    const box=$('#hhGrid');box.innerHTML='';
+    if(hhCat==='walls'){
+      HH_WALLS.concat(HH_FLOORS).forEach(function(f){
+        const isW=HH_WALLS.indexOf(f)>=0,got=f.p===0||hhOwned(f.id);
+        const cur=isW?houseSt.wall===f.id:houseSt.floor===f.id;
+        const pv='<div class="sw" style="background:'+f.bg+'"></div>';
+        const price=cur?'✔ выбрано':got?'выбрать':(coins>=f.p?'🛒 '+f.p+' 🪙':'ещё '+(f.p-coins)+' 🪙');
+        const cls=cur?'have':(got||coins>=f.p?'':'no');
+        box.appendChild(hhCell(pv,(isW?'🎨 ':'🟫 ')+f.n,price,cls,function(){
+          if(got){if(isW)houseSt.wall=f.id;else houseSt.floor=f.id;blip();hhPaint();hhGrid();save();return;}
+          if(coins<f.p){chime(false);flash(screens.house,'Нужно ещё '+(f.p-coins)+' 🪙');return;}
+          coins-=f.p;coinsSpent+=f.p;houseSt.own.push(f.id);
+          if(isW)houseSt.wall=f.id;else houseSt.floor=f.id;
+          chime(true);save();updateHUD();hhPaint();hhGrid();}));});
+      return;}
+    HH_ITEMS.filter(function(it){return it.c===hhCat;}).forEach(function(it){
+      const lk=hhLock(it),inRoom=hhPlaced(it.id);
+      const price=inRoom?'✔ дома':lk?('🔒 '+lk.t):it.p===0?'⭐ подарок':(coins>=it.p?'🛒 '+it.p+' 🪙':'ещё '+(it.p-coins)+' 🪙');
+      const cls=inRoom?'have':(lk||(it.p>coins))?'no':'';
+      box.appendChild(hhCell(hhArt(it.id),it.n,price,cls,function(){
+        if(inRoom){flash(screens.house,'Уже стоит дома 🏠');return;}
+        if(lk){chime(false);flash(screens.house,'Открой: '+lk.t);return;}
+        if(it.p>coins){chime(false);flash(screens.house,'Нужно ещё '+(it.p-coins)+' 🪙');return;}
+        hhBuy(it);}));});}
+
+  function hhBuy(it){
+    if(it.p>0){coins-=it.p;coinsSpent+=it.p;}
+    houseSt.own.push(it.id);
+    houseSt.items.push({id:it.id,x:50,y:it.wall?46:82});
+    hhSel=houseSt.items.length-1;
+    chime(true);save();updateHUD();hhPaint();hhGrid();hhRender();
+    $('#hhTipTxt').textContent='Двигай пальцем, куда поставить';
+    hhShut(true);                       /* панель уезжает, чтобы было видно всю комнату */
+    flash(screens.house,it.n+' куплен(а)! 🎉');}
+
+  function hhShut(v){$('#hhWrap').classList.toggle('shut',v);
+    setTimeout(function(){hhSize();},360);}
+  $('#hhClose').onclick=function(){blip();hhShut(true);};
+  $('#hhTab').onclick=function(){blip();hhShut(false);};
+  $('#hhOk').onclick=function(){hhSel=-1;save();hhRender();chime(true);};
+
+  /* ——— герой живёт в комнате ——— */
+  let hhX=50,hhY=84,hhTx=50,hhTy=84,hhAct='',hhActT=0,hhWait=0,hhRW=900,hhRH=600;
+  function hhSize(){const r=$('#hhRoom').getBoundingClientRect();
+    if(r.width){hhRW=r.width;hhRH=r.height;}}
+  function hhPose(p){
+    const img=$('#hhImg'),bub=$('#hhBub');
+    const fl=(hhTx<hhX)?-1:1;
+    if(p==='lie'){img.style.rotate='-74deg';img.style.translate='0 -4px';img.style.scale=fl+' 1';bub.textContent='💤';}
+    else if(p==='sit'){img.style.rotate='0deg';img.style.translate='0 10px';img.style.scale=(fl*.98)+' .84';bub.textContent='😊';}
+    else if(p==='look'){img.style.rotate='0deg';img.style.translate='0 -4px';img.style.scale=fl+' 1';bub.textContent='✨';}
+    else if(p==='play'){img.style.rotate='0deg';img.style.translate='0 0';img.style.scale=fl+' 1';bub.textContent='🎵';}
+    else{img.style.rotate='0deg';img.style.translate='0 0';img.style.scale=fl+' 1';bub.textContent='';}
+    bub.classList.toggle('on',!!p);
+    $('#hhHero').classList.toggle('walk',!p&&(Math.abs(hhTx-hhX)>0.4||Math.abs(hhTy-hhY)>0.4));}
+  function hhPick(){
+    /* иногда просто гуляем, иногда идём к мебели — тогда герой на неё реагирует */
+    const cand=houseSt.items.filter(function(o){const it=HH_BY[o.id];return it&&it.act;});
+    if(cand.length&&Math.random()<0.72){
+      const o=cand[Math.random()*cand.length|0],it=HH_BY[o.id];
+      hhTx=Math.max(8,Math.min(92,o.x+(Math.random()<.5?-4:4)));
+      hhTy=it.wall?86:Math.min(96,o.y+1);
+      hhAct=it.act;}
+    else{hhTx=8+Math.random()*84;hhTy=70+Math.random()*26;hhAct='';}}
+  function hhStep(t){
+    if(!screens.house.classList.contains('active')){hhRaf=0;return;}
+    hhRaf=requestAnimationFrame(hhStep);
+    const dt=Math.min(0.05,(t-(hhStep.p||t))/1000);hhStep.p=t;
+    if(hhActT>0){hhActT-=dt;if(hhActT<=0){hhPose('');hhWait=0.35;}return;}
+    if(hhWait>0){hhWait-=dt;if(hhWait<=0)hhPick();return;}
+    const dx=(hhTx-hhX)*hhRW/100,dy=(hhTy-hhY)*hhRH/100,L=Math.hypot(dx,dy);
+    if(L<4){                      /* дошёл: либо реагирует на мебель, либо просто стоит */
+      if(hhAct){hhPose(hhAct);hhActT=2.4;hhAct='';}
+      else{hhPose('');hhWait=0.5+Math.random()*1.1;}
+      return;}
+    const v=95*dt,k=Math.min(1,v/L);
+    hhX+=(hhTx-hhX)*k;hhY+=(hhTy-hhY)*k;
+    const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';
+    h.style.zIndex=4+Math.round(hhY);
+    hhPose('');}
+
+  function openHouse(){
+    show('house');hhSel=-1;hhBusy=false;
+    if(heroSrc)$('#hhImg').src=heroSrc;
+    $('#hhName').textContent=playerName;
+    hhPaint();hhCats();hhGrid();hhRender();hhSize();
+    const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';
+    hhWait=0.3;hhActT=0;hhAct='';
+    if(!hhRaf){hhStep.p=0;hhRaf=requestAnimationFrame(hhStep);}}
+  $('#hhBack').onclick=function(){hhSel=-1;save();goWorld();};
+  $('#hhSleep').onclick=function(){hhSel=-1;save();enterSleep();};
 })();
 </script>
 </body>
