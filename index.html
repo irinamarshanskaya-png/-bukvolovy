@@ -337,8 +337,13 @@
   .mkhero{display:flex;align-items:center;gap:8px;}
   .mkhero img{width:86px;height:86px;object-fit:contain;animation:alive 2s ease-in-out infinite;}
   .mkname{font-family:'Fredoka';font-size:15px;color:#4a3a1a;background:rgba(255,255,255,.9);border-radius:10px;padding:2px 10px;}
-  .mkfield{flex:1;min-width:0;min-height:230px;background:#fff;border-radius:24px;box-shadow:inset 0 0 0 5px rgba(255,255,255,.7),0 6px 18px rgba(0,0,0,.12);
-    position:relative;overflow:hidden;background-image:radial-gradient(#E7EDF3 3px,transparent 4px);background-size:34px 34px;}
+  /* поле — деревянный пол, как на настоящем ковре с конструктором */
+  .mkfield{flex:1;min-width:0;min-height:230px;border-radius:24px;position:relative;overflow:hidden;
+    box-shadow:inset 0 0 0 5px rgba(255,255,255,.7),0 6px 18px rgba(0,0,0,.12);
+    background:repeating-linear-gradient(180deg,rgba(140,90,40,.10) 0 3px,transparent 3px 128px),
+      repeating-linear-gradient(90deg,rgba(140,90,40,.09) 0 3px,transparent 3px 240px),
+      linear-gradient(180deg,#FBE3B8,#F6D6A0);}
+  #mkBuild svg{filter:drop-shadow(0 12px 10px rgba(120,80,30,.22));}
   .mkbuild{position:absolute;inset:0;}
   .mkbuild svg{width:100%;height:100%;}
   .mkans{display:flex;gap:18px;justify-content:center;padding:10px 0 14px;}
@@ -347,11 +352,11 @@
   .mkbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #E3D5B6;}
   .mkbtn.good{background:#B7ECA0;box-shadow:0 6px 0 #6FAE55;}
   .mkbtn.bad{background:#FFD3CB;box-shadow:0 6px 0 #D98B7C;}
-  .mktray{display:none;gap:14px;justify-content:center;align-items:center;padding:6px 18px 12px;height:132px;flex:none;}
+  .mktray{display:none;gap:14px;justify-content:center;align-items:center;padding:4px 18px 10px;height:152px;flex:none;}
   .mktray.on{display:flex;}
   .mkpc{cursor:grab;touch-action:none;filter:drop-shadow(0 5px 5px rgba(0,0,0,.22));transition:transform .12s;}
   .mkpc svg{display:block;pointer-events:none;}
-  .mkpc.fly{position:fixed;z-index:30;pointer-events:none;transition:none;}
+  .mkpc.fly{position:absolute;z-index:30;transition:none;}
   .mkpc.back{transition:left .3s ease,top .3s ease;}
   .wkprize{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(30,20,10,.42);z-index:8;}
   .wkprize.on{display:flex;}
@@ -3914,31 +3919,54 @@
   function mkBBox(p){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
     p.forEach(function(d){x0=Math.min(x0,d[0]);y0=Math.min(y0,d[1]);x1=Math.max(x1,d[0]+d[2]);y1=Math.max(y1,d[1]+1);});
     return {x:x0,y:y0,w:x1-x0,h:y1-y0};}
-  /* одна деталь в абсолютных пикселях поля */
+  /* Одна деталь в абсолютных пикселях поля. Рисуем объёмной, как настоящий кубик:
+     передняя грань, верхняя со шпеньками в два ряда и боковая. Так деталь читается
+     целиком и её не путают с несколькими маленькими. */
   function mkBrick(px,py,pw,ph,c,s,op){
     const A=MK_C[c][0],B=MK_C[c][1],o=op?' opacity="'+op+'"':'';
-    if(s==='o')return '<g'+o+'><circle cx="'+(px+pw/2)+'" cy="'+(py+ph/2)+'" r="'+(Math.min(pw,ph)/2-2)+'" fill="'+A+'" stroke="'+B+'" stroke-width="5"/>'+
-      '<circle cx="'+(px+pw/2)+'" cy="'+(py+ph/2)+'" r="'+(Math.min(pw,ph)/6)+'" fill="'+B+'"/></g>';
-    if(s==='t')return '<g'+o+'><path d="M'+(px+pw/2)+' '+(py+ph*.06)+' L'+(px+pw*.98)+' '+(py+ph*.94)+' L'+(px+pw*.02)+' '+(py+ph*.94)+' z" '+
-      'fill="'+A+'" stroke="'+B+'" stroke-width="5" stroke-linejoin="round"/></g>';
-    let s2='<g'+o+'>',n=Math.max(1,Math.round(pw/ph));
-    for(let i=0;i<n;i++){const sw=pw/n;
-      s2+='<rect x="'+(px+i*sw+sw*.26)+'" y="'+(py-ph*.17)+'" width="'+(sw*.48)+'" height="'+(ph*.22)+'" rx="'+(ph*.1)+'" fill="'+A+'" stroke="'+B+'" stroke-width="4"/>';}
-    s2+='<rect x="'+px+'" y="'+py+'" width="'+pw+'" height="'+ph+'" rx="'+(ph*.16)+'" fill="'+A+'" stroke="'+B+'" stroke-width="5"/>';
-    s2+='<rect x="'+(px+pw*.06)+'" y="'+(py+ph*.14)+'" width="'+(pw*.88)+'" height="'+(ph*.16)+'" rx="'+(ph*.08)+'" fill="#fff" opacity=".3"/>';
-    return s2+'</g>';}
+    const d=ph*.42;                       /* глубина «в третье измерение» */
+    if(s==='o'){const r=Math.min(pw,ph)/2-2,cx=px+pw/2,cy=py+ph/2;
+      return '<g'+o+'><ellipse cx="'+(cx+d*.5)+'" cy="'+(cy-d*.5)+'" rx="'+r+'" ry="'+r+'" fill="'+B+'"/>'+
+        '<circle cx="'+cx+'" cy="'+cy+'" r="'+r+'" fill="'+A+'" stroke="'+B+'" stroke-width="5"/>'+
+        '<circle cx="'+cx+'" cy="'+cy+'" r="'+(r*.34)+'" fill="'+B+'"/></g>';}
+    if(s==='t'){const x0=px+pw*.02,x1=px+pw*.98,yb=py+ph*.96,xt=px+pw/2,yt=py+ph*.06;
+      return '<g'+o+'><path d="M'+xt+' '+yt+' L'+(xt+d)+' '+(yt-d)+' L'+(x1+d)+' '+(yb-d)+' L'+x1+' '+yb+' z" fill="'+A+'"/>'+
+        '<path d="M'+xt+' '+yt+' L'+(xt+d)+' '+(yt-d)+' L'+(x1+d)+' '+(yb-d)+' L'+x1+' '+yb+' z" fill="#000" opacity=".16"/>'+
+        '<path d="M'+xt+' '+yt+' L'+x1+' '+yb+' L'+x0+' '+yb+' z" fill="'+A+'" stroke="'+B+'" stroke-width="5" stroke-linejoin="round"/></g>';}
+    const n=Math.max(1,Math.round(pw/ph)),sw=pw/n,sr=Math.min(sw,ph)*.19,sh=ph*.17;
+    let g='<g'+o+'>';
+    /* боковая грань */
+    g+='<path d="M'+(px+pw)+' '+py+' L'+(px+pw+d)+' '+(py-d)+' L'+(px+pw+d)+' '+(py+ph-d)+' L'+(px+pw)+' '+(py+ph)+' z" fill="'+A+'" stroke="'+B+'" stroke-width="4" stroke-linejoin="round"/>';
+    g+='<path d="M'+(px+pw)+' '+py+' L'+(px+pw+d)+' '+(py-d)+' L'+(px+pw+d)+' '+(py+ph-d)+' L'+(px+pw)+' '+(py+ph)+' z" fill="#000" opacity=".17"/>';
+    /* верхняя грань */
+    const top='M'+px+' '+py+' L'+(px+d)+' '+(py-d)+' L'+(px+pw+d)+' '+(py-d)+' L'+(px+pw)+' '+py+' z';
+    g+='<path d="'+top+'" fill="'+A+'" stroke="'+B+'" stroke-width="4" stroke-linejoin="round"/>';
+    g+='<path d="'+top+'" fill="#fff" opacity=".22"/>';
+    /* шпеньки в два ряда — как на настоящем кубике */
+    [d*.72,d*.28].forEach(function(v){
+      for(let i=0;i<n;i++){const cx=px+(i+.5)*sw+v,cy=py-v;
+        g+='<path d="M'+(cx-sr)+' '+cy+' L'+(cx-sr)+' '+(cy-sh)+' A'+sr+' '+(sr*.42)+' 0 0 1 '+(cx+sr)+' '+(cy-sh)+' L'+(cx+sr)+' '+cy+' z" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>';
+        g+='<ellipse cx="'+cx+'" cy="'+(cy-sh)+'" rx="'+sr+'" ry="'+(sr*.42)+'" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>';
+        g+='<ellipse cx="'+cx+'" cy="'+(cy-sh)+'" rx="'+sr+'" ry="'+(sr*.42)+'" fill="#fff" opacity=".24"/>';}});
+    /* передняя грань */
+    g+='<rect x="'+px+'" y="'+py+'" width="'+pw+'" height="'+ph+'" rx="'+(ph*.1)+'" fill="'+A+'" stroke="'+B+'" stroke-width="5"/>';
+    g+='<rect x="'+(px+pw*.05)+'" y="'+(py+ph*.16)+'" width="'+(pw*.9)+'" height="'+(ph*.2)+'" rx="'+(ph*.1)+'" fill="#fff" opacity=".22"/>';
+    return g+'</g>';}
+  /* сначала нижние ряды, потом верхние: тогда верхняя деталь ложится на нижнюю, как в жизни */
+  function mkOrder(p){return p.map(function(d,i){return [d,i];})
+    .sort(function(a,b){return (b[0][1]-a[0][1])||(a[0][0]-b[0][0]);}).map(function(z){return z[0];});}
   /* раскладка модели по размеру поля: деталей должно быть видно много и крупно */
   function mkLayout(p,W,H,pad,mx){
-    const b=mkBBox(p),cell=Math.min((W-(pad||60))/b.w,(H-(pad||60))/b.h,mx||1e9);
-    return {cell:cell,ox:(W-b.w*cell)/2-b.x*cell,oy:(H-b.h*cell)/2-b.y*cell+cell*.12,b:b};}
+    const b=mkBBox(p),cell=Math.min((W-(pad||110))/b.w,(H-(pad||110))/b.h,mx||1e9);
+    return {cell:cell,ox:(W-b.w*cell)/2-b.x*cell-cell*.2,oy:(H-b.h*cell)/2-b.y*cell+cell*.3,b:b};}
   function mkDraw(p,W,H,pad,op){
     const L=mkLayout(p,W,H,pad);
     let s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:100%">';
-    p.forEach(function(d){s+=mkBrick(L.ox+d[0]*L.cell,L.oy+d[1]*L.cell,d[2]*L.cell,L.cell*.9,d[3],d[4],op);});
+    mkOrder(p).forEach(function(d){s+=mkBrick(L.ox+d[0]*L.cell,L.oy+d[1]*L.cell,d[2]*L.cell,L.cell*.9,d[3],d[4],op);});
     return s+'</svg>';}
 
   function mkFieldSize(){const f=$('#mkField');return [f.clientWidth||820,f.clientHeight||420];}
-  function mkShow(p){const wh=mkFieldSize();$('#mkBuild').innerHTML=mkDraw(p,wh[0],wh[1]);}
+  function mkShow(p){const wh=mkFieldSize();$('#mkBuild').innerHTML=mkDraw(p,wh[0],wh[1],150);}
   /* перекрасить модель — так одна и та же конструкция даёт разные задания на цвета */
   function mkPaint(p,map){return p.map(function(d){return [d[0],d[1],d[2],map[d[3]]||d[3],d[4]];});}
   function mkShuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;const t=a[i];a[i]=a[j];a[j]=t;}return a;}
@@ -4003,7 +4031,7 @@
     $('#mkSample').classList.add('on');
     $('#mkSample').innerHTML=mkDraw(p,300,240,40);
     $('#mkAns').style.display='none';
-    const wh=mkFieldSize(),L=mkLayout(p,wh[0],wh[1],60,110);
+    const wh=mkFieldSize(),L=mkLayout(p,wh[0],wh[1],150,104);
     mkCell=L.cell;
     mkSlots=p.map(function(d){return {d:d,px:L.ox+d[0]*L.cell,py:L.oy+d[1]*L.cell,
       pw:d[2]*L.cell,ph:L.cell*.9,filled:false};});
@@ -4013,52 +4041,60 @@
     const tray=$('#mkTray');tray.classList.add('on');tray.innerHTML='';
     mkShuffle(p.map(function(d,i){return i;})).forEach(function(i){
       const d=p[i],el=document.createElement('div');el.className='mkpc';
-      const w=d[2]*tc,h=tc*.9;
-      el.style.width=w+'px';el.style.height=(h+tc*.24)+'px';
-      el.innerHTML='<svg viewBox="0 0 '+w+' '+(h+tc*.24)+'" style="width:100%;height:100%">'+
-        mkBrick(0,tc*.24,w,h,d[3],d[4])+'</svg>';
-      el.dataset.i=i;
+      const w=d[2]*tc,h=tc*.9,dd=h*.42,up=h*.78;   /* место под объём и шпеньки */
+      el.style.width=(w+dd)+'px';el.style.height=(h+up)+'px';
+      el.innerHTML='<svg viewBox="0 0 '+(w+dd)+' '+(h+up)+'" style="width:100%;height:100%">'+
+        mkBrick(0,up,w,h,d[3],d[4])+'</svg>';
+      el.dataset.i=i;el.dataset.fw=w;el.dataset.fh=h;el.dataset.fy=up;
       el.addEventListener('pointerdown',function(e){mkGrab(el,i,e);});
       tray.appendChild(el);});}
   function mkPaintField(){
     const wh=mkFieldSize();
     let s='<svg viewBox="0 0 '+wh[0]+' '+wh[1]+'" style="width:100%;height:100%">';
-    mkSlots.forEach(function(sl){
-      if(sl.filled)s+=mkBrick(sl.px,sl.py,sl.pw,sl.ph,sl.d[3],sl.d[4]);
-      else s+=mkBrick(sl.px,sl.py,sl.pw,sl.ph,sl.d[3],sl.d[4],'.3');});
+    mkSlots.slice().sort(function(a,b){return (b.d[1]-a.d[1])||(a.d[0]-b.d[0]);}).forEach(function(sl){
+      s+=mkBrick(sl.px,sl.py,sl.pw,sl.ph,sl.d[3],sl.d[4],sl.filled?null:'.4');});
     $('#mkBuild').innerHTML=s+'</svg>';}
+  /* Тащим в координатах сцены, а не экрана: вся игра лежит внутри
+     масштабированного .stage, и экранные координаты внутри него «съезжают». */
+  function mkStagePos(e,S,K2){return [(e.clientX-S.left)/K2,(e.clientY-S.top)/K2];}
   function mkGrab(el,i,e){
     if(mkBusy)return;
     e.preventDefault();
+    const box=screens.mk,S=box.getBoundingClientRect(),K2=S.width/box.clientWidth||1;
     const r=el.getBoundingClientRect();
-    mkDrag={el:el,i:i,dx:e.clientX-r.left,dy:e.clientY-r.top,w:r.width,h:r.height,home:r};
+    const l=(r.left-S.left)/K2,t=(r.top-S.top)/K2,w=r.width/K2,h=r.height/K2;
+    mkDrag={el:el,i:i,S:S,K:K2,w:w,h:h,home:[l,t],
+      dx:(e.clientX-r.left)/K2,dy:(e.clientY-r.top)/K2};
     el.classList.add('fly');
-    el.style.width=r.width+'px';el.style.height=r.height+'px';
-    el.style.left=r.left+'px';el.style.top=r.top+'px';}
+    el.style.width=w+'px';el.style.height=h+'px';el.style.left=l+'px';el.style.top=t+'px';
+    if(el.setPointerCapture&&e.pointerId!==undefined){try{el.setPointerCapture(e.pointerId);}catch(x){}}}
   function mkMove(e){
     if(!mkDrag)return;
-    mkDrag.el.style.left=(e.clientX-mkDrag.dx)+'px';
-    mkDrag.el.style.top=(e.clientY-mkDrag.dy)+'px';}
-  function mkUp(e){
+    const p=mkStagePos(e,mkDrag.S,mkDrag.K);
+    mkDrag.el.style.left=(p[0]-mkDrag.dx)+'px';
+    mkDrag.el.style.top=(p[1]-mkDrag.dy)+'px';}
+  function mkUp(){
     if(!mkDrag)return;
     const d=mkDrag;mkDrag=null;
-    const fr=$('#mkField').getBoundingClientRect(),wh=mkFieldSize();
-    const kx=fr.width/wh[0],ky=fr.height/wh[1];
-    const cx=parseFloat(d.el.style.left)+d.w/2,cy=parseFloat(d.el.style.top)+d.h/2;
+    const F=$('#mkField').getBoundingClientRect();
+    const fx=(F.left-d.S.left)/d.K,fy=(F.top-d.S.top)/d.K;   /* поле в координатах сцены */
+    /* сравниваем по передней грани детали, а не по всей картинке с объёмом */
+    const fw=+d.el.dataset.fw||d.w,fh=+d.el.dataset.fh||d.h,ftop=+d.el.dataset.fy||0;
+    const cx=parseFloat(d.el.style.left)+fw/2,cy=parseFloat(d.el.style.top)+ftop+fh/2;
     let best=-1,bd=1e9;
     mkSlots.forEach(function(sl,j){
       if(sl.filled)return;
-      const sx=fr.left+(sl.px+sl.pw/2)*kx,sy=fr.top+(sl.py+sl.ph/2)*ky;
-      const dist=Math.hypot(sx-cx,sy-cy);if(dist<bd){bd=dist;best=j;}});
+      const dist=Math.hypot(fx+sl.px+sl.pw/2-cx,fy+sl.py+sl.ph/2-cy);
+      if(dist<bd){bd=dist;best=j;}});
     const sl=best>=0?mkSlots[best]:null,me=mkSlots[d.i];
-    const fits=sl&&bd<Math.max(70,mkCell*1.1)*Math.max(kx,ky)&&
+    const fits=sl&&bd<Math.max(90,mkCell*1.2)&&
       sl.d[2]===me.d[2]&&sl.d[3]===me.d[3]&&(sl.d[4]||'b')===(me.d[4]||'b');
     if(fits){sl.filled=true;d.el.remove();chime(true);mkPaintField();
       if(mkSlots.every(function(s){return s.filled;}))setTimeout(mkAlive,350);}
     else{                                        /* мимо — деталь мягко возвращается */
       blip();
       d.el.classList.add('back');
-      d.el.style.left=d.home.left+'px';d.el.style.top=d.home.top+'px';
+      d.el.style.left=d.home[0]+'px';d.el.style.top=d.home[1]+'px';
       setTimeout(function(){d.el.classList.remove('fly','back');
         d.el.style.left='';d.el.style.top='';d.el.style.width='';d.el.style.height='';},320);}}
   window.addEventListener('pointermove',mkMove);
