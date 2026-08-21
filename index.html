@@ -822,8 +822,13 @@
   .hhdoor3{left:3%;bottom:3%;width:120px;height:170px;}
   .hhwrap.yard .hhdoor:not(.hhdoor2){display:none;}
   .hhwrap.yard .hhdoor2{left:4%;right:auto;}
-  .hhwrap.kit .hhdoor:not(.hhdoor3){display:none;}
+  .hhwrap.kit .hhdoor:not(.hhdoor3):not(.hhdoor4){display:none;}
   .hhwrap.kit .hhdoor3{left:4%;bottom:38%;width:132px;height:196px;}
+  /* дверь в ванную — на кухне справа, из ванной ведёт обратно на кухню */
+  .hhdoor4{left:auto;right:5%;display:none;}
+  .hhwrap.kit .hhdoor4{display:block;}
+  .hhwrap.bath .hhdoor:not(.hhdoor4){display:none;}
+  .hhwrap.bath .hhdoor4{display:block;left:4%;right:auto;}
   .hhdlbl{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);background:rgba(255,255,255,.94);
     border-radius:11px;padding:2px 9px;font-family:'Fredoka';font-size:13px;color:#3a2f1a;white-space:nowrap;
     box-shadow:0 3px 8px rgba(0,0,0,.18);pointer-events:none;z-index:200;}
@@ -1274,6 +1279,7 @@
         <div class="hhdoor" id="hhDoor"></div>
         <div class="hhdoor hhdoor2" id="hhDoor2"></div>
         <div class="hhdoor hhdoor3" id="hhDoor3"></div>
+        <div class="hhdoor hhdoor4" id="hhDoor4"></div>
         <div class="hhitems" id="hhItems"></div>
         <div class="hhpet" id="hhPet"><div class="hhpbub" id="hhPbub"></div><div class="hhpimg" id="hhPetArt"></div></div>
         <div class="hhero" id="hhHero"><div class="hhname" id="hhName"></div><div class="hhbub" id="hhBub"></div><img id="hhImg" alt="герой"></div>
@@ -1649,7 +1655,7 @@
   function earnedPies(){return pies+piesSpent;}
   /* дом героя: что куплено и где стоит. Живёт рядом с остальным состоянием, потому что
      load() разбирает сохранение раньше, чем объявлен код комнаты. */
-  let houseSt={wall:'w0',floor:'f0',own:[],items:[],yard:[],kitchen:[],kit:0,pet:''};
+  let houseSt={wall:'w0',floor:'f0',own:[],items:[],yard:[],kitchen:[],bath:[],kit:0,bathOpen:0,pet:''};
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
   function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,starsSpent,keysSpent,piesSpent,house:houseSt};}
@@ -1675,7 +1681,7 @@
     stars=s.stars||0;coins=s.coins||0;keys=s.keys||0;pies=s.pies||0;recipes=s.recipes||[];
     games=s.games||{};levels=s.levels||{};coinsSpent=s.coinsSpent||0;starsSpent=s.starsSpent||0;
     keysSpent=s.keysSpent||0;piesSpent=s.piesSpent||0;
-    if(s.house&&s.house.items){houseSt=Object.assign(houseSt,s.house);if(!houseSt.yard)houseSt.yard=[];if(!houseSt.kitchen)houseSt.kitchen=[];}
+    if(s.house&&s.house.items){houseSt=Object.assign(houseSt,s.house);if(!houseSt.yard)houseSt.yard=[];if(!houseSt.kitchen)houseSt.kitchen=[];if(!houseSt.bath)houseSt.bath=[];}
     save();  /* переносим данные со старого ключа/копии на основной */
     return true;}
   function markGame(id){if(games[id])return;games[id]=true;save();}
@@ -5263,7 +5269,56 @@
     {k:'cookies',c:'kfood',n:'Печенье',sc:'kit',cur:'pie',p:2,w:110,act:'play',sx:.42,sy:0,
      v:[['на тарелке','#E7C58A','#B08040']]},
     {k:'krug',c:'kfood',n:'Половичок',sc:'kit',p:10,w:200,flat:1,sx:0,sy:.05,
-     v:[['полосатый','#FFD9DE','#D98BAA'],['клетчатый','#CDE9FB','#7FB4CE']]}];
+     v:[['полосатый','#FFD9DE','#D98BAA'],['клетчатый','#CDE9FB','#7FB4CE']]},
+    /* ——— ванная: sc:'bath', по 15 карточек в каждой из четырёх категорий ——— */
+    {k:'bath',c:'bwash',n:'Ванна',sc:'bath',p:26,w:220,act:'play',sx:.42,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['голубая','#CDEEFB','#4A90B5'],['розовая','#FFE3EE','#CE6E8C']]},
+    {k:'shower',c:'bwash',n:'Душ',sc:'bath',p:22,w:170,act:'look',sx:.44,sy:0,
+     v:[['голубой','#CDEEFB','#4A90B5'],['мятный','#BFE9D6','#2E8F72']]},
+    {k:'wsink',c:'bwash',n:'Раковина',sc:'bath',p:18,w:140,act:'look',sx:.42,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['голубая','#CDEEFB','#4A90B5'],['жёлтая','#FFEFC4','#D8A21A']]},
+    {k:'toilet',c:'bwash',n:'Унитаз',sc:'bath',p:20,w:150,act:'look',sx:.42,sy:0,
+     v:[['белый','#FFF6E6','#B7A98A'],['голубой','#CDEEFB','#4A90B5']]},
+    {k:'mirror',c:'bwash',n:'Зеркало',sc:'bath',p:14,w:130,wall:1,
+     v:[['круглое','#CFEFFA','#B7A98A'],['овальное','#CFEFFA','#C9A063']]},
+    {k:'wcab',c:'bwash',n:'Шкафчик',sc:'bath',p:16,w:160,wall:1,
+     v:[['белый','#FFF6E6','#B7A98A'],['голубой','#CDEEFB','#4A90B5'],['деревянный','#E0B072','#8A5A2B']]},
+    {k:'soap',c:'bsoap',n:'Мыло',sc:'bath',cur:'star',p:1,w:95,act:'look',sx:.42,sy:0,
+     v:[['розовое','#FFC2D8','#CE6E8C'],['голубое','#CDEEFB','#4A90B5'],['зелёное','#CDEFC0','#4E8F2E']]},
+    {k:'shampoo',c:'bsoap',n:'Шампунь',sc:'bath',cur:'star',p:2,w:95,act:'look',sx:.42,sy:0,
+     v:[['малиновый','#F58BB8','#B03E71'],['оранжевый','#FFB86B','#C4701F'],['сиреневый','#C9A8F0','#7B4FC0']]},
+    {k:'sponge',c:'bsoap',n:'Мочалка',sc:'bath',cur:'star',p:1,w:95,act:'play',sx:.42,sy:0,
+     v:[['жёлтая','#FFD86B','#D8A21A'],['зелёная','#9EE3C6','#2E8F72']]},
+    {k:'brush',c:'bsoap',n:'Зубные щётки',sc:'bath',cur:'star',p:1,w:95,act:'look',sx:.42,sy:0,
+     v:[['в стаканчике','#CDEEFB','#4A90B5'],['в розовом','#FFC2D8','#CE6E8C']]},
+    {k:'towel',c:'bsoap',n:'Полотенце',sc:'bath',p:10,w:120,wall:1,
+     v:[['розовое','#FFC2D8','#CE6E8C'],['голубое','#9AD4F5','#4A90B5'],['жёлтое','#FFD86B','#D8A21A']]},
+    {k:'paper',c:'bsoap',n:'Бумага',sc:'bath',cur:'star',p:1,w:95,act:'look',sx:.42,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['узорчатая','#E7DAFB','#7B4FC0']]},
+    {k:'duck',c:'btoy',n:'Уточка',sc:'bath',cur:'star',p:2,w:105,act:'play',sx:.42,sy:0,
+     v:[['жёлтая','#FFD23F','#D8A21A'],['розовая','#FFC2D8','#CE6E8C'],['голубая','#8FD4F3','#3E93C0']]},
+    {k:'boat',c:'btoy',n:'Кораблик',sc:'bath',cur:'star',p:2,w:115,act:'play',sx:.42,sy:0,
+     v:[['красный','#FF6B6B','#C0483A'],['синий','#4DB6E5','#2C7FA8'],['жёлтый','#FFD23F','#D8A21A']]},
+    {k:'fish',c:'btoy',n:'Рыбка',sc:'bath',cur:'star',p:1,w:100,act:'play',sx:.42,sy:0,
+     v:[['оранжевая','#FF9A5A','#C4501F'],['синяя','#4DB6E5','#2C7FA8'],['зелёная','#7BD055','#3E8F2E']]},
+    {k:'whale',c:'btoy',n:'Китёнок',sc:'bath',cur:'star',p:3,w:135,act:'play',sx:.42,sy:0,
+     v:[['синий','#7FB6F0','#2C5FA8'],['серый','#C9D6E2','#7A86A8']]},
+    {k:'bubbles',c:'btoy',n:'Пузыри',sc:'bath',cur:'star',p:1,w:105,act:'play',sx:.42,sy:0,
+     v:[['мыльные','#CDEEFB','#7FB4CE'],['радужные','#E7DAFB','#9A7FD0']]},
+    {k:'bball',c:'btoy',n:'Мячик',sc:'bath',cur:'star',p:1,w:90,act:'play',sx:.42,sy:0,
+     v:[['полосатый','#FF6B6B','#C0483A'],['в горошек','#8FD4F3','#3E93C0']]},
+    {k:'bmat',c:'bcozy',n:'Коврик',sc:'bath',p:10,w:200,flat:1,sx:0,sy:.05,
+     v:[['голубой','#CDE9FB','#7FB4CE'],['розовый','#FFD9DE','#D98BAA'],['мятный','#CDEFDF','#69B49A']]},
+    {k:'bplant',c:'bcozy',n:'Растение',sc:'bath',cur:'star',p:2,w:115,act:'look',sx:.42,sy:0,
+     v:[['папоротник','#6FC64C','#2F6B24'],['фикус','#5FB441','#2F6B24'],['цветок','#F368C4','#C4478F']]},
+    {k:'basket',c:'bcozy',n:'Корзина',sc:'bath',p:12,w:125,act:'look',sx:.42,sy:0,
+     v:[['плетёная','#E7C58A','#B08040'],['белая','#FFF6E6','#B7A98A'],['серая','#D6DBE2','#8B9099']]},
+    {k:'blamp',c:'bcozy',n:'Светильник',sc:'bath',p:12,w:105,wall:1,
+     v:[['круглый','#FFF3C4','#D8A21A'],['квадратный','#EAF6FA','#7FB4CE']]},
+    {k:'bshelf',c:'bcozy',n:'Полочка',sc:'bath',p:12,w:160,wall:1,
+     v:[['белая','#FFF6E6','#B7A98A'],['деревянная','#E0B072','#8A5A2B']]},
+    {k:'scales',c:'bcozy',n:'Весы',sc:'bath',p:14,w:120,flat:1,sx:0,sy:.05,
+     v:[['белые','#FFF6E6','#B7A98A'],['голубые','#CDEEFB','#4A90B5']]}];
   const HH_K={};HH_KINDS.forEach(function(t){HH_K[t.k]=t;});
   /* id вещи = вид + номер варианта. Старые записи без номера читаем как первый вариант */
   function hhKind(id){const m=/^([a-z]+)(\d*)$/.exec(id||'');return m?HH_K[m[1]]:null;}
@@ -5695,6 +5750,125 @@
     if(k==='krug')return S+'<ellipse cx="50" cy="62" rx="46" ry="26" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
       '<ellipse cx="50" cy="62" rx="34" ry="18" fill="none" stroke="'+B+'" stroke-width="3" opacity=".6"/>'+
       '<ellipse cx="50" cy="62" rx="20" ry="9" fill="none" stroke="'+B+'" stroke-width="3" opacity=".6"/>'+E;
+    /* ——— ванная ——— */
+    if(k==='bath')return S+'<path d="M6 42 h88 v30 q0 20 -20 20 H26 q-20 0 -20 -20 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="44" rx="44" ry="10" fill="#8FD4F3" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<path d="M22 38 q8 -6 16 0 q8 6 16 0 q8 -6 16 0" stroke="#fff" stroke-width="3" fill="none" opacity=".8" stroke-linecap="round"/>'+
+      '<path d="M88 34 v-12 q0 -6 -8 -6" stroke="#9AA6B8" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+      '<rect x="18" y="90" width="10" height="8" rx="3" fill="'+B+'"/><rect x="72" y="90" width="10" height="8" rx="3" fill="'+B+'"/>'+E;
+    if(k==='shower')return S+'<rect x="12" y="26" width="76" height="70" rx="9" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="12" y="82" width="76" height="14" rx="6" fill="#E7EDF3" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<path d="M50 26 v-14" stroke="#9AA6B8" stroke-width="4.5" stroke-linecap="round"/>'+
+      '<path d="M34 14 h32 l-6 10 H40 z" fill="#C9D6E2" stroke="'+B+'" stroke-width="3" stroke-linejoin="round"/>'+
+      '<g stroke="#8FD4F3" stroke-width="3.4" stroke-linecap="round"><path d="M40 32 v14"/><path d="M50 32 v20"/><path d="M60 32 v14"/></g>'+
+      '<circle cx="76" cy="60" r="5" fill="'+B+'" opacity=".5"/>'+E;
+    if(k==='wsink')return S+'<path d="M10 40 h80 l-10 22 q-3 8 -14 8 H34 q-11 0 -14 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="42" rx="38" ry="8" fill="#EAF6FA" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="42" y="70" width="16" height="24" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<ellipse cx="50" cy="96" rx="20" ry="5" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M50 36 v-12 q0 -6 -8 -6" stroke="#9AA6B8" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="50" cy="56" r="4" fill="'+B+'" opacity=".5"/>'+E;
+    if(k==='toilet')return S+'<rect x="18" y="14" width="46" height="34" rx="7" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="42" y="20" width="14" height="8" rx="3" fill="#C9D6E2"/>'+
+      '<path d="M16 48 h56 q6 0 4 10 l-6 18 q-3 8 -14 8 H32 q-11 0 -13 -10 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="42" cy="54" rx="24" ry="7" fill="#EAF6FA" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="30" y="82" width="26" height="12" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+E;
+    if(k==='mirror'){const rnd=hhVar(id)===0;
+      return S+(rnd?'<circle cx="50" cy="50" r="40" fill="'+A+'" stroke="'+B+'" stroke-width="6"/>'
+        :'<ellipse cx="50" cy="50" rx="32" ry="42" fill="'+A+'" stroke="'+B+'" stroke-width="6"/>')+
+        '<path d="M30 62 q10 -26 32 -34" stroke="#fff" stroke-width="8" fill="none" opacity=".7" stroke-linecap="round"/>'+
+        '<circle cx="50" cy="8" r="5" fill="'+B+'"/>'+E;}
+    if(k==='wcab')return S+'<rect x="8" y="20" width="84" height="56" rx="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M50 22 v52" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="14" y="26" width="30" height="20" rx="4" fill="#fff" opacity=".5"/>'+
+      '<rect x="56" y="26" width="30" height="20" rx="4" fill="#fff" opacity=".5"/>'+
+      '<circle cx="44" cy="52" r="3.6" fill="'+B+'"/><circle cx="56" cy="52" r="3.6" fill="'+B+'"/>'+
+      '<rect x="8" y="76" width="84" height="6" rx="3" fill="'+B+'" opacity=".5"/>'+E;
+    if(k==='soap')return S+'<ellipse cx="50" cy="80" rx="34" ry="12" fill="#E7EDF3" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="24" y="56" width="52" height="22" rx="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<ellipse cx="42" cy="62" rx="10" ry="4" fill="#fff" opacity=".55"/>'+
+      '<g fill="#fff" stroke="'+B+'" stroke-width="2.4" opacity=".95"><circle cx="34" cy="38" r="9"/><circle cx="54" cy="28" r="12"/><circle cx="68" cy="42" r="7"/></g>'+E;
+    if(k==='shampoo')return S+'<rect x="32" y="30" width="36" height="60" rx="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="34" y="52" width="32" height="20" rx="4" fill="#fff" opacity=".65"/>'+
+      '<rect x="42" y="18" width="16" height="14" rx="4" fill="'+B+'"/>'+
+      '<path d="M58 22 h12 q6 0 6 6 v6" stroke="'+B+'" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+      '<ellipse cx="50" cy="92" rx="20" ry="5" fill="'+B+'" opacity=".25"/>'+E;
+    if(k==='sponge')return S+'<rect x="12" y="42" width="76" height="42" rx="14" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="12" y="42" width="76" height="14" rx="7" fill="#FFF6E6" opacity=".7"/>'+
+      '<g fill="'+B+'" opacity=".45"><circle cx="28" cy="68" r="4"/><circle cx="44" cy="74" r="3.4"/><circle cx="58" cy="66" r="4"/><circle cx="72" cy="72" r="3.4"/></g>'+
+      '<g fill="#fff" stroke="'+B+'" stroke-width="2.4"><circle cx="26" cy="26" r="8"/><circle cx="46" cy="18" r="10"/></g>'+E;
+    if(k==='brush')return S+'<path d="M28 46 h44 l-5 44 q-1 6 -8 6 H41 q-7 0 -8 -6 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="46" rx="22" ry="7" fill="#EAF6FA" stroke="'+B+'" stroke-width="3"/>'+
+      '<g stroke="#7A86A8" stroke-width="6" stroke-linecap="round"><path d="M42 44 V16"/><path d="M58 44 V22"/></g>'+
+      '<rect x="36" y="8" width="12" height="10" rx="4" fill="#7BD055" stroke="#3E8F2E" stroke-width="2.6"/>'+
+      '<rect x="52" y="14" width="12" height="10" rx="4" fill="#FF8E7A" stroke="#C0483A" stroke-width="2.6"/>'+E;
+    if(k==='towel')return S+'<rect x="6" y="18" width="88" height="9" rx="4.5" fill="#C9D6E2" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M22 26 h56 v52 q0 8 -8 8 H30 q-8 0 -8 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<path d="M22 44 h56 M22 56 h56" stroke="'+B+'" stroke-width="2.6" opacity=".45"/>'+
+      '<rect x="8" y="14" width="8" height="16" rx="3" fill="'+B+'"/><rect x="84" y="14" width="8" height="16" rx="3" fill="'+B+'"/>'+E;
+    if(k==='paper')return S+'<rect x="20" y="34" width="60" height="52" rx="12" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="50" cy="40" rx="30" ry="10" fill="#fff" stroke="'+B+'" stroke-width="3"/>'+
+      '<ellipse cx="50" cy="40" rx="10" ry="4" fill="'+B+'" opacity=".4"/>'+
+      '<path d="M80 52 q12 8 8 32 h-14" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+E;
+    if(k==='duck')return S+'<ellipse cx="46" cy="72" rx="34" ry="22" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M14 76 q-8 -14 6 -18" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<circle cx="66" cy="42" r="20" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M84 40 h14 q4 6 -2 10 h-12 z" fill="#FF9A3F" stroke="#C4701F" stroke-width="2.8" stroke-linejoin="round"/>'+
+      '<circle cx="70" cy="36" r="4.6" fill="#37344F"/><circle cx="71.5" cy="34.5" r="1.7" fill="#fff"/>'+
+      '<path d="M26 86 q22 8 44 0" stroke="#8FD4F3" stroke-width="4" fill="none" stroke-linecap="round"/>'+E;
+    if(k==='boat')return S+'<path d="M10 62 h80 l-12 26 q-3 6 -10 6 H32 q-7 0 -10 -6 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<path d="M50 58 V14 l30 34 z" fill="#FFF6E6" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M46 58 V16 L20 48 z" fill="#EAF6FA" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M14 92 q20 8 40 0 q20 -8 34 0" stroke="#8FD4F3" stroke-width="4" fill="none" stroke-linecap="round"/>'+E;
+    if(k==='fish')return S+'<path d="M76 52 l20 -18 v40 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<ellipse cx="46" cy="54" rx="36" ry="24" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M40 30 q10 -12 20 -2" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<circle cx="24" cy="48" r="5.4" fill="#37344F"/><circle cx="25.6" cy="46.4" r="2" fill="#fff"/>'+
+      '<path d="M50 44 q8 10 0 20 M64 44 q8 10 0 20" stroke="'+B+'" stroke-width="2.8" fill="none" opacity=".5"/>'+E;
+    if(k==='whale')return S+'<path d="M12 60 q0 -26 30 -26 q34 0 44 26 q-14 24 -44 24 q-30 0 -30 -24 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M86 60 l12 -14 v30 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M14 66 q20 12 44 8" stroke="#fff" stroke-width="7" fill="none" opacity=".45" stroke-linecap="round"/>'+
+      '<circle cx="30" cy="52" r="5" fill="#37344F"/><circle cx="31.6" cy="50.4" r="1.8" fill="#fff"/>'+
+      '<path d="M40 32 q-2 -14 8 -20 M40 32 q10 -12 22 -12" stroke="#8FD4F3" stroke-width="4" fill="none" stroke-linecap="round"/>'+E;
+    if(k==='bubbles')return S+'<g fill="'+A+'" stroke="'+B+'" stroke-width="3">'+
+      '<circle cx="34" cy="66" r="20"/><circle cx="66" cy="72" r="16"/><circle cx="56" cy="38" r="22"/><circle cx="22" cy="34" r="12"/></g>'+
+      '<g fill="#fff" opacity=".65"><circle cx="28" cy="60" r="5"/><circle cx="50" cy="30" r="6"/><circle cx="62" cy="68" r="4"/></g>'+E;
+    if(k==='bball'){const dots=hhVar(id)===1;
+      let s3='<circle cx="50" cy="58" r="36" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>';
+      s3+=dots?'<g fill="#fff" opacity=".85"><circle cx="38" cy="44" r="7"/><circle cx="62" cy="52" r="6"/><circle cx="44" cy="72" r="6"/><circle cx="66" cy="76" r="5"/></g>'
+        :'<path d="M14 58 q36 -22 72 0" stroke="#fff" stroke-width="9" fill="none"/><path d="M18 74 q32 -14 64 0" stroke="#fff" stroke-width="6" fill="none" opacity=".7"/>';
+      return S+s3+'<circle cx="38" cy="42" r="7" fill="#fff" opacity=".55"/>'+E;}
+    if(k==='bmat')return S+'<ellipse cx="50" cy="60" rx="46" ry="26" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="50" cy="60" rx="34" ry="17" fill="#fff" opacity=".45"/>'+
+      '<g stroke="'+B+'" stroke-width="3" opacity=".5"><path d="M8 54 l-6 -4 M14 44 l-5 -6 M92 54 l6 -4 M86 44 l5 -6"/></g>'+E;
+    if(k==='bplant')return S+'<path d="M32 60 h36 l-5 30 q-1 6 -8 6 H45 q-7 0 -8 -6 z" fill="#E7C58A" stroke="#B08040" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M50 60 V30" stroke="'+B+'" stroke-width="4" stroke-linecap="round"/>'+
+      '<path d="M50 42 q-24 -4 -26 -22 q22 -2 26 22 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M50 34 q24 -6 28 -24 q-24 0 -28 24 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M50 52 q-20 2 -26 -12 q20 -4 26 12 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+E;
+    if(k==='basket')return S+'<path d="M16 40 h68 l-8 46 q-1 8 -10 8 H34 q-9 0 -10 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="40" rx="34" ry="9" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<path d="M26 56 h48 M28 70 h44" stroke="'+B+'" stroke-width="2.8" opacity=".45"/>'+
+      '<path d="M34 34 q6 -14 16 -14 q10 0 16 14" stroke="'+B+'" stroke-width="3.4" fill="none"/>'+
+      '<path d="M40 30 q10 -8 20 0" stroke="#FFF6E6" stroke-width="6" fill="none" stroke-linecap="round"/>'+E;
+    if(k==='blamp'){const round=hhVar(id)===0;
+      return S+'<path d="M50 14 v10" stroke="'+B+'" stroke-width="4" stroke-linecap="round"/>'+
+        (round?'<circle cx="50" cy="50" r="26" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'
+          :'<rect x="24" y="26" width="52" height="46" rx="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>')+
+        '<path d="M36 44 q10 -12 24 -6" stroke="#fff" stroke-width="6" fill="none" opacity=".7" stroke-linecap="round"/>'+
+        '<g stroke="#FFD23F" stroke-width="3.4" stroke-linecap="round" opacity=".8">'+
+        '<path d="M18 82 l-6 8"/><path d="M50 84 v10"/><path d="M82 82 l6 8"/></g>'+E;}
+    if(k==='bshelf')return S+'<rect x="6" y="66" width="88" height="10" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="14" y="72" width="8" height="12" rx="3" fill="'+B+'"/><rect x="78" y="72" width="8" height="12" rx="3" fill="'+B+'"/>'+
+      '<rect x="20" y="38" width="18" height="28" rx="6" fill="#F58BB8" stroke="#B03E71" stroke-width="2.8"/>'+
+      '<rect x="44" y="30" width="16" height="36" rx="6" fill="#8FD4F3" stroke="#3E93C0" stroke-width="2.8"/>'+
+      '<rect x="66" y="46" width="16" height="20" rx="6" fill="#9EE3C6" stroke="#2E8F72" stroke-width="2.8"/>'+
+      '<rect x="24" y="30" width="10" height="8" rx="3" fill="#B03E71"/>'+E;
+    if(k==='scales')return S+'<rect x="14" y="46" width="72" height="40" rx="12" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="26" y="54" width="48" height="18" rx="8" fill="#EAF6FA" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M40 63 h20" stroke="'+B+'" stroke-width="3" stroke-linecap="round"/>'+
+      '<path d="M50 63 l10 -8" stroke="#E4573B" stroke-width="3.4" stroke-linecap="round"/>'+
+      '<g fill="'+B+'" opacity=".4"><rect x="22" y="86" width="12" height="6" rx="3"/><rect x="66" y="86" width="12" height="6" rx="3"/></g>'+E;
     if(k==='path')return S+'<g fill="'+A+'" stroke="'+B+'" stroke-width="2.8">'+
       '<ellipse cx="16" cy="70" rx="13" ry="9"/><ellipse cx="42" cy="62" rx="14" ry="9"/>'+
       '<ellipse cx="68" cy="70" rx="13" ry="9"/><ellipse cx="90" cy="60" rx="10" ry="7"/>'+
@@ -5738,6 +5912,20 @@
   const KIT_WALL='repeating-linear-gradient(90deg,#EAF6FA 0 46px,#DCEFF6 46px 92px),linear-gradient(180deg,#F2FAFD,#DCEFF6)';
   const KIT_FLOOR='repeating-conic-gradient(#FFF2E0 0 25%,#E4CDAE 0 50%) 0 0/62px 62px';
   const KIT_CATS=[['kfurn','🍽️','Мебель'],['kware','🍳','Посуда'],['kfood','🍰','Вкусняшки'],['store','📦','Склад']];
+  /* дверь в ванную — из кухни, за пироги */
+  const HH_BATHDOOR='<svg viewBox="0 0 66 100" style="width:100%;height:100%">'+
+    '<rect x="2" y="6" width="62" height="94" rx="7" fill="#CDEEFB" stroke="#4A90B5" stroke-width="3.6"/>'+
+    '<rect x="9" y="13" width="48" height="80" rx="5" fill="#EAF6FA" stroke="#4A90B5" stroke-width="3"/>'+
+    '<path d="M16 62 h34 v12 q0 8 -8 8 H24 q-8 0 -8 -8 z" fill="#8FD4F3" stroke="#4A90B5" stroke-width="3" stroke-linejoin="round"/>'+
+    '<path d="M50 62 v-10 q0 -6 -7 -6" stroke="#9AA6B8" stroke-width="3.4" fill="none" stroke-linecap="round"/>'+
+    '<g fill="#fff" opacity=".95"><circle cx="24" cy="34" r="7"/><circle cx="38" cy="28" r="9"/><circle cx="46" cy="40" r="6"/></g>'+
+    '<circle cx="52" cy="56" r="4" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.4"/></svg>';
+  const BATH_PRICE=60;
+  const BATH_WALL='repeating-linear-gradient(90deg,rgba(74,144,181,.18) 0 3px,transparent 3px 74px),'+
+    'repeating-linear-gradient(180deg,rgba(74,144,181,.18) 0 3px,transparent 3px 74px),linear-gradient(180deg,#EAF9FE,#D3EDF8)';
+  const BATH_FLOOR='repeating-conic-gradient(#EAF6FA 0 25%,#CFE6F0 0 50%) 0 0/58px 58px';
+  const BATH_CATS=[['bwash','🛁','Сантехника'],['bsoap','🧼','Мыло и щётки'],
+                   ['btoy','🦆','Игрушки'],['bcozy','🌿','Уют'],['store','📦','Склад']];
   const YARD_KEYS=30;   /* дворик открывается, когда заработано столько ключиков */
   const YARD_CATS=[['grow','🌳','Растения'],['play','🎠','Качели и горки'],
                    ['gard','🪑','Садовая мебель'],['store','📦','Склад']];
@@ -5747,10 +5935,11 @@
 
   /* комната и дворик — одна сцена с двумя наборами вещей */
   let hhWhere='room';
-  function hhIt(){return hhWhere==='yard'?houseSt.yard:hhWhere==='kit'?houseSt.kitchen:houseSt.items;}
+  function hhIt(){return hhWhere==='yard'?houseSt.yard:hhWhere==='kit'?houseSt.kitchen:hhWhere==='bath'?houseSt.bath:houseSt.items;}
   function hhSc(t){return t.sc||'room';}          /* в какой сцене живёт вид вещи */
   function hhYardOpen(){return earnedKeys()>=YARD_KEYS;}
   function hhKitOpen(){return !!houseSt.kit;}
+  function hhBathOpen(){return !!houseSt.bathOpen;}
   function hhOwned(id){return houseSt.own.indexOf(id)>=0;}
   function hhPlaced(id){return hhIt().some(function(o){return o.id===id;});}
   /* «Уют и игрушки» покупаются за звёздочки, остальное — за монетки */
@@ -5771,9 +5960,12 @@
 
   function hhBg(list,id){const f=list.filter(function(o){return o.id===id;})[0]||list[0];return f.bg;}
   function hhPaint(){
-    const yard=hhWhere==='yard',kit=hhWhere==='kit';
-    $('#hhWall').style.background=yard?YARD_SKY:kit?KIT_WALL:hhBg(HH_WALLS,houseSt.wall);
-    $('#hhFloor').style.background=yard?YARD_GRASS:kit?KIT_FLOOR:hhBg(HH_FLOORS,houseSt.floor);
+    const yard=hhWhere==='yard',kit=hhWhere==='kit',bth=hhWhere==='bath';
+    $('#hhWall').style.background=yard?YARD_SKY:kit?KIT_WALL:bth?BATH_WALL:hhBg(HH_WALLS,houseSt.wall);
+    $('#hhFloor').style.background=yard?YARD_GRASS:kit?KIT_FLOOR:bth?BATH_FLOOR:hhBg(HH_FLOORS,houseSt.floor);
+    $('#hhDoor4').innerHTML=bth?(HH_KITDOOR+'<div class="hhdlbl">🍽️ На кухню</div>')
+      :(HH_BATHDOOR+'<div class="hhdlbl">'+(hhBathOpen()?'🛁 В ванную':(pies>=BATH_PRICE?'🛒 ':'🔒 ')+BATH_PRICE+' 🥧')+'</div>');
+    $('#hhWrap').classList.toggle('bath',bth);
     $('#hhDoor').innerHTML=HH_DOOR+'<div class="hhdlbl">🗺️ На карту</div>';
     $('#hhDoor2').innerHTML=yard?(HH_HOMEDOOR+'<div class="hhdlbl">🏠 Домой</div>')
       :(HH_GARDEN+'<div class="hhdlbl">'+(hhYardOpen()?'🌳 Во дворик':'🔒 '+earnedKeys()+' / '+YARD_KEYS+' 🔑')+'</div>');
@@ -5781,7 +5973,7 @@
       :(HH_KITDOOR+'<div class="hhdlbl">'+(hhKitOpen()?'🍽️ На кухню':(coins>=KIT_PRICE?'🛒 ':'🔒 ')+KIT_PRICE+' 🪙')+'</div>');
     $('#hhWrap').classList.toggle('yard',yard);
     $('#hhWrap').classList.toggle('kit',kit);
-    $('#hhTitle').textContent=yard?'🌳 Мой дворик':kit?'🍽️ Моя кухня':'🏠 Мой дом';
+    $('#hhTitle').textContent=yard?'🌳 Мой дворик':kit?'🍽️ Моя кухня':bth?'🛁 Ванная':'🏠 Мой дом';
     const pt=houseSt.pet,pel=$('#hhPet');
     pel.classList.toggle('on',!!pt);
     if(pt){const st=hhPetStage();
@@ -5946,7 +6138,7 @@
       flash(screens.house,st===1?'Питомец вылупился! 🐣':st===3?'Питомец совсем вырос! 🎉':'Питомец подрос! 🌿');},700);}
 
   /* ——— витрина ——— */
-  function hhCats(){return hhWhere==='yard'?YARD_CATS:hhWhere==='kit'?KIT_CATS:HH_CATS;}
+  function hhCats(){return hhWhere==='yard'?YARD_CATS:hhWhere==='kit'?KIT_CATS:hhWhere==='bath'?BATH_CATS:HH_CATS;}
   function hhTabs(){
     const box=$('#hhCats');box.innerHTML='';
     hhCats().forEach(function(c){const b=document.createElement('button');
@@ -6077,7 +6269,7 @@
     const dx=(hhTx-hhX)*hhRW/100,dy=(hhTy-hhY)*hhRH/100,L=Math.hypot(dx,dy);
     if(L<4){
       if(hhAct==='exit'){hhAct='';hhPose('');hhEndPut(true);goWorld();return;}
-      if(hhAct==='yard'||hhAct==='kit'||hhAct==='home'){
+      if(hhAct==='yard'||hhAct==='kit'||hhAct==='bath'||hhAct==='home'){
         const w=hhAct==='home'?'room':hhAct;hhAct='';hhPose('');hhSwitch(w);return;}
       if(hhAct){hhPose(hhAct);hhActT=2.6;hhAct='';}
       else{hhPose('');hhWait=0.5+Math.random()*1.1;}
@@ -6092,6 +6284,7 @@
     hhWhere='room';if(hhCat!=='store'&&!HH_CATS.some(function(c){return c[0]===hhCat;}))hhCat='furn';
     if(!houseSt.yard)houseSt.yard=[];
     if(!houseSt.kitchen)houseSt.kitchen=[];
+    if(!houseSt.bath)houseSt.bath=[];
     /* первые записи хранили питомца строкой — он уже вырос */
     if(typeof houseSt.pet==='string')houseSt.pet=houseSt.pet?{k:'cat',at:0,seen:3}:'';
     /* записи первых дней хранили id без номера варианта — дописываем нулевой */
@@ -6100,6 +6293,7 @@
     /* шторы убрали из каталога — чистим старые записи, обои и полы (w0,f1…) оставляем */
     houseSt.yard=houseSt.yard.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='yard';});
     houseSt.kitchen=houseSt.kitchen.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='kit';});
+    houseSt.bath=houseSt.bath.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='bath';});
     houseSt.items=houseSt.items.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='room';});
     houseSt.own=houseSt.own.filter(function(s){return hhKind(s)||/^[wf]\d+$/.test(s);});
     if(heroSrc)$('#hhImg').src=heroSrc;
@@ -6134,13 +6328,23 @@
         flash(screens.house,'Кухня открыта! 🍽️');});
       return;}
     hhWalkToDoor(this,'kit');flash(screens.house,'Идём на кухню 🍽️');};
+  $('#hhDoor4').onclick=function(){
+    if(hhWhere==='bath'){hhWalkToDoor(this,'kit');flash(screens.house,'Идём на кухню 🍽️');return;}
+    if(!hhBathOpen()){
+      if(pies<BATH_PRICE){chime(false);flash(screens.house,'Нужно ещё '+(BATH_PRICE-pies)+' 🥧 на ванную');return;}
+      hhAskDo('Откроем ванную за '+BATH_PRICE+' 🥧?',function(){
+        pies-=BATH_PRICE;piesSpent+=BATH_PRICE;houseSt.bathOpen=1;
+        chime(true);confetti(screens.house);save();updateHUD();hhPaint();hhGrid();
+        flash(screens.house,'Ванная открыта! 🛁');});
+      return;}
+    hhWalkToDoor(this,'bath');flash(screens.house,'Идём в ванную 🛁');};
   /* переход между комнатой, двориком и кухней: вещи у каждой сцены свои, всё сохраняется */
   function hhSwitch(w){
     const from=hhWhere;
     hhEndPut(true);
-    hhWhere=w;hhCat=w==='yard'?'grow':w==='kit'?'kfurn':'furn';
+    hhWhere=w;hhCat=w==='yard'?'grow':w==='kit'?'kfurn':w==='bath'?'bwash':'furn';
     /* появляемся у той двери, из которой вышли */
-    hhX=w==='room'?(from==='kit'?14:86):12;
+    hhX=w==='room'?(from==='kit'?14:86):w==='kit'?(from==='bath'?86:12):12;
     hhY=88;hhTx=hhX;hhTy=hhY;hhAct='';hhActT=0;hhActZ=0;hhWait=.5;
     hhPaint();hhTabs();hhGrid();hhRender();
     const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';h.style.zIndex=4+Math.round(hhY);
