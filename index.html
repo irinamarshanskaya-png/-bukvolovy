@@ -776,8 +776,20 @@
   .hhdoor{position:absolute;left:4%;bottom:38%;width:132px;height:196px;cursor:pointer;transition:transform .15s;}
   .hhdoor:hover{transform:scale(1.04);}
   .hhdoor svg{width:100%;height:100%;display:block;}
-  .hhitems{position:absolute;inset:0;}
-  .hhit{position:absolute;transform:translate(-50%,-100%);cursor:grab;touch-action:none;
+  /* вторая дверь — во дворик; во дворике она же ведёт обратно в дом */
+  .hhdoor2{left:auto;right:5%;}
+  .hhwrap.yard .hhdoor:not(.hhdoor2){display:none;}
+  .hhwrap.yard .hhdoor2{left:4%;right:auto;}
+  .hhdlbl{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);background:rgba(255,255,255,.94);
+    border-radius:11px;padding:2px 9px;font-family:'Fredoka';font-size:13px;color:#3a2f1a;white-space:nowrap;
+    box-shadow:0 3px 8px rgba(0,0,0,.18);pointer-events:none;}
+  /* дворик: небо вместо обоев, трава вместо пола, заборчик по горизонту */
+  .hhwrap.yard .hhbase{height:26px;transform:translateY(-26px);border-top:none;
+    background:repeating-linear-gradient(90deg,#EFD6AC 0 15px,#C9A063 15px 21px);
+    box-shadow:0 2px 0 rgba(0,0,0,.10);}
+  /* слой вещей не должен перехватывать тапы по двери — ловят только сами вещи */
+  .hhitems{position:absolute;inset:0;pointer-events:none;}
+  .hhit{position:absolute;transform:translate(-50%,-100%);cursor:grab;touch-action:none;pointer-events:auto;
     filter:drop-shadow(0 5px 5px rgba(0,0,0,.22));transition:filter .15s;}
   .hhit svg{width:100%;height:100%;display:block;pointer-events:none;}
   .hhit.on{filter:drop-shadow(0 0 0 #fff) drop-shadow(0 0 9px #FFD23F) drop-shadow(0 5px 5px rgba(0,0,0,.22));}
@@ -1189,7 +1201,7 @@
   <section id="house" class="screen">
     <div class="topbar">
       <button class="backb" id="hhBack">← Карта</button>
-      <h2>🏠 Мой дом</h2>
+      <h2 id="hhTitle">🏠 Мой дом</h2>
       <div style="display:flex;gap:8px;align-items:center">
         <div class="prog" id="hhCoins">🪙 0</div>
         <button class="backb" id="hhSleep">🌙 Спать</button>
@@ -1201,6 +1213,7 @@
         <div class="hhbase"></div>
         <div class="hhfloor" id="hhFloor"></div>
         <div class="hhdoor" id="hhDoor"></div>
+        <div class="hhdoor hhdoor2" id="hhDoor2"></div>
         <div class="hhitems" id="hhItems"></div>
         <div class="hhero" id="hhHero"><div class="hhname" id="hhName"></div><div class="hhbub" id="hhBub"></div><img id="hhImg" alt="герой"></div>
         <div class="hhtip" id="hhTip"><span id="hhTipTxt">Двигай пальцем</span><button class="btn small" id="hhOk">✅</button><button class="btn small coral" id="hhNo">✕</button><button class="btn small" id="hhBox" style="background:#8C93B8;box-shadow:0 6px 0 #6b7192">📦</button></div>
@@ -1536,16 +1549,19 @@
   /* coinsSpent — сколько монет ушло на дом. Разблокировки конструктора считаются от
      заработанного всего (coins+coinsSpent), иначе покупка мебели отняла бы у ребёнка
      уже открытые детали монстрика. */
-  let coinsSpent=0,starsSpent=0;
-  /* заработано за всё время — от него считаются разблокировки конструктора героя */
+  let coinsSpent=0,starsSpent=0,keysSpent=0,piesSpent=0;
+  /* заработано за всё время — от него считаются разблокировки конструктора героя,
+     подарки за достижения и вход во дворик (30 заработанных ключиков) */
   function earnedCoins(){return coins+coinsSpent;}
   function earnedStars(){return stars+starsSpent;}
+  function earnedKeys(){return keys+keysSpent;}
+  function earnedPies(){return pies+piesSpent;}
   /* дом героя: что куплено и где стоит. Живёт рядом с остальным состоянием, потому что
      load() разбирает сохранение раньше, чем объявлен код комнаты. */
-  let houseSt={wall:'w0',floor:'f0',own:[],items:[]};
+  let houseSt={wall:'w0',floor:'f0',own:[],items:[],yard:[]};
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
-  function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,starsSpent,house:houseSt};}
+  function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,starsSpent,keysSpent,piesSpent,house:houseSt};}
   function save(){
     if(!heroSrc&&heroStored)return;                       /* защита от записи пустого профиля поверх готового */
     const json=JSON.stringify(snapshot());let ok=false;
@@ -1567,7 +1583,8 @@
     pages=s.pages||[];introSeen=!!s.introSeen;finaleDone=!!s.finaleDone;
     stars=s.stars||0;coins=s.coins||0;keys=s.keys||0;pies=s.pies||0;recipes=s.recipes||[];
     games=s.games||{};levels=s.levels||{};coinsSpent=s.coinsSpent||0;starsSpent=s.starsSpent||0;
-    if(s.house&&s.house.items)houseSt=Object.assign(houseSt,s.house);
+    keysSpent=s.keysSpent||0;piesSpent=s.piesSpent||0;
+    if(s.house&&s.house.items){houseSt=Object.assign(houseSt,s.house);if(!houseSt.yard)houseSt.yard=[];}
     save();  /* переносим данные со старого ключа/копии на основной */
     return true;}
   function markGame(id){if(games[id])return;games[id]=true;save();}
@@ -4650,13 +4667,13 @@
     {id:'w2',n:'Горошек',p:10,bg:'radial-gradient(#BFE3F5 5px,transparent 6px) 0 0/38px 38px,linear-gradient(180deg,#F2FAFF,#DFF1FB)'},
     {id:'w3',n:'Мятные',p:12,bg:'repeating-linear-gradient(90deg,#EAFBE6 0 30px,#D3F2CB 30px 60px)'},
     {id:'w4',n:'Звёздные',p:14,bg:'radial-gradient(#FFE08A 4px,transparent 5px) 12px 12px/46px 46px,linear-gradient(180deg,#E9E1FB,#D6C9F5)'},
-    {id:'w5',n:'Радуга',p:0,lk:{k:'pie',n:6},bg:'linear-gradient(180deg,#FFD9DE,#FFE9C2 22%,#E6F7C2 45%,#CFEFFB 70%,#E4DAFB)'}];
+    {id:'w5',n:'Радуга',cur:'pie',p:6,bg:'linear-gradient(180deg,#FFD9DE,#FFE9C2 22%,#E6F7C2 45%,#CFEFFB 70%,#E4DAFB)'}];
   const HH_FLOORS=[
     {id:'f0',n:'Доски',p:0,bg:'repeating-linear-gradient(90deg,#E2AF6B 0 44px,#CE9450 44px 47px)'},
     {id:'f1',n:'Ковролин',p:10,bg:'linear-gradient(180deg,#BFE0A8,#9CCB84)'},
     {id:'f2',n:'Плитка',p:12,bg:'repeating-conic-gradient(#FFF2E0 0 25%,#E4CDAE 0 50%) 0 0/56px 56px'},
     {id:'f3',n:'Розовый',p:12,bg:'repeating-linear-gradient(45deg,#FFE3EE 0 30px,#FBCEDF 30px 60px)'},
-    {id:'f4',n:'Облака',p:0,lk:{k:'key',n:5},bg:'radial-gradient(circle at 30% 60%,#fff 16px,transparent 17px) 0 0/90px 70px,radial-gradient(circle at 70% 25%,#fff 13px,transparent 14px) 0 0/90px 70px,linear-gradient(180deg,#CFEFFB,#A8DDF5)'}];
+    {id:'f4',n:'Облака',cur:'key',p:5,bg:'radial-gradient(circle at 30% 60%,#fff 16px,transparent 17px) 0 0/90px 70px,radial-gradient(circle at 70% 25%,#fff 13px,transparent 14px) 0 0/90px 70px,linear-gradient(180deg,#CFEFFB,#A8DDF5)'}];
   /* v — варианты: [название, светлый цвет, тёмный цвет]. w — ширина в px.
      wall — вешается на стену. act — что делает герой. sx/sy — куда он встаёт,
      в долях от размера вещи: на матрас кровати, на сиденье стула, рядом с игрушкой. */
@@ -4667,7 +4684,7 @@
      v:[['розовая','#F5A6C0','#CE6E8C'],['голубая','#9AD4F5','#4A90B5'],['зелёная','#C4E79C','#69A83E']]},
     {k:'bedbig',c:'furn',n:'Двуспальная кровать',p:30,w:250,act:'lie',sx:0,sy:.30,
      v:[['розовая','#F5A6C0','#CE6E8C'],['голубая','#9AD4F5','#4A90B5'],['мятная','#9EE3C6','#2E8F72']]},
-    {k:'bunk',c:'furn',n:'Кровать в два этажа',p:0,w:200,act:'lie',sx:.1,sy:.36,lk:{k:'key',n:4},
+    {k:'bunk',c:'furn',n:'Кровать в два этажа',cur:'key',p:4,w:200,act:'lie',sx:.1,sy:.36,
      v:[['с лесенкой','#8FD4F3','#2C7FA8']]},
     {k:'sofa',c:'furn',n:'Диван',p:20,w:190,act:'sit',sx:0,sy:.30,
      v:[['коралловый','#FF8E7A','#C0483A'],['мятный','#8FE0C4','#2E8F72'],['сиреневый','#C9A8F0','#7B4FC0'],
@@ -4686,21 +4703,21 @@
      v:[['с книжками','#E0B072','#8A5A2B'],['белая','#FFF4E4','#C2A98A']]},
     {k:'lamp',c:'deco',n:'Лампа',cur:'star',p:3,w:120,act:'look',sx:.42,sy:0,
      v:[['жёлтая','#FFE08A','#D8A21A'],['розовая','#FFC2D8','#CE6E8C']]},
-    {k:'clock',c:'deco',n:'Часы с кукушкой',p:0,w:120,wall:1,lk:{k:'pie',n:5},
+    {k:'clock',c:'deco',n:'Часы с кукушкой',cur:'pie',p:5,w:120,wall:1,
      v:[['из Пекарни','#E0B072','#7A4E28']]},
-    {k:'books',c:'deco',n:'Книжки',p:0,w:120,act:'look',sx:.4,sy:0,lk:{k:'page',n:3},v:[['стопка','#FFD23F','#D8A21A']]},
-    {k:'stars',c:'deco',n:'Гирлянда',p:0,w:200,wall:1,lk:{k:'star',n:12},v:[['звёздная','#FFD23F','#B58A20']]},
+    {k:'books',c:'deco',n:'Книжки',cur:'star',p:2,w:120,act:'look',sx:.4,sy:0,lk:{k:'page',n:3},v:[['стопка','#FFD23F','#D8A21A']]},
+    {k:'stars',c:'deco',n:'Гирлянда',cur:'star',p:5,w:200,wall:1,lk:{k:'star',n:12},v:[['звёздная','#FFD23F','#B58A20']]},
     {k:'win',c:'win',n:'Окно',p:16,w:170,wall:1,
      v:[['белое','#fff','#7FB4CE'],['голубое','#CDEEFB','#4A90B5']]},
     {k:'winr',c:'win',n:'Круглое окно',p:14,w:120,wall:1,
      v:[['белое','#fff','#7FB4CE'],['жёлтое','#FFEFC4','#D8A21A']]},
-    {k:'vitrage',c:'win',n:'Витраж',p:0,w:150,wall:1,lk:{k:'key',n:6},
+    {k:'vitrage',c:'win',n:'Витраж',cur:'key',p:6,w:150,wall:1,
      v:[['цветное стекло','#FFD23F','#7A4E28']]},
     {k:'chandel',c:'cozy',n:'Люстра',cur:'star',p:3,w:150,wall:1,
      v:[['жёлтая','#FFE08A','#D8A21A'],['голубая','#CDEEFB','#4A90B5'],['розовая','#FFC2D8','#CE6E8C'],['сиреневая','#E7DAFB','#7B4FC0']]},
     {k:'dollhouse',c:'cozy',n:'Кукольный домик',cur:'star',p:4,w:150,act:'play',sx:.42,sy:0,
      v:[['розовый','#F5A6C0','#CE6E8C'],['голубой','#9AD4F5','#4A90B5'],['мятный','#9EE3C6','#2E8F72']]},
-    {k:'balloon',c:'cozy',n:'Воздушный шар',p:0,w:140,act:'play',sx:.45,sy:0,lk:{k:'pie',n:8},
+    {k:'balloon',c:'cozy',n:'Воздушный шар',cur:'pie',p:8,w:140,act:'play',sx:.45,sy:0,
      v:[['полосатый','#FF6B6B','#C0483A']]},
     {k:'teddy',c:'cozy',n:'Мишка',cur:'star',p:3,w:110,act:'play',sx:.4,sy:0,
      v:[['коричневый','#D9A15E','#7A4E28'],['белый','#FFF1DC','#B79A6E'],['розовый','#FFC2D8','#C4708F']]},
@@ -4722,9 +4739,38 @@
      v:[['голубая','#8FD4F3','#4A90B5'],['розовая','#FFC2D8','#CE6E8C']]},
     {k:'rug',c:'cozy',n:'Коврик',cur:'star',p:3,w:220,act:'play',flat:1,sx:0,sy:.05,
      v:[['розовый','#FBCEDF','#D98BAA'],['голубой','#CDE9FB','#7FB4CE'],['зелёный','#D5EFC0','#8FBF6A']]},
-    {k:'chest',c:'cozy',n:'Сундук',p:0,w:130,act:'play',sx:.45,sy:0,lk:{k:'key',n:3},v:[['с ключами','#E0B072','#7A4E28']]},
-    {k:'wheel',c:'cozy',n:'Колесо из Парка',p:0,w:130,act:'play',sx:.45,sy:0,lk:{k:'game',g:'park_win',t:'Пройди Парк 🎡'},v:[['из Парка','#FFD23F','#7A86A8']]},
-    {k:'train',c:'cozy',n:'Паровозик',p:0,w:150,act:'play',sx:.45,sy:0,lk:{k:'game',g:'station_all',t:'Пройди Вокзал 🚂'},v:[['с Вокзала','#4DB6E5','#1B5170']]}];
+    {k:'chest',c:'cozy',n:'Сундук',cur:'key',p:3,w:130,act:'play',sx:.45,sy:0,v:[['с ключами','#E0B072','#7A4E28']]},
+    {k:'wheel',c:'cozy',n:'Колесо из Парка',cur:'star',p:3,w:130,act:'play',sx:.45,sy:0,lk:{k:'game',g:'park_win',t:'Пройди Парк 🎡'},v:[['из Парка','#FFD23F','#7A86A8']]},
+    {k:'train',c:'cozy',n:'Паровозик',cur:'star',p:4,w:150,act:'play',sx:.45,sy:0,lk:{k:'game',g:'station_all',t:'Пройди Вокзал 🚂'},v:[['с Вокзала','#4DB6E5','#1B5170']]},
+    /* ——— дворик: out:1 — эти вещи живут только на улице ——— */
+    {k:'tree',c:'grow',n:'Дерево',out:1,cur:'star',p:3,w:200,act:'look',sx:.42,sy:0,
+     v:[['зелёное','#6FC64C','#2F6B24'],['с яблоками','#7BD055','#2F6B24'],['осеннее','#F0A83C','#B4671B']]},
+    {k:'fir',c:'grow',n:'Ёлочка',out:1,cur:'star',p:2,w:160,act:'look',sx:.42,sy:0,
+     v:[['зелёная','#5FB441','#2F6B24'],['голубая','#7FC6C0','#2E7A72']]},
+    {k:'bush',c:'grow',n:'Кустик',out:1,cur:'star',p:1,w:120,act:'look',sx:.42,sy:0,
+     v:[['зелёный','#7BD055','#2F6B24'],['с ягодами','#6FC64C','#2F6B24'],['цветущий','#8FD96A','#4E8F2E']]},
+    {k:'flowerbed',c:'grow',n:'Клумба',out:1,cur:'star',p:2,w:150,act:'look',sx:.42,sy:0,
+     v:[['розовая','#F5A6C0','#CE6E8C'],['жёлтая','#FFD86B','#D8A21A'],['синяя','#8FB4F5','#3E63B5']]},
+    {k:'swing',c:'play',n:'Качели',out:1,cur:'key',p:3,w:190,act:'sit',sx:0,sy:.28,
+     v:[['красные','#FF6B6B','#C0483A'],['синие','#4DB6E5','#2C7FA8']]},
+    {k:'slide',c:'play',n:'Горка',out:1,cur:'key',p:3,w:200,act:'play',sx:-.3,sy:0,
+     v:[['жёлтая','#FFD23F','#D8A21A'],['зелёная','#8FD96A','#4E8F2E']]},
+    {k:'sandbox',c:'play',n:'Песочница',out:1,cur:'key',p:2,w:180,act:'play',sx:.4,sy:0,
+     v:[['с лопаткой','#EFD6AC','#B78C4E']]},
+    {k:'treehouse',c:'play',n:'Домик на дереве',out:1,cur:'key',p:6,w:210,act:'play',sx:.44,sy:0,
+     v:[['с лесенкой','#E0B072','#7A4E28']]},
+    {k:'pool',c:'play',n:'Бассейн',out:1,cur:'pie',p:4,w:220,act:'play',flat:1,sx:0,sy:.05,
+     v:[['голубой','#7FD4F5','#3E93C0'],['синий','#5FB4E5','#2C6FA8']]},
+    {k:'bench',c:'gard',n:'Скамейка',out:1,p:12,w:180,act:'sit',sx:0,sy:.30,
+     v:[['деревянная','#E0B072','#8A5A2B'],['белая','#FFF4E4','#B79A6E'],['зелёная','#9ED17C','#4E8F2E']]},
+    {k:'umbrella',c:'gard',n:'Столик с зонтом',out:1,p:16,w:190,act:'look',sx:.4,sy:0,
+     v:[['красный','#FF8E7A','#C0483A'],['жёлтый','#FFD86B','#D8A21A'],['мятный','#8FE0C4','#2E8F72']]},
+    {k:'lantern',c:'gard',n:'Фонарик',out:1,p:10,w:100,act:'look',sx:.4,sy:0,
+     v:[['жёлтый','#FFE08A','#7A6438'],['белый','#FFF6E6','#6E6E78']]},
+    {k:'fountain',c:'gard',n:'Фонтанчик',out:1,cur:'pie',p:5,w:170,act:'look',sx:.42,sy:0,
+     v:[['каменный','#D6DBE2','#8B9099']]},
+    {k:'path',c:'gard',n:'Дорожка',out:1,p:8,w:230,flat:1,
+     v:[['камешки','#E7DCC4','#B7A98A'],['песочная','#EFD6AC','#C9A063']]}];
   const HH_K={};HH_KINDS.forEach(function(t){HH_K[t.k]=t;});
   /* id вещи = вид + номер варианта. Старые записи без номера читаем как первый вариант */
   function hhKind(id){const m=/^([a-z]+)(\d*)$/.exec(id||'');return m?HH_K[m[1]]:null;}
@@ -4995,40 +5041,166 @@
       '<circle cx="22" cy="53" r="7" fill="#FFF7E8" stroke="'+B+'" stroke-width="3"/>'+
       '<g fill="#37344F" stroke="#22203A" stroke-width="3"><circle cx="26" cy="74" r="10"/><circle cx="52" cy="76" r="8"/><circle cx="74" cy="76" r="8"/></g>'+
       '<g fill="#C9CED6"><circle cx="26" cy="74" r="3.6"/><circle cx="52" cy="76" r="3"/><circle cx="74" cy="76" r="3"/></g>'+E;
+    /* ——— дворик ——— */
+    if(k==='tree'){const i3=hhVar(id);
+      let out='<rect x="42" y="52" width="16" height="44" rx="6" fill="#B77A47" stroke="#7A4E28" stroke-width="3.4"/>'+
+        '<path d="M50 74 34 62 M50 66 66 54" stroke="#7A4E28" stroke-width="3.4" stroke-linecap="round" fill="none"/>'+
+        '<circle cx="50" cy="34" r="30" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+        '<circle cx="26" cy="44" r="17" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+        '<circle cx="74" cy="44" r="17" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+        '<circle cx="50" cy="34" r="30" fill="'+A+'"/><circle cx="26" cy="44" r="15" fill="'+A+'"/><circle cx="74" cy="44" r="15" fill="'+A+'"/>';
+      if(i3===1)out+='<circle cx="36" cy="30" r="7" fill="#FF6B6B" stroke="#C0483A" stroke-width="2.6"/>'+
+        '<circle cx="62" cy="24" r="7" fill="#FF6B6B" stroke="#C0483A" stroke-width="2.6"/>'+
+        '<circle cx="56" cy="46" r="7" fill="#FF6B6B" stroke="#C0483A" stroke-width="2.6"/>';
+      if(i3===2)out+='<path d="M28 60 q6 6 0 10 q-6 -4 0 -10 z" fill="#E4573B"/><path d="M72 62 q6 6 0 10 q-6 -4 0 -10 z" fill="#E4573B"/>';
+      return S+out+E;}
+    if(k==='fir')return S+'<rect x="44" y="72" width="12" height="24" rx="4" fill="#B77A47" stroke="#7A4E28" stroke-width="3.2"/>'+
+      '<path d="M50 4 76 38 H24 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M50 26 82 60 H18 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M50 48 88 80 H12 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+E;
+    if(k==='bush'){const i3=hhVar(id);
+      let out='<circle cx="32" cy="62" r="22" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+        '<circle cx="68" cy="62" r="22" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+        '<circle cx="50" cy="46" r="24" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+        '<circle cx="32" cy="62" r="20" fill="'+A+'"/><circle cx="68" cy="62" r="20" fill="'+A+'"/><circle cx="50" cy="46" r="22" fill="'+A+'"/>';
+      if(i3===1)out+='<circle cx="38" cy="52" r="5" fill="#FF6B6B"/><circle cx="62" cy="46" r="5" fill="#FF6B6B"/><circle cx="52" cy="66" r="5" fill="#FF6B6B"/>';
+      if(i3===2)out+='<circle cx="38" cy="50" r="6" fill="#FFC2D8" stroke="#CE6E8C" stroke-width="2.4"/>'+
+        '<circle cx="64" cy="44" r="6" fill="#FFF6E6" stroke="#D8BE94" stroke-width="2.4"/>'+
+        '<circle cx="54" cy="68" r="6" fill="#FFC2D8" stroke="#CE6E8C" stroke-width="2.4"/>';
+      return S+out+E;}
+    if(k==='flowerbed'){let out='<path d="M10 70 q40 -14 80 0 v14 q-40 12 -80 0 z" fill="#B78C4E" stroke="#7A4E28" stroke-width="3.4"/>';
+      [[24,54],[50,46],[76,54]].forEach(function(p){
+        out+='<path d="M'+p[0]+' '+(p[1]+18)+' V'+(p[1]+4)+'" stroke="#4E8F2E" stroke-width="3.4" stroke-linecap="round"/>'+
+          '<g fill="'+A+'" stroke="'+B+'" stroke-width="2.6"><circle cx="'+(p[0]-8)+'" cy="'+p[1]+'" r="6"/><circle cx="'+(p[0]+8)+'" cy="'+p[1]+'" r="6"/>'+
+          '<circle cx="'+p[0]+'" cy="'+(p[1]-8)+'" r="6"/><circle cx="'+p[0]+'" cy="'+(p[1]+8)+'" r="6"/></g>'+
+          '<circle cx="'+p[0]+'" cy="'+p[1]+'" r="5.5" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.4"/>';});
+      return S+out+E;}
+    if(k==='swing')return S+'<path d="M12 92 L50 12 L88 92" fill="none" stroke="#B77A47" stroke-width="7" stroke-linecap="round"/>'+
+      '<path d="M14 20 h72" stroke="#B77A47" stroke-width="7" stroke-linecap="round"/>'+
+      '<path d="M34 22 v34 M66 22 v34" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="26" y="56" width="48" height="12" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+E;
+    if(k==='slide')return S+'<path d="M62 20 h26 v10 H62 z" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M64 28 Q40 40 22 76 h16 Q54 44 76 34 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M78 30 v58 M88 30 v58" stroke="#B77A47" stroke-width="6" stroke-linecap="round"/>'+
+      '<path d="M78 44 h10 M78 58 h10 M78 72 h10" stroke="#B77A47" stroke-width="5" stroke-linecap="round"/>'+
+      '<rect x="18" y="74" width="24" height="12" rx="5" fill="#EFD6AC" stroke="#B78C4E" stroke-width="3"/>'+E;
+    if(k==='sandbox')return S+'<path d="M12 56 h76 l-8 34 H20 z" fill="#F3E3C2" stroke="#B78C4E" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M8 50 h84 v10 H8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<path d="M30 84 q10 -12 22 -4" stroke="#D8BE94" stroke-width="3" fill="none"/>'+
+      '<rect x="62" y="58" width="7" height="26" rx="3" fill="#B77A47" stroke="#7A4E28" stroke-width="2.6"/>'+
+      '<path d="M58 58 h16 l-3 -12 h-10 z" fill="#FF6B6B" stroke="#C0483A" stroke-width="2.6"/>'+E;
+    if(k==='treehouse')return S+'<rect x="44" y="60" width="14" height="38" rx="5" fill="#B77A47" stroke="#7A4E28" stroke-width="3.4"/>'+
+      '<circle cx="30" cy="30" r="18" fill="#6FC64C" stroke="#2F6B24" stroke-width="3.4"/>'+
+      '<circle cx="72" cy="30" r="18" fill="#6FC64C" stroke="#2F6B24" stroke-width="3.4"/>'+
+      '<rect x="18" y="52" width="64" height="10" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<path d="M50 14 84 40 H16 z" fill="#E4573B" stroke="#A83A22" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<rect x="26" y="38" width="48" height="16" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="42" y="40" width="16" height="14" rx="3" fill="#7A4E28"/>'+
+      '<path d="M62 62 v34 M74 62 v34 M62 72 h12 M62 82 h12 M62 92 h12" stroke="#B77A47" stroke-width="4" stroke-linecap="round"/>'+E;
+    if(k==='pool')return S+'<ellipse cx="50" cy="58" rx="46" ry="26" fill="'+B+'"/>'+
+      '<ellipse cx="50" cy="56" rx="40" ry="21" fill="'+A+'"/>'+
+      '<path d="M22 54 q8 -5 16 0 q8 5 16 0 q8 -5 16 0" stroke="#fff" stroke-width="3.4" fill="none" opacity=".8" stroke-linecap="round"/>'+
+      '<path d="M30 64 q8 -5 16 0 q8 5 16 0" stroke="#fff" stroke-width="3" fill="none" opacity=".55" stroke-linecap="round"/>'+
+      '<circle cx="70" cy="46" r="7" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.6"/>'+E;
+    if(k==='bench')return S+'<rect x="10" y="34" width="80" height="10" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="10" y="48" width="80" height="10" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="8" y="62" width="84" height="12" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="14" y="28" width="9" height="46" rx="4" fill="'+B+'"/><rect x="77" y="28" width="9" height="46" rx="4" fill="'+B+'"/>'+
+      '<rect x="16" y="74" width="9" height="16" rx="3.5" fill="'+B+'"/><rect x="75" y="74" width="9" height="16" rx="3.5" fill="'+B+'"/>'+E;
+    if(k==='umbrella')return S+'<path d="M50 8 v58" stroke="#B77A47" stroke-width="5" stroke-linecap="round"/>'+
+      '<path d="M6 36 Q50 -6 94 36 q-11 9 -22 0 q-11 9 -22 0 q-11 9 -22 0 q-11 9 -22 0 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M50 8 V36 M28 16 L34 38 M72 16 L66 38" stroke="'+B+'" stroke-width="2.6" fill="none" opacity=".55"/>'+
+      '<ellipse cx="50" cy="66" rx="30" ry="8" fill="#FFF4E4" stroke="#C2A98A" stroke-width="3.2"/>'+
+      '<rect x="46" y="70" width="8" height="20" fill="#B77A47"/>'+
+      '<ellipse cx="50" cy="92" rx="16" ry="5" fill="#B77A47" stroke="#7A4E28" stroke-width="2.8"/>'+E;
+    if(k==='lantern')return S+'<rect x="42" y="52" width="16" height="42" rx="5" fill="'+B+'"/>'+
+      '<ellipse cx="50" cy="94" rx="20" ry="6" fill="'+B+'"/>'+
+      '<path d="M32 46 h36 l-6 -12 H38 z" fill="'+B+'"/>'+
+      '<rect x="34" y="14" width="32" height="34" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<path d="M50 6 v8" stroke="'+B+'" stroke-width="3.4" stroke-linecap="round"/>'+
+      '<path d="M44 22 q6 8 0 16 q-6 -8 0 -16 z" fill="#FFD23F"/>'+E;
+    if(k==='fountain')return S+'<ellipse cx="50" cy="76" rx="44" ry="18" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="50" cy="74" rx="36" ry="13" fill="#8FD4F3" stroke="#4A90B5" stroke-width="3"/>'+
+      '<rect x="44" y="42" width="12" height="30" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<ellipse cx="50" cy="42" rx="20" ry="7" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M50 38 V18" stroke="#8FD4F3" stroke-width="4" stroke-linecap="round"/>'+
+      '<path d="M50 20 q-14 6 -18 22 M50 20 q14 6 18 22" stroke="#8FD4F3" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="50" cy="14" r="6" fill="#CDEEFB" stroke="#4A90B5" stroke-width="2.6"/>'+E;
+    if(k==='path')return S+'<g fill="'+A+'" stroke="'+B+'" stroke-width="2.8">'+
+      '<ellipse cx="16" cy="70" rx="13" ry="9"/><ellipse cx="42" cy="62" rx="14" ry="9"/>'+
+      '<ellipse cx="68" cy="70" rx="13" ry="9"/><ellipse cx="90" cy="60" rx="10" ry="7"/>'+
+      '<ellipse cx="28" cy="84" rx="12" ry="8"/><ellipse cx="56" cy="82" rx="13" ry="8"/>'+
+      '<ellipse cx="82" cy="84" rx="11" ry="7"/></g>'+E;
     return S+E;}
   const HH_DOOR='<svg viewBox="0 0 66 100" style="width:100%;height:100%">'+
     '<rect x="3" y="8" width="60" height="92" rx="6" fill="#C98F52" stroke="#7A4E28" stroke-width="3.6"/>'+
     '<rect x="10" y="16" width="46" height="34" rx="5" fill="#DFA96C" stroke="#8A5A2B" stroke-width="3"/>'+
     '<rect x="10" y="56" width="46" height="34" rx="5" fill="#DFA96C" stroke="#8A5A2B" stroke-width="3"/>'+
     '<circle cx="52" cy="54" r="4.4" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.6"/></svg>';
+  /* дверь во дворик: стеклянная, за ней зелень */
+  const HH_GARDEN='<svg viewBox="0 0 66 100" style="width:100%;height:100%">'+
+    '<rect x="3" y="8" width="60" height="92" rx="6" fill="#FFF4E4" stroke="#8A5A2B" stroke-width="3.6"/>'+
+    '<rect x="10" y="15" width="46" height="76" rx="5" fill="#CDEEFB" stroke="#8A5A2B" stroke-width="3"/>'+
+    '<circle cx="24" cy="70" r="13" fill="#7BD055"/><circle cx="46" cy="76" r="11" fill="#6FC64C"/>'+
+    '<circle cx="40" cy="34" r="8" fill="#FFD23F"/>'+
+    '<path d="M10 53 h46" stroke="#8A5A2B" stroke-width="3"/>'+
+    '<circle cx="52" cy="56" r="4.4" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.6"/></svg>';
+  /* во дворике та же дверь ведёт обратно в дом */
+  const HH_HOMEDOOR='<svg viewBox="0 0 66 100" style="width:100%;height:100%">'+
+    '<path d="M33 2 66 26 H0 z" fill="#E4573B" stroke="#A83A22" stroke-width="3.4" stroke-linejoin="round"/>'+
+    '<rect x="4" y="24" width="58" height="76" rx="5" fill="#FFF4E4" stroke="#8A5A2B" stroke-width="3.4"/>'+
+    '<rect x="14" y="36" width="38" height="64" rx="5" fill="#C98F52" stroke="#7A4E28" stroke-width="3.4"/>'+
+    '<rect x="20" y="44" width="26" height="20" rx="4" fill="#DFA96C" stroke="#8A5A2B" stroke-width="2.8"/>'+
+    '<circle cx="44" cy="76" r="4.2" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.6"/></svg>';
+  const YARD_SKY='radial-gradient(circle at 78% 24%,#FFF6C4 26px,transparent 27px),'+
+    'radial-gradient(circle at 22% 30%,#fff 22px,transparent 23px),radial-gradient(circle at 32% 34%,#fff 16px,transparent 17px),'+
+    'linear-gradient(180deg,#9FDDF3,#D6F0FA 68%,#EAF7E2)';
+  const YARD_GRASS='repeating-linear-gradient(90deg,#8FD06A 0 46px,#85C862 46px 92px)';
+  const YARD_KEYS=30;   /* дворик открывается, когда заработано столько ключиков */
+  const YARD_CATS=[['grow','🌳','Растения'],['play','🎠','Качели и горки'],
+                   ['gard','🪑','Садовая мебель'],['store','📦','Склад']];
 
   /* houseSt объявлен выше, рядом с остальным состоянием: load() читает его раньше этого места */
   let hhPut=null,hhDrag=null,hhCat='furn',hhRaf=0;
 
+  /* комната и дворик — одна сцена с двумя наборами вещей */
+  let hhWhere='room';
+  function hhIt(){return hhWhere==='yard'?houseSt.yard:houseSt.items;}
+  function hhYardOpen(){return earnedKeys()>=YARD_KEYS;}
   function hhOwned(id){return houseSt.own.indexOf(id)>=0;}
-  function hhPlaced(id){return houseSt.items.some(function(o){return o.id===id;});}
+  function hhPlaced(id){return hhIt().some(function(o){return o.id===id;});}
   /* «Уют и игрушки» покупаются за звёздочки, остальное — за монетки */
-  function hhEm(t){return t.cur==='star'?'⭐':'🪙';}
-  function hhHave(t){return t.cur==='star'?stars:coins;}
-  function hhPay(t,n){if(t.cur==='star'){stars-=n;starsSpent+=n;}else{coins-=n;coinsSpent+=n;}}
+  const HH_EM={star:'⭐',key:'🔑',pie:'🥧',coin:'🪙'};
+  function hhEm(t){return HH_EM[t.cur]||'🪙';}
+  function hhHave(t){return t.cur==='star'?stars:t.cur==='key'?keys:t.cur==='pie'?pies:coins;}
+  /* тратим и сразу запоминаем, сколько ушло: награды считаются от заработанного за всё время */
+  function hhPay(t,n){if(t.cur==='star'){stars-=n;starsSpent+=n;}
+    else if(t.cur==='key'){keys-=n;keysSpent+=n;}
+    else if(t.cur==='pie'){pies-=n;piesSpent+=n;}
+    else{coins-=n;coinsSpent+=n;}}
   function hhLock(t){const l=t.lk;if(!l)return null;
     if(l.k==='star')return earnedStars()>=l.n?null:{t:'⭐ '+earnedStars()+' / '+l.n};
-    if(l.k==='key')return keys>=l.n?null:{t:'🔑 '+keys+' / '+l.n};
-    if(l.k==='pie')return pies>=l.n?null:{t:'🥧 '+pies+' / '+l.n};
+    if(l.k==='key')return earnedKeys()>=l.n?null:{t:'🔑 '+earnedKeys()+' / '+l.n};
+    if(l.k==='pie')return earnedPies()>=l.n?null:{t:'🥧 '+earnedPies()+' / '+l.n};
     if(l.k==='page')return pages.length>=l.n?null:{t:'📖 '+pages.length+' / '+l.n};
     return games[l.g]?null:{t:l.t};}
 
   function hhBg(list,id){const f=list.filter(function(o){return o.id===id;})[0]||list[0];return f.bg;}
   function hhPaint(){
-    $('#hhWall').style.background=hhBg(HH_WALLS,houseSt.wall);
-    $('#hhFloor').style.background=hhBg(HH_FLOORS,houseSt.floor);
-    $('#hhDoor').innerHTML=HH_DOOR;
+    const yard=hhWhere==='yard';
+    $('#hhWall').style.background=yard?YARD_SKY:hhBg(HH_WALLS,houseSt.wall);
+    $('#hhFloor').style.background=yard?YARD_GRASS:hhBg(HH_FLOORS,houseSt.floor);
+    $('#hhDoor').innerHTML=HH_DOOR+'<div class="hhdlbl">🗺️ На карту</div>';
+    $('#hhDoor2').innerHTML=yard?(HH_HOMEDOOR+'<div class="hhdlbl">🏠 Домой</div>')
+      :(HH_GARDEN+'<div class="hhdlbl">'+(hhYardOpen()?'🌳 Во дворик':'🔒 '+earnedKeys()+' / '+YARD_KEYS+' 🔑')+'</div>');
+    $('#hhWrap').classList.toggle('yard',yard);
+    $('#hhTitle').textContent=yard?'🌳 Мой дворик':'🏠 Мой дом';
     $('#hhCoins').textContent='🪙 '+coins+'  ⭐ '+stars+'  🔑 '+keys+'  🥧 '+pies;}
 
   function hhZ(t,y){return t.flat?1:(t.wall?2:3+Math.round(y));}
   function hhRender(){
     const box=$('#hhItems');box.innerHTML='';
-    houseSt.items.forEach(function(o,i){
+    hhIt().forEach(function(o,i){
       const t=hhKind(o.id);if(!t)return;
       const el=document.createElement('div');el.className='hhit'+(hhPut&&hhPut.i===i?' on':'');
       el.style.width=t.w+'px';el.style.height=t.w+'px';
@@ -5060,10 +5232,11 @@
       hhTx=hhX;hhTy=hhY;hhAct='';hhActT=0;hhActZ=0;
       const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';h.style.zIndex=hhActZ||(4+Math.round(hhY));
       return;}
-    const o=houseSt.items[hhDrag.i];if(!o)return;
+    const o=hhIt()[hhDrag.i];if(!o)return;
     const t=hhKind(o.id);
     o.x=Math.max(6,Math.min(94,(e.clientX-r.left)/r.width*100));
-    o.y=Math.max(14,Math.min(99,(e.clientY-r.top)/r.height*100));
+    /* во дворике вещи стоят на траве, а не висят в небе */
+    o.y=Math.max(hhWhere==='yard'?62:14,Math.min(99,(e.clientY-r.top)/r.height*100));
     const el=$('#hhItems').children[hhDrag.i];
     if(el){el.style.left=o.x+'%';el.style.top=o.y+'%';el.style.zIndex=hhZ(t,o.y);}}
   function hhUp(){
@@ -5081,7 +5254,7 @@
   /* mode: new — только что купили, move — переставляем, back — достали со склада */
   function hhStartPut(i,mode,pay){
     if(hhPut)hhEndPut(true);                     /* прошлую примерку засчитываем */
-    const o=houseSt.items[i];if(!o)return;
+    const o=hhIt()[i];if(!o)return;
     hhPut={i:i,mode:mode||'move',x:o.x,y:o.y,pay:pay||null};
     $('#hhTipTxt').textContent=pay?('Нравится? ✅ — беру за '+pay.n+' '+hhEm(pay.t))
       :mode==='move'?'Переставь, куда хочешь':'Поставь, куда хочешь';
@@ -5096,26 +5269,26 @@
     if(keep)hhCommit();
     const p=hhPut;hhPut=null;
     if(!keep){
-      const o=houseSt.items[p.i];
+      const o=hhIt()[p.i];
       if(p.mode==='move'){if(o){o.x=p.x;o.y=p.y;}}
       else if(o){
-        houseSt.items.splice(p.i,1);
+        hhIt().splice(p.i,1);
         if(p.mode==='new'){                      /* передумал — деньги и не списывались */
           const j=houseSt.own.indexOf(o.id);if(j>=0)houseSt.own.splice(j,1);}
         hhGrid();}}
     save();hhRender();}
   /* склад: вещь остаётся купленной, но уходит из комнаты — можно поставить другую */
   function hhStore(i){
-    const o=houseSt.items[i];if(!o)return;
+    const o=hhIt()[i];if(!o)return;
     const t=hhKind(o.id);
     if(hhPut&&hhPut.i===i){hhCommit();hhPut=null;}   /* убрал на склад — значит оставляет себе */
-    houseSt.items.splice(i,1);
+    hhIt().splice(i,1);
     save();hhRender();hhGrid();chime(true);
     flash(screens.house,(t?t.n:'Вещь')+' на складе 📦');}
   function hhTakeBack(id){
     const t=hhKind(id);if(!t)return;
-    houseSt.items.push({id:id,x:50,y:t.wall?46:82});
-    hhStartPut(houseSt.items.length-1,'back');
+    hhIt().push({id:id,x:50,y:t.wall?46:82});
+    hhStartPut(hhIt().length-1,'back');
     hhShut(true);blip();hhGrid();
     flash(screens.house,'Поставь, куда хочешь 🏠');}
   $('#hhOk').onclick=function(){chime(true);hhEndPut(true);};
@@ -5123,12 +5296,13 @@
   $('#hhBox').onclick=function(){if(hhPut)hhStore(hhPut.i);};
 
   /* ——— витрина ——— */
+  function hhCats(){return hhWhere==='yard'?YARD_CATS:HH_CATS;}
   function hhTabs(){
     const box=$('#hhCats');box.innerHTML='';
-    HH_CATS.forEach(function(c){const b=document.createElement('button');
+    hhCats().forEach(function(c){const b=document.createElement('button');
       b.className='hhcat'+(c[0]===hhCat?' sel':'');b.textContent=c[1];b.title=c[2];
       b.onclick=function(){hhCat=c[0];blip();hhTabs();hhGrid();};box.appendChild(b);});
-    const cur=HH_CATS.filter(function(c){return c[0]===hhCat;})[0];
+    const cur=hhCats().filter(function(c){return c[0]===hhCat;})[0];
     $('#hhCatName').textContent=cur?cur[2]:'';}
   function hhCell(pv,name,price,cls,onTap){
     const d=document.createElement('div');d.className='hhcell '+cls;
@@ -5137,7 +5311,9 @@
   function hhGrid(){
     const box=$('#hhGrid');box.innerHTML='';
     if(hhCat==='store'){
-      const left=houseSt.own.filter(function(id){return hhKind(id)&&!hhPlaced(id);});
+      /* на складе показываем только то, что подходит этой сцене: дворовое — во дворике */
+      const left=houseSt.own.filter(function(id){const t=hhKind(id);
+        return t&&!!t.out===(hhWhere==='yard')&&!hhPlaced(id);});
       if(!left.length){const d=document.createElement('div');
         d.className='hhnote';d.textContent='Склад пустой. Убери сюда вещь из комнаты — и место освободится для новой.';
         box.appendChild(d);return;}
@@ -5148,13 +5324,14 @@
       HH_WALLS.concat(HH_FLOORS).forEach(function(f){
         const isW=HH_WALLS.indexOf(f)>=0,lk=hhLock(f),got=!lk&&(f.p===0||hhOwned(f.id));
         const cur=isW?houseSt.wall===f.id:houseSt.floor===f.id;
+        const em=hhEm(f),have=hhHave(f);
         const pv='<div class="sw" style="background:'+f.bg+'"></div>';
-        const price=lk?('🔒 '+lk.t):cur?'✔ выбрано':got?'выбрать':(coins>=f.p?'🛒 '+f.p+' 🪙':'ещё '+(f.p-coins)+' 🪙');
-        box.appendChild(hhCell(pv,(isW?'🎨 ':'🟫 ')+f.n,price,cur?'have':(!lk&&(got||coins>=f.p)?'':'no'),function(){
+        const price=lk?('🔒 '+lk.t):cur?'✔ выбрано':got?'выбрать':(have>=f.p?'🛒 '+f.p+' '+em:'ещё '+(f.p-have)+' '+em);
+        box.appendChild(hhCell(pv,(isW?'🎨 ':'🟫 ')+f.n,price,cur?'have':(!lk&&(got||have>=f.p)?'':'no'),function(){
           if(lk){chime(false);flash(screens.house,'Открой: '+lk.t);return;}
           if(got){if(isW)houseSt.wall=f.id;else houseSt.floor=f.id;blip();hhPaint();hhGrid();save();return;}
-          if(coins<f.p){chime(false);flash(screens.house,'Нужно ещё '+(f.p-coins)+' 🪙');return;}
-          coins-=f.p;coinsSpent+=f.p;houseSt.own.push(f.id);
+          if(have<f.p){chime(false);flash(screens.house,'Нужно ещё '+(f.p-have)+' '+em);return;}
+          hhPay(f,f.p);houseSt.own.push(f.id);
           if(isW)houseSt.wall=f.id;else houseSt.floor=f.id;
           chime(true);save();updateHUD();hhPaint();hhGrid();}));});
       return;}
@@ -5165,7 +5342,7 @@
       const price=inRoom?'📦 Убрать':own?'🏠 Поставить':lk?('🔒 '+lk.t):t.p===0?'🎁 подарок':(have>=t.p?'🛒 '+t.p+' '+em:'ещё '+(t.p-have)+' '+em);
       box.appendChild(hhCell(hhArt(e.id),nm,price,inRoom?'have':own?'':(lk||t.p>have)?'no':'',function(){
         if(inRoom){                                  /* стоит дома — убираем на склад */
-          let j=-1;houseSt.items.forEach(function(o,n){if(o.id===e.id)j=n;});
+          let j=-1;hhIt().forEach(function(o,n){if(o.id===e.id)j=n;});
           if(j>=0)hhStore(j);return;}
         if(own){hhTakeBack(e.id);return;}            /* лежит на складе — ставим обратно */
         if(lk){chime(false);flash(screens.house,'Открой: '+lk.t);return;}
@@ -5176,9 +5353,9 @@
 
   function hhBuy(id,t){
     houseSt.own.push(id);
-    houseSt.items.push({id:id,x:50,y:t.wall?46:82});
+    hhIt().push({id:id,x:50,y:t.wall?46:82});
     chime(true);save();hhGrid();
-    hhStartPut(houseSt.items.length-1,'new',t.p>0?{t:t,n:t.p}:null);
+    hhStartPut(hhIt().length-1,'new',t.p>0?{t:t,n:t.p}:null);
     hhShut(true);
     flash(screens.house,t.n+' — примерь! 🎉');}
 
@@ -5200,7 +5377,7 @@
     const dx=(t.sx||0)*t.w/hhRW*100,dy=(t.sy||0)*t.w/hhRH*100;
     return [Math.max(6,Math.min(94,o.x+dx)),Math.max(62,Math.min(98,o.y-dy))];}
   function hhGo(i){
-    const o=houseSt.items[i];if(!o)return;
+    const o=hhIt()[i];if(!o)return;
     const t=hhKind(o.id),sp=hhSpot(o);if(!sp||!t)return;
     hhTx=sp[0];hhTy=sp[1];hhAct=t.act;hhActT=0;hhWait=0;hhActZ=hhZ(t,o.y)+2;blip();}
   function hhPose(p){
@@ -5214,7 +5391,7 @@
     bub.classList.toggle('on',!!p);
     $('#hhHero').classList.toggle('walk',!p&&(Math.abs(hhTx-hhX)>0.4||Math.abs(hhTy-hhY)>0.4));}
   function hhPick(){
-    const cand=[];houseSt.items.forEach(function(o,i){const t=hhKind(o.id);if(t&&t.act)cand.push(i);});
+    const cand=[];hhIt().forEach(function(o,i){const t=hhKind(o.id);if(t&&t.act)cand.push(i);});
     if(cand.length&&Math.random()<0.72){hhGo(cand[Math.random()*cand.length|0]);}
     else{hhTx=8+Math.random()*84;hhTy=70+Math.random()*26;hhAct='';hhActZ=0;}}
   function hhStep(t){
@@ -5227,6 +5404,7 @@
     const dx=(hhTx-hhX)*hhRW/100,dy=(hhTy-hhY)*hhRH/100,L=Math.hypot(dx,dy);
     if(L<4){
       if(hhAct==='exit'){hhAct='';hhPose('');hhEndPut(true);goWorld();return;}
+      if(hhAct==='yard'||hhAct==='home'){const w=hhAct==='yard'?'yard':'room';hhAct='';hhPose('');hhSwitch(w);return;}
       if(hhAct){hhPose(hhAct);hhActT=2.6;hhAct='';}
       else{hhPose('');hhWait=0.5+Math.random()*1.1;}
       return;}
@@ -5237,11 +5415,14 @@
 
   function openHouse(){
     show('house');hhPut=null;hhDrag=null;
+    hhWhere='room';if(hhCat==='grow'||hhCat==='play'||hhCat==='gard')hhCat='furn';
+    if(!houseSt.yard)houseSt.yard=[];
     /* записи первых дней хранили id без номера варианта — дописываем нулевой */
-    houseSt.items.forEach(function(o){if(!/[0-9]$/.test(o.id))o.id+='0';});
+    houseSt.items.concat(houseSt.yard).forEach(function(o){if(!/[0-9]$/.test(o.id))o.id+='0';});
     houseSt.own=houseSt.own.map(function(s){return /[0-9]$/.test(s)?s:s+'0';});
     /* шторы убрали из каталога — чистим старые записи, обои и полы (w0,f1…) оставляем */
-    houseSt.items=houseSt.items.filter(function(o){return !!hhKind(o.id);});
+    houseSt.yard=houseSt.yard.filter(function(o){const t=hhKind(o.id);return t&&!!t.out;});
+    houseSt.items=houseSt.items.filter(function(o){const t=hhKind(o.id);return t&&!t.out;});
     houseSt.own=houseSt.own.filter(function(s){return hhKind(s)||/^[wf]\d+$/.test(s);});
     if(heroSrc)$('#hhImg').src=heroSrc;
     $('#hhName').textContent=playerName;
@@ -5251,12 +5432,26 @@
     if(!hhRaf){hhStep.p=0;hhRaf=requestAnimationFrame(hhStep);}}
   $('#hhHero').addEventListener('pointerdown',hhHeroDown);
   $('#hhBack').onclick=function(){hhEndPut(true);goWorld();};
-  /* дверь — выход на карту: герой сам доходит до неё и выходит */
-  $('#hhDoor').onclick=function(){
-    const r=$('#hhRoom').getBoundingClientRect(),d=this.getBoundingClientRect();
+  /* двери: герой сам доходит до них, и только потом меняется сцена */
+  function hhWalkToDoor(el,act){
+    const r=$('#hhRoom').getBoundingClientRect(),d=el.getBoundingClientRect();
     hhTx=Math.max(8,Math.min(92,(d.left+d.width/2-r.left)/r.width*100));
-    hhTy=90;hhAct='exit';hhActT=0;hhWait=0;hhActZ=0;
-    blip();flash(screens.house,'Идём на карту 🗺️');};
+    hhTy=90;hhAct=act;hhActT=0;hhWait=0;hhActZ=0;blip();}
+  $('#hhDoor').onclick=function(){
+    hhWalkToDoor(this,'exit');flash(screens.house,'Идём на карту 🗺️');};
+  $('#hhDoor2').onclick=function(){
+    if(hhWhere==='yard'){hhWalkToDoor(this,'home');flash(screens.house,'Идём домой 🏠');return;}
+    if(!hhYardOpen()){chime(false);
+      flash(screens.house,'Дворик откроется за '+YARD_KEYS+' 🔑 — нужно ещё '+(YARD_KEYS-earnedKeys()));return;}
+    hhWalkToDoor(this,'yard');flash(screens.house,'Идём во дворик 🌳');};
+  /* переход комната ↔ дворик: вещи у каждой сцены свои, всё сохраняется */
+  function hhSwitch(w){
+    hhEndPut(true);
+    hhWhere=w;hhCat=w==='yard'?'grow':'furn';
+    hhX=w==='yard'?12:86;hhY=88;hhTx=hhX;hhTy=hhY;hhAct='';hhActT=0;hhActZ=0;hhWait=.5;
+    hhPaint();hhTabs();hhGrid();hhRender();
+    const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';h.style.zIndex=4+Math.round(hhY);
+    hhPose('');chime(true);save();}
   $('#hhSleep').onclick=function(){hhEndPut(true);enterSleep();};
 })();
 </script>
