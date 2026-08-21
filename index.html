@@ -318,6 +318,41 @@
   @keyframes wksh{25%{transform:translateX(-5px) rotate(-3deg);}75%{transform:translateX(5px) rotate(3deg);}}
   .wkspark{position:absolute;font-size:22px;pointer-events:none;z-index:6;animation:wksp .8s ease-out forwards;}
   @keyframes wksp{to{transform:translate(var(--dx),var(--dy)) scale(.3);opacity:0;}}
+  /* ——— Мастер-конструктор ——— */
+  #mk{background:linear-gradient(180deg,#E7F6FB,#FDF3DC);}
+  .mksteps{display:flex;gap:12px;justify-content:center;padding:6px 0 4px;}
+  .mkstep{font-family:'Fredoka';font-weight:600;font-size:17px;color:#8a7a5c;background:#fff;border-radius:16px;
+    padding:6px 16px;box-shadow:0 3px 8px rgba(0,0,0,.10);opacity:.6;}
+  .mkstep.on{opacity:1;color:#fff;background:var(--grape);box-shadow:0 4px 10px rgba(123,79,192,.35);}
+  .mkstep.done{opacity:1;color:#2F6B24;background:#D9F2C6;}
+  .mkbody{flex:1;display:flex;gap:14px;padding:0 18px;min-height:0;}
+  .mkside{width:296px;flex:none;display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .mkq{font-family:'Fredoka';font-weight:700;font-size:26px;color:var(--ink);text-align:center;background:#fff;
+    border-radius:20px;padding:10px 16px;box-shadow:0 4px 12px rgba(0,0,0,.12);width:100%;}
+  .mkq b{font-size:34px;}
+  .mksample{width:100%;flex:1;min-height:150px;background:#fff;border-radius:20px;box-shadow:0 4px 12px rgba(0,0,0,.10);
+    display:none;align-items:center;justify-content:center;padding:8px;}
+  .mksample.on{display:flex;}
+  .mksample svg{width:100%;height:100%;}
+  .mkhero{display:flex;align-items:center;gap:8px;}
+  .mkhero img{width:86px;height:86px;object-fit:contain;animation:alive 2s ease-in-out infinite;}
+  .mkname{font-family:'Fredoka';font-size:15px;color:#4a3a1a;background:rgba(255,255,255,.9);border-radius:10px;padding:2px 10px;}
+  .mkfield{flex:1;min-width:0;min-height:230px;background:#fff;border-radius:24px;box-shadow:inset 0 0 0 5px rgba(255,255,255,.7),0 6px 18px rgba(0,0,0,.12);
+    position:relative;overflow:hidden;background-image:radial-gradient(#E7EDF3 3px,transparent 4px);background-size:34px 34px;}
+  .mkbuild{position:absolute;inset:0;}
+  .mkbuild svg{width:100%;height:100%;}
+  .mkans{display:flex;gap:18px;justify-content:center;padding:10px 0 14px;}
+  .mkbtn{width:132px;height:82px;border:none;border-radius:22px;background:#fff;cursor:pointer;font-family:'Fredoka';
+    font-weight:700;font-size:40px;color:var(--ink);box-shadow:0 6px 0 #E3D5B6;transition:transform .08s,box-shadow .08s;}
+  .mkbtn:active{transform:translateY(4px);box-shadow:0 2px 0 #E3D5B6;}
+  .mkbtn.good{background:#B7ECA0;box-shadow:0 6px 0 #6FAE55;}
+  .mkbtn.bad{background:#FFD3CB;box-shadow:0 6px 0 #D98B7C;}
+  .mktray{display:none;gap:14px;justify-content:center;align-items:center;padding:6px 18px 12px;height:132px;flex:none;}
+  .mktray.on{display:flex;}
+  .mkpc{cursor:grab;touch-action:none;filter:drop-shadow(0 5px 5px rgba(0,0,0,.22));transition:transform .12s;}
+  .mkpc svg{display:block;pointer-events:none;}
+  .mkpc.fly{position:fixed;z-index:30;pointer-events:none;transition:none;}
+  .mkpc.back{transition:left .3s ease,top .3s ease;}
   .wkprize{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(30,20,10,.42);z-index:8;}
   .wkprize.on{display:flex;}
   .wkcard{background:var(--cream);border-radius:26px;padding:22px 26px;display:flex;flex-direction:column;align-items:center;gap:12px;box-shadow:0 18px 40px rgba(0,0,0,.32);max-width:290px;}
@@ -1256,6 +1291,36 @@
     <button class="btn" id="finalNext">Играть дальше ✨</button>
   </section>
 
+  <section id="wkmenu" class="screen">
+    <div class="topbar"><button class="backb" id="wmBack">← Карта</button><h2>🔧 Мастерская</h2><div style="width:70px"></div></div>
+    <div class="nwscene" id="wkScene"></div>
+    <div class="nwbtns">
+      <button class="nwbtn" id="wm1"><span>⚙️</span>Почини механизм</button>
+      <button class="nwbtn" id="wm2"><span>🧱</span>Мастер-конструктор</button>
+    </div>
+  </section>
+
+  <section id="mk" class="screen">
+    <div class="topbar"><button class="backb" id="mkBack">← Мастерская</button><h2>🧱 Мастер-конструктор</h2><div class="prog" id="mkProg"></div></div>
+    <div class="mksteps" id="mkSteps"></div>
+    <div class="mkbody">
+      <div class="mkside" id="mkSide">
+        <div class="mkq" id="mkQ">Сколько деталей?</div>
+        <div class="mksample" id="mkSample"></div>
+        <div class="mkhero"><img id="mkImg" alt="герой"><div class="mkname" id="mkName">Герой</div></div>
+      </div>
+      <div class="mkfield" id="mkField"><div class="mkbuild" id="mkBuild"></div></div>
+    </div>
+    <div class="mkans" id="mkAns"></div>
+    <div class="mktray" id="mkTray"></div>
+    <div class="wkprize" id="mkPrize"><div class="wkcard">
+      <div class="wkwin" id="mkWinTxt">🎉 Готово!</div>
+      <div class="wkgifts" id="mkGifts"></div>
+      <button class="btn small" id="mkMore">▶️ Дальше</button>
+      <button class="btn small coral" id="mkOut">← В Мастерскую</button>
+    </div></div>
+  </section>
+
   <section id="wkshop" class="screen">
     <div class="topbar"><button class="backb" id="wkBack">← Карта</button><h2>🔧 Мастерская</h2><div class="prog" id="wkProg"></div></div>
     <div class="wkshelf"><span>🔧</span><span>🔩</span><span>🧰</span><span>⚙️</span><span>💡</span><span>🪵</span></div>
@@ -1434,7 +1499,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={house:$('#house'),intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={house:$('#house'),intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),wkmenu:$('#wkmenu'),mk:$('#mk'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -1979,7 +2044,7 @@
       /* локация открывается только когда герой дошёл — короткая пауза «пришёл» */
       setTimeout(function(){actAt(idx);},280);}
     requestAnimationFrame(step);}
-  function actAt(idx){const n=NODES[idx];if(n.room==='home')openHouse();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakeryMenu();else if(n.room==='workshop')openWorkshop();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStation();else openSoon(n);}
+  function actAt(idx){const n=NODES[idx];if(n.room==='home')openHouse();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakeryMenu();else if(n.room==='workshop')openWorkshopMenu();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStation();else openSoon(n);}
   function openSoon(n){const ic={shop:'🛒',bakery:'🍰',workshop:'🛠️',station:'🚂',park:'🎡'}[n.room]||'✨';$('#stubIc').textContent=ic;$('#stubTitle').textContent=n.nm;$('#stubTxt').textContent='Здесь скоро будут игры! Заходи позже ✨';show('stub');}$('#stubBack').onclick=goWorld;
 
   /* ---------- ПЕКАРНЯ: Создай свой десерт ---------- */
@@ -3701,9 +3766,37 @@
   const WK_HINT={1:'Механизму нечем питаться. Чего не хватает?',2:'Одного звена нет. Что должно стоять посередине?',
     3:'Не хватает детали. Куда её поставить?',4:'Пропали сразу две детали!',5:'Собери весь механизм сам — лишние детали не бери.'};
   let wkLevel=1,wkChain=[],wkGaps=[],wkSlots=[],wkDrag=null,wkBusy=false;
-  $('#wkBack').onclick=goWorld;$('#wkOut').onclick=()=>{$('#wkPrize').classList.remove('on');goWorld();};
+  $('#wkBack').onclick=()=>show('wkmenu');$('#wkOut').onclick=()=>{$('#wkPrize').classList.remove('on');show('wkmenu');};
   $('#wkMore').onclick=()=>{$('#wkPrize').classList.remove('on');wkLoad();};
   $('#wkCheck').onclick=wkCheck;
+  /* сцена перед мастерской: верстак, инструменты и шестерёнки */
+  function wkArt(){
+    let s='<svg class="nwart" viewBox="0 0 1360 500" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><linearGradient id="wkSky" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#FFE9C2"/><stop offset="1" stop-color="#FDF3DC"/></linearGradient></defs>';
+    s+='<rect width="1360" height="500" fill="url(#wkSky)"/>';
+    s+='<rect y="352" width="1360" height="148" fill="#D9B57C"/><rect y="352" width="1360" height="12" fill="#B78C4E"/>';
+    /* стена с полкой и инструментами */
+    s+='<rect x="150" y="60" width="1060" height="300" rx="28" fill="#FFF6E6" stroke="#C9A063" stroke-width="8"/>';
+    s+='<rect x="210" y="150" width="420" height="16" rx="8" fill="#B78C4E"/>';
+    [['🔧',250],['🔩',330],['🧰',410],['⚙️',490],['💡',560]].forEach(function(t){
+      s+='<text x="'+t[1]+'" y="140" font-size="62" text-anchor="middle">'+t[0]+'</text>';});
+    /* верстак с деталями конструктора */
+    s+='<rect x="700" y="250" width="440" height="24" rx="10" fill="#C98F52" stroke="#7A4E28" stroke-width="6"/>';
+    s+='<rect x="730" y="274" width="26" height="86" fill="#B77A47"/><rect x="1084" y="274" width="26" height="86" fill="#B77A47"/>';
+    [['#FF6B6B',740,200,120],['#FFD23F',872,210,80],['#4DB6E5',964,196,110],['#7BD055',1084,206,54]].forEach(function(b){
+      s+='<rect x="'+b[1]+'" y="'+b[2]+'" width="'+b[3]+'" height="44" rx="9" fill="'+b[0]+'" stroke="rgba(0,0,0,.22)" stroke-width="5"/>';});
+    /* большие шестерёнки на стене */
+    [[300,250,66,'#8C93B8'],[392,290,46,'#7A86A8']].forEach(function(g){
+      s+='<circle cx="'+g[0]+'" cy="'+g[1]+'" r="'+g[2]+'" fill="'+g[3]+'" stroke="#5C6486" stroke-width="7"/>'+
+         '<circle cx="'+g[0]+'" cy="'+g[1]+'" r="'+(g[2]*.35)+'" fill="#FFF6E6" stroke="#5C6486" stroke-width="6"/>';
+      for(let i=0;i<8;i++){const a=i*Math.PI/4;
+        s+='<rect x="'+(g[0]+Math.cos(a)*g[2]-9)+'" y="'+(g[1]+Math.sin(a)*g[2]-9)+'" width="18" height="18" rx="4" fill="'+g[3]+'" stroke="#5C6486" stroke-width="5"/>';}});
+    return s+'</svg>';}
+  function openWorkshopMenu(){const b=$('#wkScene');if(b&&!b.innerHTML)b.innerHTML=wkArt();show('wkmenu');}
+  $('#wmBack').onclick=goWorld;
+  $('#wm1').onclick=function(){openWorkshop();};
+  $('#wm2').onclick=function(){openMk();};
   function openWorkshop(){wkLevel=Math.min(5,levels.wk||1);show('wkshop');$('#wkPrize').classList.remove('on');wkLoad();}
   function wkRenderLevels(){const box=$('#wkLevels');box.innerHTML='';const open=Math.min(5,levels.wk||1);
     for(let i=1;i<=5;i++){const b=document.createElement('button');b.className='lvbtn'+(i===wkLevel?' sel':'');b.textContent=i;b.disabled=i>open;b.style.opacity=i>open?'.35':'';
@@ -3794,6 +3887,235 @@
     got.forEach((g,i)=>setTimeout(()=>{blip();popText(screens.wkshop,screens.wkshop.clientWidth/2-16+(Math.random()*60-30),screens.wkshop.clientHeight*0.4,g[0],'#FFB800');},300+i*220));
     if(first&&wkLevel<5)wkLevel++;
     wkBusy=false;}
+
+  /* ---------- МАСТЕРСКАЯ: МАСТЕР-КОНСТРУКТОР ----------
+     Три этапа: посчитать детали, посчитать по цветам, собрать по образцу.
+     Деталь описана клетками [x, y, ширина, цвет, форма]; сетку и масштаб
+     считаем от размера поля, чтобы конструкция всегда занимала его целиком. */
+  const MK_C={r:['#FF6B6B','#C0483A','🔴'],y:['#FFD23F','#D8A21A','🟡'],b:['#4DB6E5','#2C7FA8','🔵'],
+              g:['#7BD055','#3E8F2E','🟢'],p:['#C9A8F0','#7B4FC0','🟣']};
+  const MK_MODELS=[
+    {n:'башенка',p:[[0,0,2,'r'],[0,1,2,'y'],[0,2,2,'b'],[0,3,2,'g']]},
+    {n:'машинка',p:[[1,0,2,'b'],[0,1,4,'r'],[.4,2,1,'y','o'],[2.6,2,1,'y','o'],[4,1,1,'p']]},
+    {n:'домик',p:[[0,0,4,'r','t'],[0,1,2,'y'],[2,1,2,'b'],[0,2,4,'g'],[1,3,2,'p']]},
+    {n:'ворота',p:[[0,0,5,'y'],[0,1,1,'r'],[4,1,1,'r'],[0,2,1,'b'],[4,2,1,'b'],[1,2,3,'g']]},
+    {n:'робот',p:[[1,0,2,'y'],[0,1,1,'b'],[3,1,1,'b'],[1,1,2,'r'],[1,2,1,'g'],[2,2,1,'g'],[1,3,2,'p']]},
+    {n:'мост',p:[[0,0,1,'p'],[2,0,2,'r'],[5,0,1,'p'],[0,1,6,'y'],[0,2,1,'b'],[5,2,1,'b'],[0,3,1,'b'],[5,3,1,'b']]},
+    {n:'ракета',p:[[1,0,2,'r','t'],[1,1,2,'y'],[1,2,2,'y'],[1,3,2,'b'],[0,3,1,'g'],[3,3,1,'g'],[1,4,2,'p'],[.4,4,.6,'r'],[3,4,.6,'r']]},
+    {n:'пирамидка',p:[[2,0,2,'r'],[1,1,2,'y'],[3,1,2,'y'],[0,2,2,'g'],[2,2,2,'g'],[4,2,2,'g'],[0,3,2,'b'],[2,3,2,'b'],[4,3,2,'b']]},
+    {n:'поезд',p:[[.5,0,1,'r'],[0,1,3,'r'],[3,1,3,'b'],[0,2,2,'y'],[3.5,2,2,'g'],[.4,3,1,'p','o'],[1.9,3,1,'p','o'],[3.4,3,1,'p','o'],[4.9,3,1,'p','o'],[6,1,1,'y']]}];
+  /* этап 3: небольшие модели, которые ребёнок собирает сам, и как они оживают */
+  const MK_BUILD=[
+    {n:'домик',anim:'light',p:[[0,0,4,'r','t'],[0,1,2,'y'],[2,1,2,'b'],[0,2,4,'g']]},
+    {n:'машинка',anim:'drive',p:[[1,0,2,'b'],[0,1,4,'r'],[.4,2,1,'y','o'],[2.6,2,1,'y','o']]},
+    {n:'ракета',anim:'fly',p:[[1,0,2,'r','t'],[1,1,2,'y'],[1,2,2,'b'],[0,3,1,'g'],[3,3,1,'g'],[1,3,2,'p']]}];
+  let mkStage=1,mkTask=0,mkStep=0,mkErr=0,mkBusy=false,mkModel=null,mkQueue=[],mkSlots=[],mkDrag=null,mkCell=60;
+
+  function mkBBox(p){let x0=1e9,y0=1e9,x1=-1e9,y1=-1e9;
+    p.forEach(function(d){x0=Math.min(x0,d[0]);y0=Math.min(y0,d[1]);x1=Math.max(x1,d[0]+d[2]);y1=Math.max(y1,d[1]+1);});
+    return {x:x0,y:y0,w:x1-x0,h:y1-y0};}
+  /* одна деталь в абсолютных пикселях поля */
+  function mkBrick(px,py,pw,ph,c,s,op){
+    const A=MK_C[c][0],B=MK_C[c][1],o=op?' opacity="'+op+'"':'';
+    if(s==='o')return '<g'+o+'><circle cx="'+(px+pw/2)+'" cy="'+(py+ph/2)+'" r="'+(Math.min(pw,ph)/2-2)+'" fill="'+A+'" stroke="'+B+'" stroke-width="5"/>'+
+      '<circle cx="'+(px+pw/2)+'" cy="'+(py+ph/2)+'" r="'+(Math.min(pw,ph)/6)+'" fill="'+B+'"/></g>';
+    if(s==='t')return '<g'+o+'><path d="M'+(px+pw/2)+' '+(py+ph*.06)+' L'+(px+pw*.98)+' '+(py+ph*.94)+' L'+(px+pw*.02)+' '+(py+ph*.94)+' z" '+
+      'fill="'+A+'" stroke="'+B+'" stroke-width="5" stroke-linejoin="round"/></g>';
+    let s2='<g'+o+'>',n=Math.max(1,Math.round(pw/ph));
+    for(let i=0;i<n;i++){const sw=pw/n;
+      s2+='<rect x="'+(px+i*sw+sw*.26)+'" y="'+(py-ph*.17)+'" width="'+(sw*.48)+'" height="'+(ph*.22)+'" rx="'+(ph*.1)+'" fill="'+A+'" stroke="'+B+'" stroke-width="4"/>';}
+    s2+='<rect x="'+px+'" y="'+py+'" width="'+pw+'" height="'+ph+'" rx="'+(ph*.16)+'" fill="'+A+'" stroke="'+B+'" stroke-width="5"/>';
+    s2+='<rect x="'+(px+pw*.06)+'" y="'+(py+ph*.14)+'" width="'+(pw*.88)+'" height="'+(ph*.16)+'" rx="'+(ph*.08)+'" fill="#fff" opacity=".3"/>';
+    return s2+'</g>';}
+  /* раскладка модели по размеру поля: деталей должно быть видно много и крупно */
+  function mkLayout(p,W,H,pad,mx){
+    const b=mkBBox(p),cell=Math.min((W-(pad||60))/b.w,(H-(pad||60))/b.h,mx||1e9);
+    return {cell:cell,ox:(W-b.w*cell)/2-b.x*cell,oy:(H-b.h*cell)/2-b.y*cell+cell*.12,b:b};}
+  function mkDraw(p,W,H,pad,op){
+    const L=mkLayout(p,W,H,pad);
+    let s='<svg viewBox="0 0 '+W+' '+H+'" style="width:100%;height:100%">';
+    p.forEach(function(d){s+=mkBrick(L.ox+d[0]*L.cell,L.oy+d[1]*L.cell,d[2]*L.cell,L.cell*.9,d[3],d[4],op);});
+    return s+'</svg>';}
+
+  function mkFieldSize(){const f=$('#mkField');return [f.clientWidth||820,f.clientHeight||420];}
+  function mkShow(p){const wh=mkFieldSize();$('#mkBuild').innerHTML=mkDraw(p,wh[0],wh[1]);}
+  /* перекрасить модель — так одна и та же конструкция даёт разные задания на цвета */
+  function mkPaint(p,map){return p.map(function(d){return [d[0],d[1],d[2],map[d[3]]||d[3],d[4]];});}
+  function mkShuffle(a){for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;const t=a[i];a[i]=a[j];a[j]=t;}return a;}
+  function mkColorMap(){const k=['r','y','b','g','p'],v=mkShuffle(k.slice()),m={};k.forEach(function(c,i){m[c]=v[i];});return m;}
+
+  function mkSteps(){
+    $('#mkSteps').innerHTML=[[1,'1 · Сколько деталей'],[2,'2 · По цветам'],[3,'3 · Построй сам']]
+      .map(function(s){return '<div class="mkstep'+(s[0]===mkStage?' on':s[0]<mkStage?' done':'')+'">'+s[1]+'</div>';}).join('');}
+  function mkProg(){$('#mkProg').textContent=mkStage<3?('Задание '+(mkTask+1)+' / 5'):('Модель '+(mkTask+1)+' / '+MK_BUILD.length);}
+  function mkOptions(right){
+    const set=[right],near=[right-1,right+1,right-2,right+2,right+3];
+    mkShuffle(near).forEach(function(n){if(set.length<4&&n>0&&set.indexOf(n)<0)set.push(n);});
+    return mkShuffle(set);}
+  function mkAsk(q,right,after){
+    $('#mkQ').innerHTML=q;
+    const box=$('#mkAns');box.innerHTML='';box.style.display='flex';
+    mkOptions(right).forEach(function(n){
+      const b=document.createElement('button');b.className='mkbtn';b.textContent=n;
+      b.onclick=function(){
+        if(mkBusy)return;
+        if(n===right){mkBusy=true;b.classList.add('good');chime(true);
+          popText(screens.mk,screens.mk.clientWidth/2-16,screens.mk.clientHeight*0.42,'✅','#7BD055');
+          setTimeout(function(){mkBusy=false;after();},700);}
+        else{mkErr++;b.classList.add('bad');chime(false);b.disabled=true;
+          speak('Попробуй посчитать ещё раз');}};
+      box.appendChild(b);});}
+
+  /* ——— этап 1 ——— */
+  function mkStage1(){
+    mkSteps();mkProg();$('#mkTray').classList.remove('on');$('#mkSample').classList.remove('on');
+    const order=[0,2,3,5,7];                       /* от простого к сложному */
+    mkModel=MK_MODELS[order[mkTask]];
+    const p=mkPaint(mkModel.p,mkColorMap());
+    mkShow(p);
+    mkAsk('Сколько деталей? 🧱',p.length,mkNext);}
+
+  /* ——— этап 2 ——— */
+  function mkStage2(){
+    mkSteps();mkProg();$('#mkTray').classList.remove('on');$('#mkSample').classList.remove('on');
+    const order=[3,4,5,7,8],many=mkTask>=3;        /* на последних заданиях спрашиваем несколько цветов */
+    mkModel=MK_MODELS[order[mkTask]];
+    const p=mkPaint(mkModel.p,mkColorMap());
+    mkShow(p);
+    const cnt={};p.forEach(function(d){cnt[d[3]]=(cnt[d[3]]||0)+1;});
+    const cols=mkShuffle(Object.keys(cnt)).slice(0,many?3:1);
+    mkQueue=cols.map(function(c){return [c,cnt[c]];});
+    mkStep=0;mkAskColor();}
+  function mkAskColor(){
+    const q=mkQueue[mkStep],c=MK_C[q[0]];
+    $('#mkQ').innerHTML='<span style="color:'+c[0]+'">'+c[2]+'</span> = <b>?</b>'+
+      (mkQueue.length>1?'<div style="font-size:15px;color:#8a7a5c">цвет '+(mkStep+1)+' из '+mkQueue.length+'</div>':'');
+    mkAsk($('#mkQ').innerHTML,q[1],function(){
+      mkStep++;
+      if(mkStep<mkQueue.length)mkAskColor();else mkNext();});}
+
+  /* ——— этап 3: собери по образцу ——— */
+  function mkStage3(){
+    mkSteps();mkProg();
+    mkModel=MK_BUILD[mkTask];
+    const p=mkModel.p;
+    $('#mkQ').innerHTML='Собери, как на образце 🧱';
+    $('#mkSample').classList.add('on');
+    $('#mkSample').innerHTML=mkDraw(p,300,240,40);
+    $('#mkAns').style.display='none';
+    const wh=mkFieldSize(),L=mkLayout(p,wh[0],wh[1],60,110);
+    mkCell=L.cell;
+    mkSlots=p.map(function(d){return {d:d,px:L.ox+d[0]*L.cell,py:L.oy+d[1]*L.cell,
+      pw:d[2]*L.cell,ph:L.cell*.9,filled:false};});
+    mkPaintField();
+    /* в лотке детали помельче, но всё равно крупные — чтобы влезали и удобно брались пальцем */
+    const tc=Math.min(mkCell,74);
+    const tray=$('#mkTray');tray.classList.add('on');tray.innerHTML='';
+    mkShuffle(p.map(function(d,i){return i;})).forEach(function(i){
+      const d=p[i],el=document.createElement('div');el.className='mkpc';
+      const w=d[2]*tc,h=tc*.9;
+      el.style.width=w+'px';el.style.height=(h+tc*.24)+'px';
+      el.innerHTML='<svg viewBox="0 0 '+w+' '+(h+tc*.24)+'" style="width:100%;height:100%">'+
+        mkBrick(0,tc*.24,w,h,d[3],d[4])+'</svg>';
+      el.dataset.i=i;
+      el.addEventListener('pointerdown',function(e){mkGrab(el,i,e);});
+      tray.appendChild(el);});}
+  function mkPaintField(){
+    const wh=mkFieldSize();
+    let s='<svg viewBox="0 0 '+wh[0]+' '+wh[1]+'" style="width:100%;height:100%">';
+    mkSlots.forEach(function(sl){
+      if(sl.filled)s+=mkBrick(sl.px,sl.py,sl.pw,sl.ph,sl.d[3],sl.d[4]);
+      else s+=mkBrick(sl.px,sl.py,sl.pw,sl.ph,sl.d[3],sl.d[4],'.3');});
+    $('#mkBuild').innerHTML=s+'</svg>';}
+  function mkGrab(el,i,e){
+    if(mkBusy)return;
+    e.preventDefault();
+    const r=el.getBoundingClientRect();
+    mkDrag={el:el,i:i,dx:e.clientX-r.left,dy:e.clientY-r.top,w:r.width,h:r.height,home:r};
+    el.classList.add('fly');
+    el.style.width=r.width+'px';el.style.height=r.height+'px';
+    el.style.left=r.left+'px';el.style.top=r.top+'px';}
+  function mkMove(e){
+    if(!mkDrag)return;
+    mkDrag.el.style.left=(e.clientX-mkDrag.dx)+'px';
+    mkDrag.el.style.top=(e.clientY-mkDrag.dy)+'px';}
+  function mkUp(e){
+    if(!mkDrag)return;
+    const d=mkDrag;mkDrag=null;
+    const fr=$('#mkField').getBoundingClientRect(),wh=mkFieldSize();
+    const kx=fr.width/wh[0],ky=fr.height/wh[1];
+    const cx=parseFloat(d.el.style.left)+d.w/2,cy=parseFloat(d.el.style.top)+d.h/2;
+    let best=-1,bd=1e9;
+    mkSlots.forEach(function(sl,j){
+      if(sl.filled)return;
+      const sx=fr.left+(sl.px+sl.pw/2)*kx,sy=fr.top+(sl.py+sl.ph/2)*ky;
+      const dist=Math.hypot(sx-cx,sy-cy);if(dist<bd){bd=dist;best=j;}});
+    const sl=best>=0?mkSlots[best]:null,me=mkSlots[d.i];
+    const fits=sl&&bd<Math.max(70,mkCell*1.1)*Math.max(kx,ky)&&
+      sl.d[2]===me.d[2]&&sl.d[3]===me.d[3]&&(sl.d[4]||'b')===(me.d[4]||'b');
+    if(fits){sl.filled=true;d.el.remove();chime(true);mkPaintField();
+      if(mkSlots.every(function(s){return s.filled;}))setTimeout(mkAlive,350);}
+    else{                                        /* мимо — деталь мягко возвращается */
+      blip();
+      d.el.classList.add('back');
+      d.el.style.left=d.home.left+'px';d.el.style.top=d.home.top+'px';
+      setTimeout(function(){d.el.classList.remove('fly','back');
+        d.el.style.left='';d.el.style.top='';d.el.style.width='';d.el.style.height='';},320);}}
+  window.addEventListener('pointermove',mkMove);
+  window.addEventListener('pointerup',mkUp);
+  window.addEventListener('pointercancel',mkUp);
+  /* конструкция оживает */
+  function mkAlive(){
+    mkBusy=true;
+    const g=$('#mkBuild'),a=mkModel.anim;
+    g.style.transition='transform 1.2s ease-in-out';
+    if(a==='drive')g.style.transform='translateX(26%)';
+    else if(a==='fly')g.style.transform='translateY(-42%)';
+    else{const wh=mkFieldSize(),L=mkLayout(mkModel.p,wh[0],wh[1]);   /* в домике загорается свет */
+      const x=L.ox+1.2*L.cell,y=L.oy+1.15*L.cell;
+      $('#mkBuild').firstChild.insertAdjacentHTML('beforeend',
+        '<rect x="'+x+'" y="'+y+'" width="'+(L.cell*1.6)+'" height="'+(L.cell*.6)+'" rx="8" fill="#FFE08A" stroke="#D8A21A" stroke-width="5"/>');}
+    confetti(screens.mk);chime(true);
+    setTimeout(function(){
+      g.style.transition='';g.style.transform='';
+      mkBusy=false;mkNext();},1500);}
+
+  /* ——— ход игры ——— */
+  function mkGo(){
+    if(mkStage===3)mkStage3();else if(mkStage===2)mkStage2();else mkStage1();}
+  function mkNext(){
+    const last=mkStage<3?5:MK_BUILD.length;
+    mkTask++;
+    if(mkTask<last){mkGo();return;}
+    mkPrize();}
+  function mkPrize(){
+    const id='wk_mk'+mkStage,first=!games[id],got=[];
+    if(first){stars+=1;coins+=5;markGame(id);got.push(['⭐','+1'],['🪙','+5']);}
+    else{coins+=2;got.push(['🪙','+2']);}
+    if(mkStage===3){
+      if(!games['wk_mk_all']){keys+=1;markGame('wk_mk_all');got.push(['🔑','+1']);}
+      if(mkErr===0){stars+=1;coins+=5;got.push(['⭐','+1'],['🪙','+5']);}}
+    save();updateHUD();
+    $('#mkWinTxt').textContent=mkStage===3?(mkErr===0?'🎉 Всё без ошибок!':'🎉 Ты настоящий мастер!')
+      :('🎉 Этап '+mkStage+' пройден!');
+    $('#mkGifts').innerHTML=got.map(function(g,i){
+      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#mkMore').textContent=mkStage<3?'▶️ Этап '+(mkStage+1):'🔁 Сыграть ещё';
+    $('#mkPrize').classList.add('on');
+    confetti(screens.mk);}
+  function openMk(){
+    show('mk');
+    if(heroSrc)$('#mkImg').src=heroSrc;
+    $('#mkName').textContent=playerName;
+    mkStage=1;mkTask=0;mkErr=0;mkBusy=false;mkDrag=null;
+    $('#mkPrize').classList.remove('on');
+    setTimeout(mkGo,60);}
+  $('#mkBack').onclick=function(){show('wkmenu');};
+  $('#mkOut').onclick=function(){$('#mkPrize').classList.remove('on');show('wkmenu');};
+  $('#mkMore').onclick=function(){
+    $('#mkPrize').classList.remove('on');
+    if(mkStage<3){mkStage++;mkTask=0;}else{mkStage=1;mkTask=0;mkErr=0;}
+    mkGo();};
 
   /* ---------- ПАРК: КРЕСТИКИ-НОЛИКИ ---------- */
   const PK_FACES=['🦊','🐰','🐻','🐼','🐵','🐨'];
