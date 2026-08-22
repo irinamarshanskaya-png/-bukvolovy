@@ -89,6 +89,9 @@
   .dots{display:flex;gap:3px;font-size:19px;max-width:120px;flex-wrap:wrap;justify-content:flex-end;}
   .dots span{filter:grayscale(1) opacity(.4);transition:.2s;} .dots span.on{filter:none;transform:scale(1.15);}
   .field{position:absolute;inset:0;overflow:hidden;touch-action:none;}
+  /* поляна: рисунок лежит слоем ниже букв и героя и не ловит нажатия */
+  .cfbg{position:absolute;inset:0;z-index:0;pointer-events:none;}
+  .cfbg svg{width:100%;height:100%;display:block;}
   .letter{position:absolute;font-family:'Fredoka';font-weight:700;width:64px;height:64px;display:flex;align-items:center;justify-content:center;font-size:38px;color:#fff;border-radius:50%;cursor:pointer;box-shadow:0 6px 14px rgba(0,0,0,.2), inset 0 -6px 0 rgba(0,0,0,.12);will-change:top;}
 
   .hero{position:absolute;bottom:12px;width:112px;height:112px;z-index:3;pointer-events:none;}
@@ -98,6 +101,15 @@
   @keyframes waddle{0%{transform:rotate(-8deg) translateY(0) scale(1,1);}25%{transform:rotate(0) translateY(-6px) scale(.97,1.05);}50%{transform:rotate(8deg) translateY(0) scale(1,1);}75%{transform:rotate(0) translateY(-6px) scale(.97,1.05);}100%{transform:rotate(-8deg) translateY(0) scale(1,1);}}
   .hero.cheer img{animation:cheerjump .5s ease;}
   @keyframes cheerjump{0%{transform:scale(1.18,.82) translateY(0);}30%{transform:scale(.86,1.18) translateY(-34px) rotate(-4deg);}55%{transform:scale(1.08,.94) translateY(-6px) rotate(3deg);}100%{transform:scale(1,1) translateY(0) rotate(0);}}
+  /* питомец на поляне: тот же сохранённый зверёк, что живёт дома, бежит рядом с героем */
+  .cpet{position:absolute;bottom:12px;width:96px;height:96px;z-index:2;pointer-events:none;display:none;}
+  .cpet.on{display:block;}
+  .cpet.st2{width:112px;height:112px;} .cpet.st3{width:128px;height:128px;}
+  .cpet .cpimg{width:100%;height:100%;transform-origin:50% 100%;animation:alive 1.7s ease-in-out infinite;
+    filter:drop-shadow(0 5px 7px rgba(0,0,0,.24));}
+  .cpet.run .cpimg{animation:waddle .38s ease-in-out infinite;}
+  .cpet.flip .cpimg{scale:-1 1;}
+  .cpet svg{width:100%;height:100%;display:block;}
   .chero{position:absolute;left:12px;bottom:8px;width:82px;height:82px;}
 
   .pie{position:absolute;font-size:56px;z-index:6;pointer-events:none;transform:translate(-50%,0) scale(0);transition:top .55s ease, transform .22s ease;filter:drop-shadow(0 6px 8px rgba(0,0,0,.25));}
@@ -958,7 +970,7 @@
 
   <section id="play" class="screen">
     <div class="topbar"><button class="backb" id="backBtn">← Буквы</button><div class="target" id="target"></div><div class="dots" id="dots"></div></div>
-    <div class="field" id="field"><div class="hero" id="hero"><img id="heroImg" alt="герой"></div></div>
+    <div class="field" id="field"><div class="cfbg" id="cfBg"></div><div class="cpet" id="cfPet"><div class="cpimg" id="cfPetArt"></div></div><div class="hero" id="hero"><img id="heroImg" alt="герой"></div></div>
   </section>
 
   <section id="lmenu" class="screen">
@@ -2122,23 +2134,54 @@
 
   const field=$('#field'),hero=$('#hero'),targetBox=$('#target'),dotsBox=$('#dots');
   let cur=null,items=[],running=false,raf=null,last=0,spawnT=0;let heroX=200,heroTargetX=200,dragging=false;const HW=172;
-  function startRound(ch){ensureAudio();cur={ch,need:4,caught:0,speed:80,maxOn:5,interval:.9};
+  /* скорость 90 вместо 80 и разброс 31 вместо 28 — буквы падают примерно на 12% быстрее,
+     этого хватает, чтобы стало живее, но поймать по-прежнему успевает дошкольник */
+  function startRound(ch){ensureAudio();cur={ch,need:4,caught:0,speed:90,maxOn:5,interval:.9};
     targetBox.innerHTML='<span class="lbl">Лови букву</span><span class="big">'+ch+'</span>';
     dotsBox.innerHTML='';for(let i=0;i<cur.need;i++){const s=document.createElement('span');s.textContent='⭐';dotsBox.appendChild(s);}
-    show('play');items.forEach(o=>o.el.remove());items=[];heroX=heroTargetX=field.clientWidth/2;placeHero();running=true;spawnT=0;last=performance.now();raf=requestAnimationFrame(loop);}
+    show('play');if(!$('#cfBg').innerHTML)$('#cfBg').innerHTML=cfArt();cfPetStart();
+    items.forEach(o=>o.el.remove());items=[];heroX=heroTargetX=field.clientWidth/2;placeHero();running=true;spawnT=0;last=performance.now();raf=requestAnimationFrame(loop);}
   function placeHero(){hero.style.left=(heroX-HW/2)+'px';}
   function pickL(){const t=Math.random()<.5;let x=cur.ch;if(!t){do{x=ALPHABET[Math.random()*ALPHABET.length|0];}while(x===cur.ch);}return{text:x,hit:t};}
   function spawn(){const d=pickL();const el=document.createElement('div');el.className='letter';el.textContent=d.text;el.style.background=LC[Math.random()*LC.length|0];
     const maxX=field.clientWidth-96,x=Math.random()*maxX;el.style.left=x+'px';el.style.top='-68px';
-    const o={el,x,y:-68,hit:d.hit,speed:cur.speed+Math.random()*28,done:false};el.addEventListener('pointerdown',ev=>{ev.stopPropagation();ev.preventDefault();resolveL(o);});field.appendChild(el);items.push(o);}
+    const o={el,x,y:-68,hit:d.hit,speed:cur.speed+Math.random()*31,done:false};el.addEventListener('pointerdown',ev=>{ev.stopPropagation();ev.preventDefault();resolveL(o);});field.appendChild(el);items.push(o);}
   function resolveL(o){if(!running||o.done)return;o.done=true;
     if(o.hit){chime(true);sayLetter(cur.ch);popText(field,o.x+8,o.y,'+1 ⭐','#FFB800');o.el.animate([{transform:'scale(1)'},{transform:'scale(1.5)',opacity:0}],{duration:300,fill:'forwards'});setTimeout(()=>rm(o),260);
       doCheer(hero);cur.caught++;if(dotsBox.children[cur.caught-1])dotsBox.children[cur.caught-1].classList.add('on');if(cur.caught>=cur.need)rewardL();
     }else{chime(false);o.el.style.background='#bfc7cf';popText(field,o.x+6,o.y,'ой','#8a97a3');o.el.animate([{transform:'scale(1)'},{transform:'scale(.4)',opacity:0}],{duration:250,fill:'forwards'});setTimeout(()=>rm(o),240);}}
   function doCheer(h){h.classList.remove('cheer');void h.offsetWidth;h.classList.add('cheer');setTimeout(()=>h.classList.remove('cheer'),520);}
+
+  /* ---------- ПИТОМЕЦ НА ПОЛЯНЕ ----------
+     Берём того же зверька, что куплен и подрос дома (houseSt.pet), — новых не заводим.
+     Яйцо не бегает, поэтому в игру выходит только вылупившийся, как и в комнате.
+     Питомец не приклеен к герою: он держится сбоку, а цель ещё и медленно качается
+     (cfPetT), поэтому даже у стоящего героя зверёк переминается и меняет место. */
+  let cfPetOn=false,cfPetX=0,cfPetW=96,cfPetT=0;
+  function cfPetStart(){const el=$('#cfPet'),p=houseSt.pet,st=p?hhPetStage():0;
+    cfPetOn=!!p&&st>0;
+    el.classList.toggle('on',cfPetOn);
+    el.classList.remove('st2','st3');
+    if(!cfPetOn){$('#cfPetArt').innerHTML='';return;}
+    if(st>=2)el.classList.add('st'+st);
+    cfPetW=st>=3?128:st>=2?112:96;
+    $('#cfPetArt').innerHTML=hhPetPic(p.k,st);
+    cfPetX=Math.max(cfPetW/2,field.clientWidth/2-120);cfPetT=0;cfPetPlace(false);}
+  function cfPetPlace(run){const el=$('#cfPet');
+    el.style.left=(cfPetX-cfPetW/2)+'px';
+    el.style.bottom=(12+(run?Math.abs(Math.sin(cfPetT*5))*7:Math.sin(cfPetT*1.6)*4))+'px';}
+  function cfPetStep(dt){if(!cfPetOn)return;cfPetT+=dt;
+    const side=cfPetX<heroX?-1:1;                 /* остаётся с той стороны, где уже бежит */
+    const wob=Math.sin(cfPetT*1.15)*30+Math.sin(cfPetT*.47)*16;
+    const tx=Math.max(cfPetW/2,Math.min(field.clientWidth-cfPetW/2,heroX+side*112+wob));
+    const dx=tx-cfPetX,L=Math.abs(dx),run=L>8;
+    if(run){cfPetX+=(dx>0?1:-1)*Math.min(520*dt,L);$('#cfPet').classList.toggle('flip',dx<0);}
+    $('#cfPet').classList.toggle('run',run);cfPetPlace(run);}
+
   function rewardL(){running=false;cancelAnimationFrame(raf);done.letters=true;markGame('letters_catch');save();earnPage('letters');items.forEach(o=>o.el.remove());items=[];flash(field,'Молодец!');
+    lhReward('letters_catch',1,1,field);
     const h=field.clientHeight,heroTop=h-12-172;pieEat(field,heroX,heroTop,hero,()=>openPicker());}
-  function loop(t){if(!running)return;const dt=Math.min(.05,(t-last)/1000);last=t;const prev=heroX;heroX+=(heroTargetX-heroX)*.22;placeHero();
+  function loop(t){if(!running)return;const dt=Math.min(.05,(t-last)/1000);last=t;const prev=heroX;heroX+=(heroTargetX-heroX)*.22;placeHero();cfPetStep(dt);
     if(Math.abs(heroX-prev)>.6||dragging)hero.classList.add('run');else hero.classList.remove('run');
     spawnT-=dt;if(spawnT<=0&&items.length<cur.maxOn){spawn();spawnT=cur.interval;}
     const h=field.clientHeight,heroTop=h-12-172,hcx=heroX;items.forEach(o=>{if(o.done)return;o.y+=o.speed*dt;o.el.style.top=o.y+'px';const cx=o.x+48,cy=o.y+48;
@@ -2147,7 +2190,73 @@
   field.addEventListener('pointerdown',e=>{dragging=true;steer(e);e.preventDefault();});field.addEventListener('pointermove',e=>{if(dragging)steer(e);});window.addEventListener('pointerup',()=>dragging=false);
   $('#backBtn').onclick=()=>{running=false;cancelAnimationFrame(raf);openPicker();};
 
+  /* ---------- «ПОЙМАЙ БУКВУ»: ПОЛЯНА ----------
+     Холст ровно 1360x765 — размер сцены, поэтому рисунок не растягивается и не обрезается.
+     Кирпичики те же, что у сцен локаций (nwTree/nwBush/nwFlower/flMush): поляна должна
+     смотреться из того же мира. Рисуется один раз при первом входе в игру. */
+  function cfCloud(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')" fill="#fff" opacity=".9">'
+    +'<ellipse cx="0" cy="4" rx="58" ry="22"/><circle cx="-36" cy="0" r="21"/>'
+    +'<circle cx="-8" cy="-16" r="28"/><circle cx="26" cy="-8" r="23"/><circle cx="52" cy="2" r="17"/></g>';}
+  /* пучок травы: три штриха, из них набирается «живая» текстура поля */
+  function cfTuft(x,y,s){return '<g transform="translate('+x+','+y+') scale('+(s||1)+')" fill="none" stroke="#5CA836" '
+    +'stroke-width="4.6" stroke-linecap="round"><path d="M0 0 q-4 -11 -11 -17"/><path d="M0 0 q1 -14 2 -22"/>'
+    +'<path d="M0 0 q6 -11 12 -16"/></g>';}
+  /* мелкий цветочек-звёздочка: такие рассыпаны по траве между крупными цветами */
+  function cfSpark(x,y,s,c){return '<g transform="translate('+x+','+y+') scale('+(s||1)+')" fill="'+c+'">'
+    +'<ellipse cx="0" cy="-7" rx="3.2" ry="5"/><ellipse cx="0" cy="7" rx="3.2" ry="5"/>'
+    +'<ellipse cx="-7" cy="0" rx="5" ry="3.2"/><ellipse cx="7" cy="0" rx="5" ry="3.2"/>'
+    +'<circle cx="0" cy="0" r="2.6" fill="#FFD23F"/></g>';}
+  function cfArt(){
+    let s='<svg viewBox="0 0 1360 765" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><linearGradient id="cfSky" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#9CDCF4"/><stop offset="1" stop-color="#D8F1FB"/></linearGradient></defs>';
+    s+='<rect width="1360" height="765" fill="url(#cfSky)"/>';
+    s+=cfCloud(238,128,1.05)+cfCloud(884,150,.85)+cfCloud(1326,92,.7);
+    /* дальний холм тёмно-зелёный, ближняя поляна светлее — так виден горизонт */
+    s+='<path d="M0 246 Q200 216 420 242 Q680 270 930 236 Q1150 210 1360 242 L1360 765 L0 765 Z" fill="#6FBF52"/>';
+    [[34,272,1.0],[126,280,1.25],[236,268,.8],[318,276,.9],[430,270,.75],[556,278,.85],
+     [676,270,.8],[790,276,.95],[902,266,1.05],[1000,280,1.3],[1116,270,.9],[1230,278,1.1],[1346,270,1.0]]
+      .forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    s+='<path d="M0 306 Q280 278 600 298 Q940 320 1360 288 L1360 765 L0 765 Z" fill="#8FD46A"/>';
+    /* два дерева по краям — как на фото: слева крупнее, справа поменьше */
+    s+=nwTree(88,330,1.62)+nwTree(1026,324,1.28);
+    /* кусты вдоль краёв поляны: закрывают углы и держат рамку вокруг игрового поля */
+    [[352,344,.72],[1168,352,.85],[96,462,1.2],[1256,478,1.15],[62,712,1.5],[1338,714,1.45],[860,398,.66]]
+      .forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    /* грибы, как на фото, — красные с белыми точками */
+    [[788,372,.8],[900,622,.95],[318,650,.9],[1116,556,.8],[600,742,.85]]
+      .forEach(function(m){s+=flMush(m[0],m[1],m[2],'#E8433C');});
+    /* цветы по всей траве: номер задаёт цвет из общей палитры NW_FC */
+    [[124,392,0],[298,368,1],[236,392,4],[404,384,2],[500,404,3],[672,378,0],[734,398,2],
+     [968,380,1],[1084,392,4],[1256,404,3],[52,556,1],[176,606,0],[268,556,2],[418,528,4],
+     [516,596,3],[598,540,0],[772,566,1],[848,522,2],[1004,588,4],[1148,536,0],[1284,586,1],
+     [148,712,2],[386,688,3],[502,742,0],[716,706,4],[934,730,1],[1064,678,2],[1206,724,3]]
+      .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.25);});
+    [[62,472,'#fff'],[344,470,'#fff'],[556,468,'#FFF6E2'],[880,458,'#fff'],[1198,466,'#fff'],
+     [212,748,'#fff'],[646,616,'#fff'],[1120,752,'#FFF6E2'],[430,614,'#fff']]
+      .forEach(function(f){s+=cfSpark(f[0],f[1],1.2,f[2]);});
+    [[204,428,1],[456,446,.85],[706,432,.9],[938,440,1],[1136,428,.85],[1310,446,.9],
+     [122,540,1],[352,592,.9],[622,668,1],[812,640,.85],[1042,616,1],[1244,660,.9],
+     [42,660,1],[542,712,.85],[996,748,1],[1300,540,.9]]
+      .forEach(function(g){s+=cfTuft(g[0],g[1],g[2]);});
+    return s+'</svg>';}
+
   /* ---------- ДОМ БУКВ: меню + игры ---------- */
+  /* Награда за пройденную игру Дома букв. Монеты зависят от сложности уровня:
+     1 — лёгкий 🪙5, 2 — средний 🪙6, 3 — сложный 🪙7, 4 и выше — очень сложный 🪙8.
+     Ключик один на всю игру: падает, когда пройдены все её уровни (total).
+     Всё держится на общем games{} — значит, за уже пройденный уровень награда
+     второй раз не выдаётся, а переигрывать сколько угодно никто не мешает. */
+  function lhReward(id,lvl,total,container){
+    const got=[];
+    if(!games[id+'_l'+lvl]){const c=4+Math.min(4,lvl);coins+=c;games[id+'_l'+lvl]=true;got.push('🪙 +'+c);}
+    if(!games[id+'_key']){let all=true;
+      for(let i=1;i<=total;i++)if(!games[id+'_l'+i])all=false;
+      if(all){keys+=1;games[id+'_key']=true;got.push('🔑 +1');}}
+    if(!got.length)return;
+    save();updateHUD();
+    got.forEach(function(g,i){setTimeout(function(){blip();
+      popText(container,container.clientWidth/2-46+(Math.random()*70-35),container.clientHeight*0.36,g,'#FFB800');},260+i*320);});}
   function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;const t=a[i];a[i]=a[j];a[j]=t;}return a;}
   function openLettersMenu(){const b=$('#lhScene');if(b&&!b.innerHTML)b.innerHTML=lhArt();show('lmenu');}
   $('#lmBack').onclick=goWorld;
@@ -2172,7 +2281,9 @@
     if(u===asmUnits[asmNext]){const slot=$('#asmSlots').children[asmNext];slot.innerHTML=colHTML(u);slot.classList.add('full');b.classList.add('used');ensureAudio();blip();sayU(u);asmNext++;if(asmNext>=asmUnits.length)asmWordDone();}
     else{chime(false);try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(e){}}}
   function asmWordDone(){const item=asmSet[asmRound];setTimeout(()=>speak(wordOf(item).toLowerCase()),260);asmRound++;
-    if(asmRound>=asmSet.length){setTimeout(()=>{done.letters=true;markGame('letters_assemble');save();earnPage('letters');flash(screens.asm,'Молодец!');confetti(screens.asm);const H=screens.asm.clientHeight;pieEat(screens.asm,54,H-8-126,$('#asmHero'),openLettersMenu);},800);}
+    if(asmRound>=asmSet.length){setTimeout(()=>{done.letters=true;markGame('letters_assemble');save();earnPage('letters');flash(screens.asm,'Молодец!');confetti(screens.asm);
+      /* «Собери слово» и «Составь из слогов» живут в одном экране, но награды у них свои */
+      lhReward(asmMode==='letters'?'letters_word':'letters_syllwords',1,1,screens.asm);const H=screens.asm.clientHeight;pieEat(screens.asm,54,H-8-126,$('#asmHero'),openLettersMenu);},800);}
     else{flash(screens.asm,'✓');setTimeout(loadAsm,1000);}}
 
   /* ---------- СОБЕРИ СЛОГ ---------- */
@@ -2201,7 +2312,7 @@
       shuf(slUnits.slice()).forEach(u=>{const b=document.createElement('button');b.className='tile';b.innerHTML=colHTML(u);b.onclick=()=>slTap(u,b);tiles.appendChild(b);});}}
   function slTap(u,b){if(b.classList.contains('used'))return;if(u===slUnits[slNext]){const slot=$('#slSlots').children[slNext];slot.innerHTML=colHTML(u);slot.classList.add('full');b.classList.add('used');blip();sayU(u);slNext++;if(slNext>=slUnits.length)slDone();}else wiggle(b);}
   function slDone(){setTimeout(()=>speak(slWord.toLowerCase()),280);flash(screens.slog,'Отлично! '+slWord+' 🎉');stars+=1;save();updateHUD();slI++;
-    if(slI>=slN){markGame('letters_syllables');setTimeout(()=>{confetti(screens.slog);earnPage('letters');const H=screens.slog.clientHeight;pieEat(screens.slog,54,H-8-126,$('#slogHero'),openLettersMenu);},750);}else setTimeout(nextSl,1150);}
+    if(slI>=slN){markGame('letters_syllables');lhReward('letters_slog',slLevel,5,screens.slog);setTimeout(()=>{confetti(screens.slog);earnPage('letters');const H=screens.slog.clientHeight;pieEat(screens.slog,54,H-8-126,$('#slogHero'),openLettersMenu);},750);}else setTimeout(nextSl,1150);}
 
   /* ---------- КАКОЙ БУКВЫ НЕ ХВАТАЕТ? ---------- */
   const GAP_L1=[['КОТ','🐱'],['ДОМ','🏠'],['СОН','😴'],['МАК','🌺'],['ЛУК','🧅'],['СЫР','🧀'],['КИТ','🐋'],['ЖУК','🪲'],['СОК','🧃'],['РАК','🦞']];
@@ -2219,7 +2330,7 @@
   function buildGap(cells,gapIdx,correct,word,ic,opts,hint){$('#gapPic').textContent='';$('#gapPic').style.display='none';$('#gapHint').textContent=hint;$('#gapProg').textContent=(gapI+1)+' / '+gapN;
     const row=$('#gapRow');row.innerHTML='';cells.forEach((c,i)=>{const d=document.createElement('div');d.className='gcell'+(i===gapIdx?' gap':'');d.innerHTML=i===gapIdx?'':colHTML(c);row.appendChild(d);});
     const box=$('#gapOpts');box.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='vopt';b.innerHTML=colHTML(o);b.onclick=()=>{if(o===correct){const cell=row.children[gapIdx];cell.className='gcell';cell.innerHTML=colHTML(o);blip();$('#gapPic').textContent=ic;$('#gapPic').style.display='block';setTimeout(()=>speak(word.toLowerCase()),280);flash(screens.gap,'Верно! '+word+' 🎉');stars+=1;save();updateHUD();gapI++;
-      if(gapI>=gapN){markGame('letters_gaps');setTimeout(()=>{confetti(screens.gap);earnPage('letters');const H=screens.gap.clientHeight;pieEat(screens.gap,54,H-8-126,$('#gapHero'),openLettersMenu);},850);}else setTimeout(nextGap,1250);}
+      if(gapI>=gapN){markGame('letters_gaps');lhReward('letters_gap',gapLevel,4,screens.gap);setTimeout(()=>{confetti(screens.gap);earnPage('letters');const H=screens.gap.clientHeight;pieEat(screens.gap,54,H-8-126,$('#gapHero'),openLettersMenu);},850);}else setTimeout(nextGap,1250);}
       else{wiggle(b);$('#gapHint').textContent='Попробуй ещё раз! 🙂';}};box.appendChild(b);});}
 
   /* ---------- CIRCUS: 30 раскрасок ---------- */
