@@ -2250,10 +2250,10 @@
   function lhReward(id,lvl,total,container){
     const got=[];
     if(!games[id+'_l'+lvl]){const c=4+Math.min(4,lvl);coins+=c;games[id+'_l'+lvl]=true;got.push('🪙 +'+c);}
+    else{coins+=2;got.push('🪙 +2');}   /* за повтор — тот же 🪙+2, что в Мастерской и «Что исчезло?» */
     if(!games[id+'_key']){let all=true;
       for(let i=1;i<=total;i++)if(!games[id+'_l'+i])all=false;
       if(all){keys+=1;games[id+'_key']=true;got.push('🔑 +1');}}
-    if(!got.length)return;
     save();updateHUD();
     got.forEach(function(g,i){setTimeout(function(){blip();
       popText(container,container.clientWidth/2-46+(Math.random()*70-35),container.clientHeight*0.36,g,'#FFB800');},260+i*320);});}
