@@ -988,6 +988,7 @@
   <section id="asm" class="screen">
     <div class="topbar"><button class="backb" id="asmBack">← Дом букв</button><h2 id="asmTitle">🧩 Собери слово</h2><div class="prog" id="asmProg"></div></div>
     <div class="asmwrap">
+      <div class="lvsel" id="asmLevels"></div>
       <div class="picbig" id="asmPic">🐱</div>
       <div class="slots" id="asmSlots"></div>
       <div class="tiles" id="asmTiles"></div>
@@ -2333,23 +2334,48 @@
     {parts:['БЕ','РЁ','ЗА'],ic:'🌳'},{parts:['ПО','ЛЯ','НА'],ic:'🌼'},{parts:['ПО','ЛЕ','НО'],ic:'🪵'},
     {parts:['РА','ДУ','ГА'],ic:'🌈'},{parts:['ПО','ГО','ДА'],ic:'🌦️'},{parts:['КО','МЕ','ТА'],ic:'☄️'},
     {parts:['ПЛА','НЕ','ТА'],ic:'🪐'}];
-  let asmMode,asmSet,asmRound,asmUnits,asmNext;
+  let asmMode,asmSet,asmRound,asmUnits,asmNext,asmLevel=1,asmMiss=0;
+  /* «Собери слово»: уровень — это длина слова. 1-й берёт и ЁЖ, поэтому «до 3 букв».
+     Номера 1..4 совпадают со сложностью в lhReward: 🪙5, 6, 7, 8. */
+  const ASM_LEN=[3,4,5,6],ASM_N=5;
   const sayU=u=>speak(u.toLowerCase());
   const VOWELS='АЕЁИОУЫЭЮЯ';
   function colHTML(u){let s='';for(const ch of u){let c;if(VOWELS.indexOf(ch)>=0)c='#E23B3B';else if(ch==='Ъ'||ch==='Ь')c='#8a8a8a';else c='#2E6FE0';s+='<span style="color:'+c+'">'+ch+'</span>';}return s;}
   function unitsOf(item){return asmMode==='letters'?item.w.split(''):item.parts;}
   function wordOf(item){return asmMode==='letters'?item.w:item.parts.join('');}
-  function startAssemble(mode){ensureAudio();asmMode=mode;asmSet=shuf(mode==='letters'?WORDS_LETTERS:WORDS_SYLL).slice(0,3);asmRound=0;$('#asmTitle').textContent=mode==='letters'?'🧩 Собери слово':'🧱 Составь из слогов';show('asm');loadAsm();}
+  function asmPool(){const n=ASM_LEN[asmLevel-1];
+    return WORDS_LETTERS.filter(o=>asmLevel===1?o.w.length<=n:o.w.length===n);}
+  function asmPick(){return asmMode==='letters'?shuf(asmPool()).slice(0,ASM_N):shuf(WORDS_SYLL).slice(0,3);}
+  function renderAsmLevels(){const box=$('#asmLevels');box.innerHTML='';
+    for(let i=1;i<=4;i++){const b=document.createElement('button');b.className='lvbtn'+(i===asmLevel?' sel':'');
+      b.textContent=i;b.title=ASM_LEN[i-1]+' букв';
+      b.onclick=(function(n){return function(){asmLevel=n;levels.asm=n;save();asmStart();};})(i);
+      box.appendChild(b);}}
+  /* новый заход на уровень: свежая пятёрка слов и обнулённый счётчик промахов */
+  function asmStart(){asmSet=asmPick();asmRound=0;asmMiss=0;if(asmMode==='letters')renderAsmLevels();loadAsm();}
+  function startAssemble(mode){ensureAudio();asmMode=mode;
+    $('#asmLevels').style.display=mode==='letters'?'':'none';
+    if(mode==='letters')asmLevel=levels.asm||1;
+    $('#asmTitle').textContent=mode==='letters'?'🧩 Собери слово':'🧱 Составь из слогов';show('asm');asmStart();}
   function loadAsm(){const item=asmSet[asmRound];asmUnits=unitsOf(item);asmNext=0;$('#asmPic').textContent=item.ic;$('#asmProg').textContent=(asmRound+1)+' / '+asmSet.length;
     const slots=$('#asmSlots');slots.innerHTML='';asmUnits.forEach(()=>{const d=document.createElement('div');d.className='slot';slots.appendChild(d);});
     const tiles=$('#asmTiles');tiles.innerHTML='';shuf(asmUnits.slice()).forEach(u=>{const b=document.createElement('button');b.className='tile';b.innerHTML=colHTML(u);b.onclick=()=>tapTile(u,b);tiles.appendChild(b);});}
   function tapTile(u,b){if(b.classList.contains('used'))return;
     if(u===asmUnits[asmNext]){const slot=$('#asmSlots').children[asmNext];slot.innerHTML=colHTML(u);slot.classList.add('full');b.classList.add('used');ensureAudio();blip();sayU(u);asmNext++;if(asmNext>=asmUnits.length)asmWordDone();}
-    else{chime(false);try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(e){}}}
+    else{chime(false);asmMiss++;try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(e){}}}
+  /* бонус за качество: пять слов без единого промаха — ⭐3, с парой промахов — ⭐1.
+     Считается каждый раз, а не только за первое прохождение: это награда за старание. */
+  function asmBonus(){const st=asmMiss===0?3:asmMiss<=2?1:0;if(!st)return;
+    stars+=st;save();updateHUD();
+    setTimeout(function(){flash(screens.asm,asmMiss===0?'Ни одной ошибки! ⭐+'+st:'Почти без ошибок! ⭐+'+st);
+      for(let i=0;i<st;i++)setTimeout(function(){blip();
+        popText(screens.asm,screens.asm.clientWidth/2-16+(Math.random()*80-40),screens.asm.clientHeight*0.28,'⭐','#FFB800');},i*190);},950);}
   function asmWordDone(){const item=asmSet[asmRound];setTimeout(()=>speak(wordOf(item).toLowerCase()),260);asmRound++;
     if(asmRound>=asmSet.length){setTimeout(()=>{done.letters=true;markGame('letters_assemble');save();earnPage('letters');flash(screens.asm,'Молодец!');confetti(screens.asm);
       /* «Собери слово» и «Составь из слогов» живут в одном экране, но награды у них свои */
-      lhReward(asmMode==='letters'?'letters_word':'letters_syllwords',1,1,screens.asm);const H=screens.asm.clientHeight;pieEat(screens.asm,54,H-8-126,$('#asmHero'),openLettersMenu);},800);}
+      if(asmMode==='letters'){lhReward('letters_word',asmLevel,4,screens.asm);asmBonus();}
+      else lhReward('letters_syllwords',1,1,screens.asm);
+      const H=screens.asm.clientHeight;pieEat(screens.asm,54,H-8-126,$('#asmHero'),openLettersMenu);},800);}
     else{flash(screens.asm,'✓');setTimeout(loadAsm,1000);}}
 
   /* ---------- СОБЕРИ СЛОГ ---------- */
