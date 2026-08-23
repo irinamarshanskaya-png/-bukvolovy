@@ -1752,7 +1752,7 @@
      load() разбирает сохранение раньше, чем объявлен код комнаты. */
   let houseSt={wall:'w0',floor:'f0',kitWall:'kw0',kitFloor:'kf0',bathWall:'bw0',bathFloor:'bf0',
     own:[],items:[],yard:[],kitchen:[],bath:[],kit:0,bathOpen:0,pet:'',
-    attic:0,attFound:[],attChest:[],attPets:[]};   /* чердак: открыт ли, какие секреты найдены, какие сундуки вскрыты и кто из тайных жителей поселился */
+    attic:0,attFound:[],attChest:[],attPets:[],attHide:[],attItems:[]};   /* чердак: открыт ли, какие секреты найдены, какие сундуки вскрыты и кто из тайных жителей поселился */
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
   function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,starsSpent,keysSpent,piesSpent,house:houseSt};}
@@ -7212,12 +7212,12 @@
                    ['gard','🪑','Садовая мебель'],['store','📦','Склад (чердак)']];
 
   /* houseSt объявлен выше, рядом с остальным состоянием: load() читает его раньше этого места */
-  let hhPut=null,hhDrag=null,hhCat='furn',hhRaf=0,hhAsk=null;
+  let hhPut=null,hhDrag=null,hhCat='furn',hhRaf=0,hhAsk=null,hhAskBox=null;
 
   /* комната и дворик — одна сцена с двумя наборами вещей */
   let hhWhere='room';
   /* на чердаке своей мебели нет — вещи там стоят по местам, поэтому список пустой */
-  function hhIt(){return hhWhere==='attic'?[]:hhWhere==='yard'?houseSt.yard:hhWhere==='kit'?houseSt.kitchen:hhWhere==='bath'?houseSt.bath:houseSt.items;}
+  function hhIt(){return hhWhere==='attic'?houseSt.attItems:hhWhere==='yard'?houseSt.yard:hhWhere==='kit'?houseSt.kitchen:hhWhere==='bath'?houseSt.bath:houseSt.items;}
   function hhSc(t){return t.sc||'room';}          /* в какой сцене живёт вид вещи */
   /* обои и полы у каждой сцены свои */
   function hhWallSet(){return hhWhere==='kit'?KIT_WALLS:hhWhere==='bath'?BATH_WALLS:HH_WALLS;}
@@ -7252,6 +7252,7 @@
       +'<div class="attweb" style="left:-1%;top:0">'+ATT_ART.web+'</div>'
       +'<div class="attweb" style="right:-1%;top:0;transform:scaleX(-1)">'+ATT_ART.web+'</div>';
     ATT.forEach(function(o){
+      if(hhAttHidden(o.id))return;                 /* убранный сундук ждёт на стеллаже */
       const chest=o.ch!=null,opened=chest&&hhChestDone(o.ch);
       const secret=o.gift&&!hhAttFound(o.id);
       /* открытый сундук рисуется другой картинкой — видно, что в нём уже побывали */
@@ -7279,10 +7280,30 @@
       if(o.gift&&!hhAttFound(o.id))setTimeout(function(){hhAttGift(o);},900);};}
   /* Секретный сундук: ключики тут именно тратятся, поэтому keysSpent растёт.
      Внутри вещи, которых нет в лавке; они ложатся на склад, ставит их ребёнок сам. */
+  /* Сундук убирается, как мебель в комнатах: тап поднимает подсказку, и там есть 📦.
+     Убранный сундук ложится на стеллаж чердака и возвращается оттуда. */
+  function hhAttHidden(id){return (houseSt.attHide||[]).indexOf(id)>=0;}
+  function hhAttNm(id){const o=ATT.filter(function(x){return x.id===id;})[0];return o?o.nm:'Сундук';}
+  function hhAttHide(id){
+    if(!houseSt.attHide)houseSt.attHide=[];
+    if(houseSt.attHide.indexOf(id)<0)houseSt.attHide.push(id);
+    save();hhAtticPaint();hhGrid();chime(true);
+    flash(screens.house,hhAttNm(id)+' на складе 📦');}
+  function hhAttBack(id){
+    const l=houseSt.attHide||[],j=l.indexOf(id);
+    if(j>=0)l.splice(j,1);
+    save();hhAtticPaint();hhGrid();chime(true);
+    flash(screens.house,hhAttNm(id)+' снова на чердаке 🌙');}
   function hhChestAsk(i){
     const c=ATT_CHESTS[i];if(!c)return;
-    if(hhChestDone(i)){flash(screens.house,c.n+' уже открыт ✨');return;}
-    if(keys<c.keys){chime(false);flash(screens.house,'Нужно ещё '+(c.keys-keys)+' 🔑');return;}
+    const o=ATT.filter(function(x){return x.ch===i;})[0];
+    const hide=o?function(){hhAttHide(o.id);}:null;
+    const done=hhChestDone(i),enough=keys>=c.keys;
+    /* один вопрос на все случаи: ✅ открыть (если есть чем), ✕ ничего, 📦 убрать */
+    if(done||!enough){
+      hhAskDo(done?(c.n+' уже открыт ✨ Убрать его?')
+        :('Для '+c.n+' нужно ещё '+(c.keys-keys)+' 🔑'),function(){blip();},hide);
+      return;}
     hhAskDo('Открыть '+c.n+' за '+c.keys+' 🔑?',function(){
       keys-=c.keys;keysSpent+=c.keys;
       if(!houseSt.attChest)houseSt.attChest=[];
@@ -7293,7 +7314,7 @@
         const t=hhKind(id);got.push(['🎁',t?t.n:id]);});
       save();updateHUD();chime(true);confetti(screens.house);
       hhAtticPaint();hhTabs();hhGrid();lhGifts(screens.house,got);
-      setTimeout(function(){flash(screens.house,'Сокровище на складе 📦 — отнеси его в комнату');},1600);});}
+      setTimeout(function(){flash(screens.house,'Сокровище на складе 📦 — поставь, где хочешь');},1600);},hide);}
   /* находка: начисляем и запоминаем, чтобы второй раз не выдавать */
   function hhAttGift(o){
     if(hhAttFound(o.id))return;
@@ -7405,10 +7426,16 @@
   function hhBathOpen(){return !!houseSt.bathOpen;}
   function hhOwned(id){return houseSt.own.indexOf(id)>=0;}
   function hhPlaced(id){return hhIt().some(function(o){return o.id===id;});}
-  /* стоит ли вещь хоть где-нибудь в доме: складу на чердаке важны все сцены сразу */
-  function hhPlacedAny(id){return [houseSt.items,houseSt.yard,houseSt.kitchen,houseSt.bath]
-    .some(function(l){return (l||[]).some(function(o){return o.id===id;});});}
-  const HH_SCN={room:'🛋️ В комнату',kit:'🍽️ На кухню',bath:'🛁 В ванную',yard:'🌳 Во дворик'};
+  /* все сцены разом: складу важно, стоит ли вещь хоть где-нибудь в доме */
+  function hhScenes(){return [houseSt.items,houseSt.yard,houseSt.kitchen,houseSt.bath,houseSt.attItems];}
+  function hhPlacedAny(id){return hhScenes().some(function(l){
+    return (l||[]).some(function(o){return o.id===id;});});}
+  /* Вещь одна на весь дом, поэтому перед тем как поставить её здесь, снимаем отовсюду.
+     Иначе стул, стоящий на чердаке, ставился бы в комнате вторым — и их стало бы два. */
+  function hhUnplace(id){
+    hhScenes().forEach(function(l){
+      if(!l)return;
+      for(let i=l.length-1;i>=0;i--)if(l[i].id===id)l.splice(i,1);});}
   /* «Уют и игрушки» покупаются за звёздочки, остальное — за монетки */
   const HH_EM={star:'⭐',key:'🔑',pie:'🥧',coin:'🪙'};
   function hhEm(t){return HH_EM[t.cur]||'🪙';}
@@ -7554,16 +7581,11 @@
     flash(screens.house,(t?t.n:'Вещь')+' уехала на чердак 📦');}
   function hhTakeBack(id){
     const t=hhKind(id);if(!t)return;
+    hhUnplace(id);                               /* если стояла в другой комнате — переезжает сюда */
     hhIt().push({id:id,x:50,y:t.wall?46:82});
     hhStartPut(hhIt().length-1,'back');
     hhShut(true);blip();hhGrid();
     flash(screens.house,'Поставь, куда хочешь 🏠');}
-  /* со стеллажа на чердаке вещь не ставят на месте — герой уносит её вниз, в её комнату */
-  function hhCarry(id){
-    const t=hhKind(id);if(!t)return;
-    const sc=hhSc(t);
-    hhSwitch(sc);
-    hhTakeBack(id);}
   /* покупка в лавке чердака: платим по ✅ уже внизу, где вещь и будут ставить */
   function hhBuyAtt(id,t){
     hhEndPut(true);
@@ -7571,16 +7593,20 @@
     hhBuy(id,t);}
   $('#hhOk').onclick=function(){if(hhAsk){hhAskEnd(true);return;}chime(true);hhEndPut(true);};
   $('#hhNo').onclick=function(){if(hhAsk){hhAskEnd(false);return;}blip();hhEndPut(false);};
-  $('#hhBox').onclick=function(){if(hhPut)hhStore(hhPut.i);};
+  $('#hhBox').onclick=function(){
+    if(hhAskBox){const f=hhAskBox;hhAskEnd(false);f();return;}   /* у вопроса своя коробочка */
+    if(hhPut)hhStore(hhPut.i);};
 
   /* ——— питомец: покупается за звёздочки и ходит следом ——— */
   /* общий вопрос «да/нет» на той же подсказке: покупка питомца, открытие кухни */
-  function hhAskDo(txt,fn){
-    hhEndPut(true);hhAsk=fn;
-    $('#hhTipTxt').innerHTML=coinHTML(txt);$('#hhBox').style.display='none';
+  /* boxFn — что делает 📦 в этом вопросе. Обычно кнопки там нет (покупка кухни, питомец),
+     но у сундуков чердака она есть: «убрать», а не «да/нет». */
+  function hhAskDo(txt,fn,boxFn){
+    hhEndPut(true);hhAsk=fn;hhAskBox=boxFn||null;
+    $('#hhTipTxt').innerHTML=coinHTML(txt);$('#hhBox').style.display=hhAskBox?'':'none';
     $('#hhTip').classList.add('on');hhShut(true);blip();}
   function hhAskEnd(yes){
-    const f=hhAsk;hhAsk=null;
+    const f=hhAsk;hhAsk=null;hhAskBox=null;
     $('#hhBox').style.display='';$('#hhTip').classList.remove('on');
     if(yes&&f)f();else blip();}
   let hhPetX=40,hhPetY=90;
@@ -7647,20 +7673,25 @@
     const box=$('#hhGrid');box.innerHTML='';
     if(hhCat==='store'){
       /* В комнате склад показывает только своё: дворовое — во дворике, кухонное — на кухне.
-         А на чердаке стоит общий стеллаж: там лежит всё убранное из всех комнат сразу,
-         и вещь оттуда не ставят на месте, а уносят вниз, в её комнату. */
+         А чердак — общий стеллаж: там лежит всё убранное из любой комнаты, и поставить
+         оттуда можно что угодно прямо на чердаке. Плюс сюда же уезжают убранные сундуки. */
       const att=hhWhere==='attic';
       const left=houseSt.own.filter(function(id){const t=hhKind(id);
-        return t&&(att?!hhPlacedAny(id):(hhSc(t)===hhWhere&&!hhPlaced(id)));});
-      if(!left.length){const d=document.createElement('div');
+        return t&&!hhPlacedAny(id)&&(att||hhSc(t)===hhWhere);});
+      const hid=att?(houseSt.attHide||[]):[];
+      if(!left.length&&!hid.length){const d=document.createElement('div');
         d.className='hhnote';d.textContent=att
-          ?'Стеллаж пустой. Всё, что уберёшь из комнат кнопкой 📦, приедет сюда — и заберётся обратно, когда захочешь.'
+          ?'Стеллаж пустой. Всё, что уберёшь кнопкой 📦, приедет сюда — и поставится обратно, когда захочешь.'
           :'Склад пустой. Убери сюда вещь из комнаты — и место освободится для новой.';
         box.appendChild(d);return;}
+      /* убранные сундуки чердака: это не вещи из каталога, поэтому карточка своя */
+      hid.forEach(function(aid){
+        const o=ATT.filter(function(x){return x.id===aid;})[0];if(!o)return;
+        const art=(o.ch!=null&&hhChestDone(o.ch))?ATT_ART.lockopen:ATT_ART[o.art];
+        box.appendChild(hhCell(art,o.nm,'🌙 Вернуть на чердак','',function(){hhAttBack(aid);}));});
       left.forEach(function(id){const t=hhKind(id),i=hhVar(id);
-        box.appendChild(hhCell(hhArt(id),t.v.length>1?t.n+' '+t.v[i][0]:t.n,
-          att?(HH_SCN[hhSc(t)]||'🏠 Поставить'):'🏠 Поставить','',
-          function(){if(att)hhCarry(id);else hhTakeBack(id);}));});
+        box.appendChild(hhCell(hhArt(id),t.v.length>1?t.n+' '+t.v[i][0]:t.n,'🏠 Поставить','',
+          function(){hhTakeBack(id);}));});
       return;}
     /* ——— лавка чердака: редкости, которых нет в комнатных магазинах ——— */
     if(hhCat==='ashop'){
@@ -7835,6 +7866,8 @@
     if(!houseSt.attFound)houseSt.attFound=[];
     if(!houseSt.attChest)houseSt.attChest=[];
     if(!houseSt.attPets)houseSt.attPets=[];
+    if(!houseSt.attHide)houseSt.attHide=[];
+    if(!houseSt.attItems)houseSt.attItems=[];
     /* первые записи хранили питомца строкой — он уже вырос */
     if(typeof houseSt.pet==='string')houseSt.pet=houseSt.pet?{k:'cat',at:0,seen:3}:'';
     /* записи первых дней хранили id без номера варианта — дописываем нулевой */
@@ -7845,6 +7878,8 @@
     houseSt.kitchen=houseSt.kitchen.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='kit';});
     houseSt.bath=houseSt.bath.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='bath';});
     houseSt.items=houseSt.items.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='room';});
+    /* на чердаке можно поставить что угодно из своего склада, поэтому по сцене не фильтруем */
+    houseSt.attItems=houseSt.attItems.filter(function(o){return !!hhKind(o.id);});
     /* в own лежат и вещи, и купленные обои с полами всех комнат (w0, kf1, bw2…) */
     houseSt.own=houseSt.own.filter(function(s){return hhKind(s)||/^(w|f|kw|kf|bw|bf)\d+$/.test(s);});
     if(heroSrc)$('#hhImg').src=heroSrc;
