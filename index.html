@@ -1376,7 +1376,7 @@
         <div class="attpets" id="hhAttPets"></div>
         <div class="hhladder" id="hhLadder"></div>
         <div class="hhitems" id="hhItems"></div>
-        <div class="hhpet" id="hhPet"><div class="hhpbub" id="hhPbub"></div><div class="hhpimg" id="hhPetArt"></div></div>
+        <div class="attpets" id="hhPets"></div>
         <div class="hhero" id="hhHero"><div class="hhname" id="hhName"></div><div class="hhbub" id="hhBub"></div><img id="hhImg" alt="герой"></div>
         <div class="hhtip" id="hhTip"><span id="hhTipTxt">Двигай пальцем</span><button class="btn small" id="hhOk">✅</button><button class="btn small coral" id="hhNo">✕</button><button class="btn small" id="hhBox" style="background:#8C93B8;box-shadow:0 6px 0 #6b7192">📦</button></div>
       </div>
@@ -1751,7 +1751,7 @@
   /* дом героя: что куплено и где стоит. Живёт рядом с остальным состоянием, потому что
      load() разбирает сохранение раньше, чем объявлен код комнаты. */
   let houseSt={wall:'w0',floor:'f0',kitWall:'kw0',kitFloor:'kf0',bathWall:'bw0',bathFloor:'bf0',
-    own:[],items:[],yard:[],kitchen:[],bath:[],kit:0,bathOpen:0,pet:'',
+    own:[],items:[],yard:[],kitchen:[],bath:[],kit:0,bathOpen:0,pet:'',pets:[],
     attic:0,attFound:[],attChest:[],attPets:[],attHide:[],attItems:[]};   /* чердак: открыт ли, какие секреты найдены, какие сундуки вскрыты и кто из тайных жителей поселился */
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
@@ -2237,13 +2237,16 @@
   function doCheer(h){h.classList.remove('cheer');void h.offsetWidth;h.classList.add('cheer');setTimeout(()=>h.classList.remove('cheer'),520);}
 
   /* ---------- ПИТОМЕЦ НА ПОЛЯНЕ ----------
-     Берём того же зверька, что куплен и подрос дома (houseSt.pet), — новых не заводим.
+     Берём того же зверька, что куплен и подрос дома. Питомцев теперь может быть много,
+     на поляну выходит первый вылупившийся — двоих на этом экране не разместить.
      Яйцо не бегает, поэтому в игру выходит только вылупившийся, как и в комнате.
      Питомец не приклеен к герою: он держится сбоку, а цель ещё и медленно качается
      (cfPetT), поэтому даже у стоящего героя зверёк переминается и меняет место. */
   let cfPetOn=false,cfPetX=0,cfPetW=96,cfPetT=0;
-  function cfPetStart(){const el=$('#cfPet'),p=houseSt.pet,st=p?hhPetStage():0;
-    cfPetOn=!!p&&st>0;
+  function cfPetStart(){const el=$('#cfPet');
+    const p=(houseSt.pets||[]).filter(function(x){return hhPetStage(x)>0;})[0];
+    const st=p?hhPetStage(p):0;
+    cfPetOn=!!p;
     el.classList.toggle('on',cfPetOn);
     el.classList.remove('st2','st3');
     if(!cfPetOn){$('#cfPetArt').innerHTML='';return;}
@@ -5846,39 +5849,78 @@
        (sc по умолчанию 'room'), но купить их можно только наверху — категория 'att'
        нарочно не входит ни в один набор вкладок комнат, поэтому в комнатной витрине
        их не видно. rare:1 — из секретных сундуков, за деньги не продаётся вовсе. ---- */
-    {k:'acloud',c:'att',n:'🌙 Кровать-облако',cur:'star',p:80,w:220,act:'lie',sx:0,sy:.38,
+    {k:'acloud',c:'att',n:'🌙 Кровать-облако',any:1,cur:'star',p:80,w:220,act:'lie',sx:0,sy:.38,
      v:[['белая','#FFFDF6','#A9C6DE'],['голубая','#CDEEFB','#4A90B5']]},
-    {k:'arocket',c:'att',n:'🚀 Кровать-ракета',cur:'star',p:100,w:230,act:'lie',sx:.05,sy:.34,
+    {k:'arocket',c:'att',n:'🚀 Кровать-ракета',any:1,cur:'star',p:100,w:230,act:'lie',sx:.05,sy:.34,
      v:[['красная','#FF8E7A','#C0483A'],['синяя','#7FB6F0','#2C5FA8']]},
-    {k:'ahorse',c:'att',n:'🎠 Лошадка-качалка',cur:'star',p:100,w:170,act:'play',sx:.45,sy:0,
+    {k:'ahorse',c:'att',n:'🎠 Лошадка-качалка',any:1,cur:'star',p:100,w:170,act:'play',sx:.45,sy:0,
      v:[['белая','#FFFDF6','#B7A98A'],['карусельная','#FF9AC4','#C4478F']]},
-    {k:'acarousel',c:'att',n:'🎡 Мини-карусель',cur:'star',p:80,w:180,act:'play',sx:.48,sy:0,
+    {k:'acarousel',c:'att',n:'🎡 Мини-карусель',any:1,cur:'star',p:80,w:180,act:'play',sx:.48,sy:0,
      v:[['разноцветная','#FFD23F','#D8A21A'],['розовая','#FF9AC4','#C4478F']]},
-    {k:'atelescope',c:'att',n:'🔭 Телескоп',cur:'star',p:50,w:155,act:'look',sx:.45,sy:0,
+    {k:'atelescope',c:'att',n:'🔭 Телескоп',any:1,cur:'star',p:50,w:155,act:'look',sx:.45,sy:0,
      v:[['синий','#4A6FA5','#2E4A73'],['золотой','#FFE9A8','#C79A18']]},
-    {k:'acabinet',c:'att',n:'🧪 Волшебный шкафчик',cur:'star',p:50,w:160,act:'look',sx:.45,sy:0,
+    {k:'acabinet',c:'att',n:'🧪 Волшебный шкафчик',any:1,cur:'star',p:50,w:160,act:'look',sx:.45,sy:0,
      v:[['сиреневый','#C9A8F0','#7B4FC0'],['мятный','#9EE3C6','#2E8F72']]},
-    {k:'adragon',c:'att',n:'🐉 Игрушечный дракон',cur:'star',p:50,w:125,act:'play',sx:.45,sy:0,
+    {k:'adragon',c:'att',n:'🐉 Игрушечный дракон',any:1,cur:'star',p:50,w:125,act:'play',sx:.45,sy:0,
      v:[['зелёный','#7BD055','#3E8F2E'],['фиолетовый','#C9A8F0','#7B4FC0']]},
-    {k:'amap',c:'att',n:'🗺️ Карта сокровищ',cur:'star',p:30,w:160,wall:1,
+    {k:'amap',c:'att',n:'🗺️ Карта сокровищ',any:1,cur:'star',p:30,w:160,wall:1,
      v:[['старинная','#F0DCA8','#B77A47']]},
-    {k:'arug',c:'att',n:'🌈 Радужный коврик',cur:'star',p:30,w:210,act:'play',flat:1,sx:0,sy:.05,
+    {k:'arug',c:'att',n:'🌈 Радужный коврик',any:1,cur:'star',p:30,w:210,act:'play',flat:1,sx:0,sy:.05,
      v:[['радужный','#FF9AC4','#C4478F']]},
-    {k:'alamp',c:'att',n:'⭐ Звёздный светильник',cur:'star',p:30,w:125,wall:1,
+    {k:'alamp',c:'att',n:'⭐ Звёздный светильник',any:1,cur:'star',p:30,w:125,wall:1,
      v:[['звёздный','#FFE9A8','#D8A21A'],['лунный','#CDEEFB','#4A90B5']]},
-    {k:'aplanets',c:'att',n:'🪐 Планеты на потолок',cur:'pie',p:5,w:230,wall:1,
+    {k:'aplanets',c:'att',n:'🪐 Планеты на потолок',any:1,cur:'pie',p:5,w:230,wall:1,
      v:[['с кольцом','#FFB86B','#C4701F']]},
-    {k:'abox',c:'att',n:'📦 Необычный сундук',cur:'key',p:2,w:145,act:'play',sx:.45,sy:0,
+    {k:'abox',c:'att',n:'📦 Необычный сундук',any:1,cur:'key',p:2,w:145,act:'play',sx:.45,sy:0,
      v:[['звёздный','#4A6FA5','#2E4A73'],['золотой','#FFE9A8','#C79A18']]},
     /* ---- редкости из секретных сундуков: цена 0 и rare:1, в лавке не показываются ---- */
-    {k:'agold',c:'att',n:'✨ Золотой стул',p:0,rare:1,w:115,act:'sit',sx:0,sy:.38,
+    {k:'agold',c:'att',n:'✨ Золотой стул',any:1,p:0,rare:1,w:115,act:'sit',sx:0,sy:.38,
      v:[['золотой','#FFE08A','#C79A18']]},
-    {k:'arainbow',c:'att',n:'🌈 Радужная кровать',p:0,rare:1,w:215,act:'lie',sx:.15,sy:.40,
+    {k:'arainbow',c:'att',n:'🌈 Радужная кровать',any:1,p:0,rare:1,w:215,act:'lie',sx:.15,sy:.40,
      v:[['радужная','#FF9AC4','#C4478F']]},
-    {k:'adrako',c:'att',n:'🐲 Дракончик',p:0,rare:1,w:112,act:'play',sx:.45,sy:0,
+    {k:'adrako',c:'att',n:'🐲 Дракончик',any:1,p:0,rare:1,w:112,act:'play',sx:.45,sy:0,
      v:[['бирюзовый','#7FE0D0','#2E8F72']]},
-    {k:'aproj',c:'att',n:'🌌 Проектор звёздного неба',p:0,rare:1,w:135,act:'look',sx:.45,sy:0,
-     v:[['ночной','#5A4A80','#2E2450']]}];
+    {k:'aproj',c:'att',n:'🌌 Проектор звёздного неба',any:1,p:0,rare:1,w:135,act:'look',sx:.45,sy:0,
+     v:[['ночной','#5A4A80','#2E2450']]},
+    /* ---- лавка чердака, полка за монетки: крупные вещи для тех, кто копит 🪙 ---- */
+    {k:'ahouse',c:'att',n:'🛏️ Кровать-домик',any:1,p:140,w:225,act:'lie',sx:0,sy:.34,
+     v:[['мятная','#9EE3C6','#2E8F72'],['песочная','#F3E0B8','#B7924E']]},
+    {k:'atent',c:'att',n:'⛺ Палатка-вигвам',any:1,p:160,w:200,act:'sit',sx:0,sy:.22,
+     v:[['в полоску','#FFF6E6','#C0483A'],['звёздная','#EAF0FF','#4A6FA5']]},
+    {k:'aarcade',c:'att',n:'🕹️ Игровой автомат',any:1,p:150,w:145,act:'play',sx:.45,sy:0,
+     v:[['синий','#4A6FA5','#2E4A73'],['красный','#E4573B','#A83A22']]},
+    {k:'awall',c:'att',n:'🧗 Шведская стенка',any:1,p:120,w:160,act:'play',sx:.45,sy:0,
+     v:[['деревянная','#E0B072','#8A5A2B'],['цветная','#8FD4F3','#2C7FA8']]},
+    {k:'abean',c:'att',n:'🫘 Кресло-мешок',any:1,p:80,w:150,act:'sit',sx:0,sy:.26,
+     v:[['малиновое','#F58BB8','#B03E71'],['лаймовое','#B7E86B','#6B9E2E'],['графит','#8C93B8','#5C6486']]},
+    {k:'aport',c:'att',n:'🪟 Окно-иллюминатор',any:1,p:60,w:150,wall:1,
+     v:[['морское','#CDEEFB','#B77A47'],['звёздное','#3E3358','#C9995C']]},
+    /* ---- вещи, снятые с чердака: рисунок берётся из ATT_ART (поле att), пропорция — ar.
+       Категория 'attfix' не входит ни в одну витрину, значит купить их нельзя —
+       они появляются в own, только когда ребёнок убирает их с чердака кнопкой 📦.
+       any:1 — брать со склада можно в любой комнате. ---- */
+    {k:'fshelf',c:'attfix',n:'🗄️ Стеллаж',rare:1,any:1,att:'shelf',ar:1.2,p:0,w:212,act:'look',sx:.45,sy:0,
+     v:[['чердачный','#A9743E','#6B4A2C']]},
+    {k:'fshop',c:'attfix',n:'🧰 Волшебный сундук',rare:1,any:1,att:'shop',ar:1,p:0,w:175,act:'play',sx:.45,sy:0,
+     v:[['сиреневый','#8C5FC0','#5E3A8C']]},
+    {k:'fchestbig',c:'attfix',n:'🧳 Кованый сундук',rare:1,any:1,att:'lockopen',ar:.8,p:0,w:135,act:'play',sx:.45,sy:0,
+     v:[['с золотом','#8B5E3C','#5C3E22']]},
+    {k:'fchestold',c:'attfix',n:'🧳 Старый сундук',rare:1,any:1,att:'chest',ar:.8,p:0,w:175,act:'sit',sx:.45,sy:0,
+     v:[['потёртый','#A9743E','#7A5133']]},
+    {k:'fbooks',c:'attfix',n:'📚 Стопка книг',rare:1,any:1,att:'books',ar:.846,p:0,w:135,act:'look',sx:.45,sy:0,
+     v:[['старые','#4A6FA5','#2E4A73']]},
+    {k:'ftele',c:'attfix',n:'🔭 Старый телескоп',rare:1,any:1,att:'tele',ar:1.231,p:0,w:160,act:'look',sx:.45,sy:0,
+     v:[['латунный','#4A6FA5','#2E4A73']]},
+    {k:'fteddy',c:'attfix',n:'🧸 Плюшевый мишка',rare:1,any:1,att:'teddy',ar:1.1,p:0,w:110,act:'play',sx:.45,sy:0,
+     v:[['потрёпанный','#D9A46A','#C08A52']]},
+    {k:'fboxes',c:'attfix',n:'📦 Коробки',rare:1,any:1,att:'boxes',ar:.867,p:0,w:175,act:'sit',sx:.45,sy:0,
+     v:[['картонные','#C9995C','#A9743E']]},
+    {k:'fmap',c:'attfix',n:'🗺️ Старая карта',rare:1,any:1,att:'map',ar:.733,p:0,w:175,wall:1,
+     v:[['сокровищ','#F0DCA8','#C9995C']]},
+    {k:'fpic',c:'attfix',n:'🖼️ Картина с морем',rare:1,any:1,att:'pic',ar:.833,p:0,w:135,wall:1,
+     v:[['в раме','#C9995C','#8B5E3C']]},
+    {k:'flamp',c:'attfix',n:'🕯️ Лампа с абажуром',rare:1,any:1,att:'lamp',ar:1.444,p:0,w:110,wall:1,
+     v:[['красная','#E4573B','#B8412C']]}];
 
   const HH_K={};HH_KINDS.forEach(function(t){HH_K[t.k]=t;});
   /* id вещи = вид + номер варианта. Старые записи без номера читаем как первый вариант */
@@ -5888,7 +5930,10 @@
 
   /* ——— картинки: те же плоские фигуры с обводкой, что и домики на карте ——— */
   function hhArt(id){
-    const t=hhKind(id);if(!t)return '';const i=hhVar(id),c=t.v[i]||t.v[0],A=c[1],B=c[2];
+    const t=hhKind(id);if(!t)return '';
+    /* вещи, снятые с чердака, рисуются той же картинкой, что стояла наверху */
+    if(t.att)return ATT_ART[t.att]||'';
+    const i=hhVar(id),c=t.v[i]||t.v[0],A=c[1],B=c[2];
     const S='<svg viewBox="0 0 100 100" style="width:100%;height:100%">',E='</svg>';
     const k=t.k;
     if(k==='bed'||k==='bedr'){const bd='<rect x="3" y="30" width="12" height="44" rx="5" fill="#B77A47" stroke="#7A4E28" stroke-width="3.4"/>'+
@@ -6911,6 +6956,55 @@
       '<g fill="#FFD23F"><path d="M50 8 l3.4 8 8 3.4 -8 3.4 -3.4 8 -3.4 -8 -8 -3.4 8 -3.4 z"/>'+
       '<circle cx="22" cy="20" r="3"/><circle cx="78" cy="18" r="2.6"/><circle cx="14" cy="42" r="2.2"/>'+
       '<circle cx="86" cy="40" r="2.4"/><circle cx="36" cy="34" r="2"/><circle cx="66" cy="36" r="2"/></g>'+E;
+    /* ---- лавка чердака за монетки ---- */
+    if(k==='ahouse')return S+'<ellipse cx="50" cy="93" rx="40" ry="5" fill="'+B+'" opacity=".2"/>'+
+      '<rect x="10" y="56" width="80" height="32" rx="8" fill="#FFF6E6" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="14" y="60" width="30" height="14" rx="6" fill="#FFFDF6" stroke="'+B+'" stroke-width="2.4"/>'+
+      '<path d="M6 56 L50 20 L94 56" fill="none" stroke="'+B+'" stroke-width="4" stroke-linejoin="round"/>'+
+      '<path d="M12 56 L50 25 L88 56 z" fill="'+A+'" stroke="'+B+'" stroke-width="3" stroke-linejoin="round"/>'+
+      '<path d="M28 56 v-16 h16 v16" fill="#FFF6E6" stroke="'+B+'" stroke-width="2.6" stroke-linejoin="round"/>'+
+      '<g fill="'+B+'"><rect x="14" y="86" width="9" height="10" rx="4"/><rect x="77" y="86" width="9" height="10" rx="4"/></g>'+
+      '<g fill="#FFD23F"><path d="M74 22 l2.4 5.6 5.6 2.4 -5.6 2.4 -2.4 5.6 -2.4 -5.6 -5.6 -2.4 5.6 -2.4 z"/></g>'+E;
+    if(k==='atent')return S+'<ellipse cx="50" cy="93" rx="40" ry="5" fill="'+B+'" opacity=".2"/>'+
+      '<path d="M50 8 L88 90 H12 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M50 8 v82" stroke="'+B+'" stroke-width="2.4" opacity=".45"/>'+
+      '<path d="M50 34 q-14 30 -20 56 h40 q-6 -26 -20 -56 z" fill="#3E3358" opacity=".55"/>'+
+      '<path d="M50 34 q-14 30 -20 56 M50 34 q14 30 20 56" stroke="'+B+'" stroke-width="2.8" fill="none"/>'+
+      '<path d="M50 8 l-6 -6 M50 8 l6 -6" stroke="#B77A47" stroke-width="3" stroke-linecap="round"/>'+
+      '<g fill="#FFD23F"><path d="M50 -2 l2.6 6 6 2.6 -6 2.6 -2.6 6 -2.6 -6 -6 -2.6 6 -2.6 z"/></g>'+
+      '<g fill="#fff" opacity=".55"><circle cx="28" cy="66" r="3.4"/><circle cx="72" cy="66" r="3.4"/>'+
+      '<circle cx="22" cy="80" r="3"/><circle cx="78" cy="80" r="3"/></g>'+E;
+    if(k==='aarcade')return S+'<ellipse cx="50" cy="93" rx="30" ry="5" fill="'+B+'" opacity=".2"/>'+
+      '<path d="M24 20 q0 -8 8 -8 h36 q8 0 8 8 v70 H24 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<rect x="30" y="22" width="40" height="28" rx="5" fill="#2E2A46" stroke="'+B+'" stroke-width="2.6"/>'+
+      '<g fill="#7BD055"><rect x="34" y="40" width="8" height="6" rx="2"/><rect x="46" y="34" width="8" height="6" rx="2"/>'+
+      '<rect x="58" y="42" width="8" height="6" rx="2"/></g>'+
+      '<circle cx="46" cy="30" r="3" fill="#FFD23F"/>'+
+      '<rect x="28" y="56" width="44" height="14" rx="6" fill="#FFF6E6" stroke="'+B+'" stroke-width="2.6"/>'+
+      '<circle cx="38" cy="63" r="4" fill="#E4573B" stroke="'+B+'" stroke-width="2"/>'+
+      '<circle cx="52" cy="63" r="3.4" fill="#4DB6E5" stroke="'+B+'" stroke-width="2"/>'+
+      '<circle cx="62" cy="63" r="3.4" fill="#FFD23F" stroke="'+B+'" stroke-width="2"/>'+
+      '<rect x="30" y="76" width="40" height="8" rx="4" fill="#fff" opacity=".35"/>'+E;
+    if(k==='awall')return S+'<ellipse cx="50" cy="93" rx="34" ry="5" fill="'+B+'" opacity=".2"/>'+
+      '<rect x="16" y="8" width="12" height="84" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="72" y="8" width="12" height="84" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<g fill="'+A+'" stroke="'+B+'" stroke-width="2.6">'+
+      '<rect x="22" y="18" width="56" height="7" rx="3.5"/><rect x="22" y="34" width="56" height="7" rx="3.5"/>'+
+      '<rect x="22" y="50" width="56" height="7" rx="3.5"/><rect x="22" y="66" width="56" height="7" rx="3.5"/></g>'+
+      '<path d="M62 8 q14 4 14 18" stroke="#E4573B" stroke-width="3.4" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="76" cy="30" r="6" fill="#FFD23F" stroke="#D8A21A" stroke-width="2.4"/>'+E;
+    if(k==='abean')return S+'<ellipse cx="50" cy="92" rx="38" ry="6" fill="'+B+'" opacity=".2"/>'+
+      '<path d="M14 88 q-6 -30 14 -44 q16 -11 34 -4 q22 9 22 30 q0 18 -14 18 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M26 52 q18 -12 38 -2" stroke="'+B+'" stroke-width="2.6" fill="none" opacity=".45"/>'+
+      '<path d="M20 72 q28 8 58 0" stroke="'+B+'" stroke-width="2.6" fill="none" opacity=".45"/>'+
+      '<path d="M32 44 q10 -8 20 -3" stroke="#fff" stroke-width="5" fill="none" opacity=".45" stroke-linecap="round"/>'+E;
+    if(k==='aport')return S+'<circle cx="50" cy="50" r="40" fill="'+B+'"/>'+
+      '<circle cx="50" cy="50" r="32" fill="'+A+'"/>'+
+      '<path d="M18 58 q16 -12 32 -2 q16 10 32 -4 v-2 a32 32 0 0 1 -64 0 z" fill="#4DB6E5" opacity=".55"/>'+
+      '<circle cx="62" cy="34" r="7" fill="#FFF3B0" opacity=".9"/>'+
+      '<g fill="'+B+'"><circle cx="50" cy="12" r="4"/><circle cx="50" cy="88" r="4"/>'+
+      '<circle cx="12" cy="50" r="4"/><circle cx="88" cy="50" r="4"/></g>'+
+      '<path d="M28 34 q10 -10 22 -6" stroke="#fff" stroke-width="5" fill="none" opacity=".55" stroke-linecap="round"/>'+E;
     return S+E;}
   const HH_DOOR='<svg viewBox="0 0 66 100" style="width:100%;height:100%">'+
     '<rect x="3" y="8" width="60" height="92" rx="6" fill="#C98F52" stroke="#7A4E28" stroke-width="3.6"/>'+
@@ -7138,7 +7232,6 @@
     {k:'bat',    n:'🦇 Летучая мышка',  mv:'fly', w:92,say:'Мышка машет крыльями! 🦇',snd:[2600,3400,'sine',.12,.12]},
     {k:'turtle', n:'🐢 Черепашка',      mv:'walk',w:86,say:'Черепашка не спешит 🐢', snd:[300,420,'sine',.2,.5]}];
   function hhAttPetKind(k){return ATT_PETS.filter(function(p){return p.k===k;})[0]||ATT_PETS[0];}
-  function hhAttPetHas(k){return (houseSt.attPets||[]).some(function(p){return p.k===k;});}
   /* стадии считаются ровно как у обычного питомца — от звёздочек после покупки */
   function hhAttPetGrow(p){return Math.max(0,earnedStars()-(p.at||0));}
   function hhAttPetStage(p){const g=hhAttPetGrow(p);return g>=PET_GROWN?3:g>=PET_TEEN?2:g>=PET_HATCH?1:0;}
@@ -7294,16 +7387,19 @@
      Убранный сундук ложится на стеллаж чердака и возвращается оттуда. */
   function hhAttHidden(id){return (houseSt.attHide||[]).indexOf(id)>=0;}
   function hhAttNm(id){const o=ATT.filter(function(x){return x.id===id;})[0];return o?o.nm:'Сундук';}
+  /* Убранный с чердака предмет перестаёт быть частью сцены и становится обычной вещью:
+     ложится в own, и дальше его можно поставить в любой комнате и двигать пальцем.
+     Три секретных сундука дают один и тот же кованый сундук — просто ×3.
+     Сокровища от этого не теряются: сундуки открываются на вкладке 🧳, а не тапом по сцене. */
+  const ATT_ITEM={shelf:'fshelf0',shop:'fshop0',box1:'fchestbig0',box2:'fchestbig0',box3:'fchestbig0',
+    books:'fbooks0',tele:'ftele0',chest:'fchestold0',teddy:'fteddy0',boxes:'fboxes0',
+    map:'fmap0',pic:'fpic0',lamp:'flamp0'};
   function hhAttHide(id){
     if(!houseSt.attHide)houseSt.attHide=[];
     if(houseSt.attHide.indexOf(id)<0)houseSt.attHide.push(id);
+    if(ATT_ITEM[id])houseSt.own.push(ATT_ITEM[id]);
     save();hhAtticPaint();hhGrid();chime(true);
-    flash(screens.house,hhAttNm(id)+' на складе 📦');}
-  function hhAttBack(id){
-    const l=houseSt.attHide||[],j=l.indexOf(id);
-    if(j>=0)l.splice(j,1);
-    save();hhAtticPaint();hhGrid();chime(true);
-    flash(screens.house,hhAttNm(id)+' снова на чердаке 🌙');}
+    flash(screens.house,hhAttNm(id)+' на складе 📦 — поставь, где хочешь');}
   function hhChestAsk(i){
     const c=ATT_CHESTS[i];if(!c)return;
     const o=ATT.filter(function(x){return x.ch===i;})[0];
@@ -7435,18 +7531,16 @@
   function hhYardOpen(){return earnedKeys()>=YARD_KEYS;}
   function hhKitOpen(){return !!houseSt.kit;}
   function hhBathOpen(){return !!houseSt.bathOpen;}
-  function hhOwned(id){return houseSt.own.indexOf(id)>=0;}
-  function hhPlaced(id){return hhIt().some(function(o){return o.id===id;});}
-  /* все сцены разом: складу важно, стоит ли вещь хоть где-нибудь в доме */
+  /* Одинаковых вещей можно купить сколько угодно, поэтому считаем не «есть/нет», а штуки:
+     own — сколько куплено, hhPlacedAny — сколько уже где-то стоит, разница — свободные. */
+  function hhOwned(id){return houseSt.own.filter(function(s){return s===id;}).length;}
+  function hhPlaced(id){return hhIt().filter(function(o){return o.id===id;}).length;}
+  function hhFree(id){return hhOwned(id)-hhPlacedAny(id);}
+  /* все сцены разом: складу важно, сколько таких вещей уже стоит по всему дому */
   function hhScenes(){return [houseSt.items,houseSt.yard,houseSt.kitchen,houseSt.bath,houseSt.attItems];}
-  function hhPlacedAny(id){return hhScenes().some(function(l){
-    return (l||[]).some(function(o){return o.id===id;});});}
-  /* Вещь одна на весь дом, поэтому перед тем как поставить её здесь, снимаем отовсюду.
-     Иначе стул, стоящий на чердаке, ставился бы в комнате вторым — и их стало бы два. */
-  function hhUnplace(id){
-    hhScenes().forEach(function(l){
-      if(!l)return;
-      for(let i=l.length-1;i>=0;i--)if(l[i].id===id)l.splice(i,1);});}
+  function hhPlacedAny(id){let n=0;
+    hhScenes().forEach(function(l){(l||[]).forEach(function(o){if(o.id===id)n++;});});
+    return n;}
   /* «Уют и игрушки» покупаются за звёздочки, остальное — за монетки */
   const HH_EM={star:'⭐',key:'🔑',pie:'🥧',coin:'🪙'};
   function hhEm(t){return HH_EM[t.cur]||'🪙';}
@@ -7485,14 +7579,9 @@
     $('#hhWrap').classList.toggle('yard',yard);
     $('#hhWrap').classList.toggle('kit',kit);
     if(!att)$('#hhTitle').textContent=yard?'🌳 Мой дворик':kit?'🍽️ Моя кухня':bth?'🛁 Ванная':'🏠 Мой дом';
-    /* обычный питомец на чердак не поднимается: наверху свои, тайные жители */
-    const pt=houseSt.pet,pel=$('#hhPet');
-    pel.classList.toggle('on',!!pt&&!att);
+    /* домашние питомцы на чердак не поднимаются, тайные жители — не спускаются */
+    hhPetsSync();if(!att)hhPetsGrew();
     hhAttPetsSync();if(att)hhAttPetsGrew();
-    if(pt){const st=hhPetStage();
-      pel.classList.remove('st0','st1','st2','st3');pel.classList.add('st'+st);
-      $('#hhPetArt').innerHTML=hhPetPic(pt.k,st);}
-    else $('#hhPetArt').innerHTML='';
     $('#hhCoins').innerHTML=COIN+' '+coins+'  ⭐ '+stars+'  🔑 '+keys+'  🥧 '+pies;}
 
   function hhZ(t,y){return t.flat?1:(t.wall?2:3+Math.round(y));}
@@ -7501,7 +7590,8 @@
     hhIt().forEach(function(o,i){
       const t=hhKind(o.id);if(!t)return;
       const el=document.createElement('div');el.className='hhit'+(hhPut&&hhPut.i===i?' on':'');
-      el.style.width=t.w+'px';el.style.height=t.w+'px';
+      /* ar — пропорция для вещей с чердака: их холст не квадратный */
+      el.style.width=t.w+'px';el.style.height=Math.round(t.w*(t.ar||1))+'px';
       el.style.left=o.x+'%';el.style.top=o.y+'%';el.style.zIndex=hhZ(t,o.y);
       el.innerHTML=hhArt(o.id);
       el.addEventListener('pointerdown',function(e){hhDown(i,e);});
@@ -7590,18 +7680,13 @@
     hhIt().splice(i,1);
     save();hhRender();hhGrid();chime(true);
     flash(screens.house,(t?t.n:'Вещь')+' уехала на чердак 📦');}
+  /* ставим одну свободную копию: другие такие же вещи в доме не трогаем */
   function hhTakeBack(id){
     const t=hhKind(id);if(!t)return;
-    hhUnplace(id);                               /* если стояла в другой комнате — переезжает сюда */
     hhIt().push({id:id,x:50,y:t.wall?46:82});
     hhStartPut(hhIt().length-1,'back');
     hhShut(true);blip();hhGrid();
     flash(screens.house,'Поставь, куда хочешь 🏠');}
-  /* покупка в лавке чердака: платим по ✅ уже внизу, где вещь и будут ставить */
-  function hhBuyAtt(id,t){
-    hhEndPut(true);
-    hhSwitch(hhSc(t));
-    hhBuy(id,t);}
   $('#hhOk').onclick=function(){if(hhAsk){hhAskEnd(true);return;}chime(true);hhEndPut(true);};
   $('#hhNo').onclick=function(){if(hhAsk){hhAskEnd(false);return;}blip();hhEndPut(false);};
   $('#hhBox').onclick=function(){
@@ -7620,52 +7705,85 @@
     const f=hhAsk;hhAsk=null;hhAskBox=null;
     $('#hhBox').style.display='';$('#hhTip').classList.remove('on');
     if(yes&&f)f();else blip();}
-  let hhPetX=40,hhPetY=90;
-  /* стадия считается от звёздочек, заработанных после покупки */
-  function hhPetGrow(){const p=houseSt.pet;return p?Math.max(0,earnedStars()-(p.at||0)):0;}
-  function hhPetStage(){const g=hhPetGrow();return g>=PET_GROWN?3:g>=PET_TEEN?2:g>=PET_HATCH?1:0;}
-  function hhPetLeft(){const g=hhPetGrow();return g>=PET_GROWN?0:g>=PET_TEEN?PET_GROWN-g:g>=PET_HATCH?PET_TEEN-g:PET_HATCH-g;}
-  function hhAskPet(p){
-    hhAskDo(p.n+' за '+HH_PET_PRICE+' ⭐?',function(){
-      stars-=HH_PET_PRICE;starsSpent+=HH_PET_PRICE;
-      houseSt.pet={k:p.k,at:earnedStars(),seen:0};
-      hhPetX=Math.max(8,Math.min(92,hhX-10));hhPetY=hhY;
-      chime(true);confetti(screens.house);save();updateHUD();hhPaint();hhGrid();
-      flash(screens.house,'Яйцо у тебя! Зарабатывай звёздочки 🥚');});}
-  /* яйцо не ходит, а вылупившийся идёт за героем, но не наступает на пятки */
+  /* ——— питомцы дома: их можно завести сколько угодно, и одинаковых тоже ———
+     Каждый живёт своей записью {k,at,seen} в houseSt.pets и растёт от звёздочек,
+     заработанных после покупки. Раньше питомец был один (houseSt.pet) и жил в
+     единственном элементе #hhPet; теперь их рисует слой #hhPets, как на чердаке. */
+  let petPos=[];                       /* положение каждого питомца, пересчитывается кадром */
+  function hhPetGrow(p){return p?Math.max(0,earnedStars()-(p.at||0)):0;}
+  function hhPetStage(p){const g=hhPetGrow(p);return g>=PET_GROWN?3:g>=PET_TEEN?2:g>=PET_HATCH?1:0;}
+  function hhPetLeft(p){const g=hhPetGrow(p);
+    return g>=PET_GROWN?0:g>=PET_TEEN?PET_GROWN-g:g>=PET_HATCH?PET_TEEN-g:PET_HATCH-g;}
+  function hhPetList(){return houseSt.pets||[];}
+  /* старая запись: один питомец в houseSt.pet, строкой или объектом */
+  function hhPetsFix(){
+    if(!houseSt.pets)houseSt.pets=[];
+    const old=houseSt.pet;
+    if(old){houseSt.pets.push(typeof old==='string'?{k:old,at:0,seen:3}:old);houseSt.pet='';}}
+  function hhPetsSync(){
+    const box=$('#hhPets');if(!box)return;
+    const list=hhPetList();
+    /* на чердаке гуляют свои, тайные жители — домашние туда не поднимаются */
+    if(hhWhere==='attic'||!list.length){box.innerHTML='';petPos=[];return;}
+    let s='';
+    list.forEach(function(p,i){
+      s+='<div class="hhpet on st'+hhPetStage(p)+'" data-i="'+i+'">'
+        +'<div class="hhpbub"></div><div class="hhpimg">'+hhPetPic(p.k,hhPetStage(p))+'</div></div>';});
+    box.innerHTML=s;
+    petPos=list.map(function(p,i){
+      return {x:Math.max(6,Math.min(94,hhX-9-i*6)),y:hhY,tap:0};});
+    Array.prototype.forEach.call(box.querySelectorAll('.hhpet'),function(el){
+      el.addEventListener('pointerdown',function(e){
+        e.preventDefault();hhPetTap(+el.getAttribute('data-i'));});});}
+  /* яйцо не ходит, а вылупившийся идёт за героем, но не наступает на пятки.
+     Каждому следующему питомцу — свой отступ, иначе они слипаются в одну кучу. */
   function hhPetStep(dt){
-    if(!houseSt.pet)return;
-    if(hhPetStage()===0){const e=$('#hhPet');e.classList.remove('walk');
-      e.style.left=hhPetX+'%';e.style.top=hhPetY+'%';e.style.zIndex=4+Math.round(hhPetY);return;}
-    const el=$('#hhPet'),side=hhPetX<hhX?-1:1;
-    const tx=Math.max(5,Math.min(95,hhX+side*8)),ty=Math.max(64,Math.min(99,hhY+2));
-    const dx=(tx-hhPetX)*hhRW/100,dy=(ty-hhPetY)*hhRH/100,L=Math.hypot(dx,dy);
-    const walk=L>22;
-    if(walk){const v=120*dt,k=Math.min(1,v/L);
-      hhPetX+=(tx-hhPetX)*k;hhPetY+=(ty-hhPetY)*k;
-      el.classList.toggle('flip',dx<0);}
-    el.classList.toggle('walk',walk);
-    el.style.left=hhPetX+'%';el.style.top=hhPetY+'%';el.style.zIndex=4+Math.round(hhPetY);
-    const b=$('#hhPbub');if(!hhPetTap){b.textContent='💛';b.classList.toggle('on',hhActT>0&&!walk);}}
+    const box=$('#hhPets');if(!box)return;
+    const list=hhPetList(),els=box.querySelectorAll('.hhpet');
+    if(!list.length||!els.length)return;
+    list.forEach(function(p,i){
+      const el=els[i],S=petPos[i];if(!el||!S)return;
+      const st=hhPetStage(p);
+      if(S.tap>0)S.tap-=dt;
+      if(st===0){                                  /* яйцо лежит там, где его оставили */
+        el.className='hhpet on st0'+(S.tap>0?' jump':'');
+        el.style.left=S.x+'%';el.style.top=S.y+'%';el.style.zIndex=4+Math.round(S.y);return;}
+      const side=S.x<hhX?-1:1,gap=8+i*6;
+      const tx=Math.max(5,Math.min(95,hhX+side*gap)),ty=Math.max(64,Math.min(99,hhY+2+i%3));
+      const dx=(tx-S.x)*hhRW/100,dy=(ty-S.y)*hhRH/100,L=Math.hypot(dx,dy);
+      const walk=L>22;
+      if(walk){const v=120*dt,k=Math.min(1,v/L);S.x+=(tx-S.x)*k;S.y+=(ty-S.y)*k;S.flip=dx<0;}
+      el.className='hhpet on st'+st+(walk?' walk':'')+(S.flip?' flip':'')+(S.tap>0?' jump':'');
+      el.style.left=S.x+'%';el.style.top=S.y+'%';el.style.zIndex=4+Math.round(S.y);
+      const b=el.querySelector('.hhpbub');
+      if(b&&S.tap<=0){b.textContent='💛';b.classList.toggle('on',hhActT>0&&!walk);}});}
   /* погладить питомца: подпрыгивает и радуется */
-  let hhPetTap=0;
-  $('#hhPet').addEventListener('pointerdown',function(e){
-    if(!houseSt.pet)return;
-    e.preventDefault();
-    const el=$('#hhPet'),b=$('#hhPbub'),egg=hhPetStage()===0;
-    b.textContent=egg?'✨':'💛';b.classList.add('on');
-    el.classList.add('jump');blip();
-    clearTimeout(hhPetTap);hhPetTap=setTimeout(function(){
-      el.classList.remove('jump');b.classList.remove('on');hhPetTap=0;},1200);});
-  /* вылупился или подрос, пока ребёнок играл — встречаем праздником */
-  function hhPetGrew(){
-    const p=houseSt.pet;if(!p)return;
-    const st=hhPetStage();if(st<=(p.seen||0))return;
-    p.seen=st;save();
-    setTimeout(function(){
-      if(!screens.house.classList.contains('active'))return;
-      confetti(screens.house);chime(true);
-      flash(screens.house,st===1?'Питомец вылупился! 🐣':st===3?'Питомец совсем вырос! 🎉':'Питомец подрос! 🌿');},700);}
+  function hhPetTap(i){
+    const p=hhPetList()[i],S=petPos[i];if(!p||!S)return;
+    const el=$('#hhPets').children[i];if(!el)return;
+    const b=el.querySelector('.hhpbub'),egg=hhPetStage(p)===0;
+    if(b){b.textContent=egg?'✨':'💛';b.classList.add('on');
+      setTimeout(function(){b.classList.remove('on');},1200);}
+    S.tap=0.6;blip();}
+  function hhAskPet(t){
+    hhAskDo(t.n+' за '+HH_PET_PRICE+' ⭐?',function(){
+      stars-=HH_PET_PRICE;starsSpent+=HH_PET_PRICE;
+      if(!houseSt.pets)houseSt.pets=[];
+      houseSt.pets.push({k:t.k,at:earnedStars(),seen:0});
+      chime(true);confetti(screens.house);save();updateHUD();hhPetsSync();hhGrid();
+      flash(screens.house,'Яйцо у тебя! Зарабатывай звёздочки 🥚');});}
+  /* вылупился или подрос, пока ребёнок играл — встречаем праздником, но один раз */
+  function hhPetsGrew(){
+    let ch=false;
+    hhPetList().forEach(function(p){
+      const st=hhPetStage(p);if(st<=(p.seen||0))return;
+      p.seen=st;ch=true;
+      setTimeout(function(){
+        if(!screens.house.classList.contains('active')||hhWhere==='attic')return;
+        confetti(screens.house);chime(true);
+        const n=hhPetKind(p.k);
+        flash(screens.house,st===1?(n.n+' вылупился! 🐣'):st===3?(n.n2+' совсем вырос! 🎉'):(n.n+' подрос! 🌿'));},700);});
+    if(ch)save();}
 
   /* ——— витрина ——— */
   function hhCats(){return hhWhere==='attic'?ATT_CATS:hhWhere==='yard'?YARD_CATS:hhWhere==='kit'?KIT_CATS:hhWhere==='bath'?BATH_CATS:HH_CATS;}
@@ -7686,38 +7804,40 @@
       /* В комнате склад показывает только своё: дворовое — во дворике, кухонное — на кухне.
          А чердак — общий стеллаж: там лежит всё убранное из любой комнаты, и поставить
          оттуда можно что угодно прямо на чердаке. Плюс сюда же уезжают убранные сундуки. */
+      /* Вещи с any:1 (то, что раньше стояло на чердаке) берутся в любой комнате.
+         Одинаковых может быть несколько, поэтому карточка одна на вид, а сколько
+         свободных — числом в подписи. */
       const att=hhWhere==='attic';
-      const left=houseSt.own.filter(function(id){const t=hhKind(id);
-        return t&&!hhPlacedAny(id)&&(att||hhSc(t)===hhWhere);});
-      const hid=att?(houseSt.attHide||[]):[];
-      if(!left.length&&!hid.length){const d=document.createElement('div');
+      const seen={},left=[];
+      houseSt.own.forEach(function(id){
+        if(seen[id])return;
+        const t=hhKind(id);if(!t)return;
+        if(hhFree(id)<=0)return;
+        if(!att&&!t.any&&hhSc(t)!==hhWhere)return;
+        seen[id]=1;left.push(id);});
+      if(!left.length){const d=document.createElement('div');
         d.className='hhnote';d.textContent=att
           ?'Стеллаж пустой. Всё, что уберёшь кнопкой 📦, приедет сюда — и поставится обратно, когда захочешь.'
           :'Склад пустой. Убери сюда вещь из комнаты — и место освободится для новой.';
         box.appendChild(d);return;}
-      /* убранные сундуки чердака: это не вещи из каталога, поэтому карточка своя */
-      hid.forEach(function(aid){
-        const o=ATT.filter(function(x){return x.id===aid;})[0];if(!o)return;
-        const art=(o.ch!=null&&hhChestDone(o.ch))?ATT_ART.lockopen:ATT_ART[o.art];
-        box.appendChild(hhCell(art,o.nm,'🌙 Вернуть на чердак','',function(){hhAttBack(aid);}));});
-      left.forEach(function(id){const t=hhKind(id),i=hhVar(id);
-        box.appendChild(hhCell(hhArt(id),t.v.length>1?t.n+' '+t.v[i][0]:t.n,'🏠 Поставить','',
-          function(){hhTakeBack(id);}));});
+      left.forEach(function(id){const t=hhKind(id),i=hhVar(id),free=hhFree(id);
+        box.appendChild(hhCell(hhArt(id),(t.v.length>1?t.n+' '+t.v[i][0]:t.n)+(free>1?' ×'+free:''),
+          '🏠 Поставить','',function(){hhTakeBack(id);}));});
       return;}
     /* ——— лавка чердака: редкости, которых нет в комнатных магазинах ——— */
     if(hhCat==='ashop'){
       HH_LIST.filter(function(e){return e.t.c==='att'&&!e.t.rare;}).forEach(function(e){
-        const t=e.t,own=hhOwned(e.id),em=hhEm(t),have=hhHave(t);
-        const nm=t.v.length>1?t.n+' '+t.v[e.i][0]:t.n;
-        const price=own?(hhPlacedAny(e.id)?'✔ уже твоя':'📦 на складе')
+        const t=e.t,own=hhOwned(e.id),free=hhFree(e.id),em=hhEm(t),have=hhHave(t);
+        const nm=(t.v.length>1?t.n+' '+t.v[e.i][0]:t.n)+(own>1?' ×'+own:'');
+        const price=free>0?('🏠 Поставить'+(free>1?' ('+free+')':''))
           :(have>=t.p?'🛒 '+t.p+' '+em:'ещё '+(t.p-have)+' '+em);
-        box.appendChild(hhCell(hhArt(e.id),nm,price,own?'have':(t.p>have?'no':''),function(){
-          if(own){flash(screens.house,hhPlacedAny(e.id)?'Она уже стоит в комнате 🏠':'Она на складе 📦');return;}
+        box.appendChild(hhCell(hhArt(e.id),nm,price,free>0?'have':(t.p>have?'no':''),function(){
+          if(free>0){hhTakeBack(e.id);return;}
           const nowHave=hhHave(t);
           if(t.p>nowHave){chime(false);flash(screens.house,'Нужно ещё '+(t.p-nowHave)+' '+em);return;}
-          hhBuyAtt(e.id,t);}));});
+          hhBuy(e.id,t);}));});
       const d=document.createElement('div');d.className='hhnote';
-      d.textContent='Тут самые крутые вещи. Обычную мебель покупают в комнатах, а эти — только на чердаке. Купил — и герой сразу несёт покупку вниз.';
+      d.textContent='Тут самые крутые вещи: обычную мебель покупают в комнатах, а эти — только на чердаке. Покупка встаёт прямо тут, а потом её можно убрать 📦 и поставить в любой комнате.';
       box.appendChild(d);return;}
     /* ——— секретные сундуки: за ключики, внутри редкости ——— */
     if(hhCat==='achest'){
@@ -7735,39 +7855,38 @@
       return;}
     /* ——— тайные жители чердака: вниз не спускаются, растут из яйца ——— */
     if(hhCat==='apet'){
+      /* тайных жителей тоже можно заводить сколько угодно, в том числе одинаковых */
       ATT_PETS.forEach(function(t){
-        const mine=(houseSt.attPets||[]).filter(function(p){return p.k===t.k;})[0];
-        if(mine){const st=hhAttPetStage(mine),left=hhAttPetLeft(mine);
-          box.appendChild(hhCell(hhAttPetPic(t.k,st),t.n,
-            st===0?'🥚 вылупится через '+left+' ⭐':st===3?'💛 совсем взрослый':'🌿 подрастёт через '+left+' ⭐','have'));
-          return;}
         const price=coins>=ATT_PET_PRICE?'🛒 '+ATT_PET_PRICE+' '+COIN:'ещё '+(ATT_PET_PRICE-coins)+' '+COIN;
         box.appendChild(hhCell(hhAttPetPic(t.k,1),t.n,price,coins>=ATT_PET_PRICE?'':'no',function(){
           if(coins<ATT_PET_PRICE){chime(false);flash(screens.house,'Нужно ещё '+(ATT_PET_PRICE-coins)+' '+COIN);return;}
           hhAskAttPet(t);}));});
+      (houseSt.attPets||[]).forEach(function(q){
+        const st=hhAttPetStage(q),left=hhAttPetLeft(q),t=hhAttPetKind(q.k);
+        box.appendChild(hhCell(hhAttPetPic(q.k,st),t.n,
+          st===0?'🥚 через '+left+' ⭐':st===3?'💛 совсем взрослый':'🌿 через '+left+' ⭐','have'));});
       const d=document.createElement('div');d.className='hhnote';
-      d.textContent='Тайные жители остаются на чердаке и вниз не спускаются — обычный питомец живёт своей жизнью. Каждый появляется из яйца и растёт от звёздочек.';
+      d.textContent='Тайные жители остаются на чердаке и вниз не спускаются, а домашние питомцы сюда не поднимаются. Заводи сколько захочешь: каждый появляется из яйца и растёт от звёздочек.';
       box.appendChild(d);return;}
     if(hhCat==='pet'){
-      const pt=houseSt.pet;
-      if(pt){                                   /* питомец уже есть — показываем, как он растёт */
-        const st=hhPetStage(),left=hhPetLeft(),p=hhPetKind(pt.k);
-        const nm=st===0?'Яйцо':st===1?p.n:st===2?p.n+' подрос':p.n2;
-        box.appendChild(hhCell(hhPetPic(pt.k,st),nm,
-          st===0?'🥚 вылупится через '+left+' ⭐':st===1?'🌱 подрастёт через '+left+' ⭐'
-          :st===2?'🌿 вырастет через '+left+' ⭐':'💛 совсем взрослый','have'));
-        const d=document.createElement('div');d.className='hhnote';
-        d.textContent=st===0?'Зарабатывай звёздочки в играх — и из яйца вылупится твой питомец.'
-          :st===3?'Питомец вырос! Ходит за тобой и по комнате, и по дворику.'
-          :'Питомец ходит за тобой и по комнате, и по дворику. Зарабатывай звёздочки — он подрастёт.';
-        box.appendChild(d);return;}
+      /* Питомцев можно завести сколько угодно, в том числе одинаковых: сверху всегда
+         четыре карточки для покупки, ниже — все, кто уже живёт, и как они растут. */
       HH_PETS.forEach(function(p){
         const price=stars>=HH_PET_PRICE?'🛒 '+HH_PET_PRICE+' ⭐':'ещё '+(HH_PET_PRICE-stars)+' ⭐';
         box.appendChild(hhCell(hhPetPic(p.k,1),p.n,price,stars>=HH_PET_PRICE?'':'no',function(){
           if(stars<HH_PET_PRICE){chime(false);flash(screens.house,'Нужно ещё '+(HH_PET_PRICE-stars)+' ⭐');return;}
           hhAskPet(p);}));});
+      const mine=hhPetList();
+      mine.forEach(function(q){
+        const st=hhPetStage(q),left=hhPetLeft(q),p=hhPetKind(q.k);
+        const nm=st===0?'Яйцо · '+p.n:st===1?p.n:st===2?p.n+' подрос':p.n2;
+        box.appendChild(hhCell(hhPetPic(q.k,st),nm,
+          st===0?'🥚 через '+left+' ⭐':st===1?'🌱 через '+left+' ⭐'
+          :st===2?'🌿 через '+left+' ⭐':'💛 совсем взрослый','have'));});
       const d=document.createElement('div');d.className='hhnote';
-      d.textContent='Выбери, кто будет жить с тобой. Питомец появится в яйце, вылупится и подрастёт, пока ты зарабатываешь звёздочки.';
+      d.textContent=mine.length
+        ? ('У тебя '+mine.length+' — все ходят за тобой по дому и дворику. Заводи ещё, сколько захочешь: каждый появляется в яйце и растёт от звёздочек.')
+        : 'Выбери, кто будет жить с тобой. Питомец появится в яйце, вылупится и подрастёт, пока ты зарабатываешь звёздочки. Их можно завести сколько угодно.';
       box.appendChild(d);return;}
     if(hhCat==='walls'){
       const WS=hhWallSet(),FS=hhFloorSet();
@@ -7785,16 +7904,17 @@
           hhSetBg(isW,f.id);
           chime(true);save();updateHUD();hhPaint();hhGrid();}));});
       return;}
+    /* Карточка вещи. Одинаковых можно купить сколько угодно: пока на складе есть
+       свободная — карточка её ставит, а когда все расставлены, снова показывает цену.
+       Сколько всего таких у ребёнка, пишем рядом с именем: «Стул ×3». */
     HH_LIST.filter(function(e){return e.t.c===hhCat;}).forEach(function(e){
-      const t=e.t,lk=hhLock(t),inRoom=hhPlaced(e.id),own=hhOwned(e.id);
-      const nm=t.v.length>1?t.n+' '+t.v[e.i][0]:t.n;
+      const t=e.t,lk=hhLock(t),own=hhOwned(e.id),free=hhFree(e.id);
+      const nm=(t.v.length>1?t.n+' '+t.v[e.i][0]:t.n)+(own>1?' ×'+own:'');
       const em=hhEm(t),have=hhHave(t);
-      const price=inRoom?'📦 На чердак':own?'🏠 Поставить':lk?('🔒 '+lk.t):t.p===0?'🎁 подарок':(have>=t.p?'🛒 '+t.p+' '+em:'ещё '+(t.p-have)+' '+em);
-      box.appendChild(hhCell(hhArt(e.id),nm,price,inRoom?'have':own?'':(lk||t.p>have)?'no':'',function(){
-        if(inRoom){                                  /* стоит дома — убираем на склад */
-          let j=-1;hhIt().forEach(function(o,n){if(o.id===e.id)j=n;});
-          if(j>=0)hhStore(j);return;}
-        if(own){hhTakeBack(e.id);return;}            /* лежит на складе — ставим обратно */
+      const price=free>0?('🏠 Поставить'+(free>1?' ('+free+')':''))
+        :lk?('🔒 '+lk.t):t.p===0?'🎁 подарок':(have>=t.p?'🛒 '+t.p+' '+em:'ещё '+(t.p-have)+' '+em);
+      box.appendChild(hhCell(hhArt(e.id),nm,price,free>0?'have':(lk||t.p>have)?'no':'',function(){
+        if(free>0){hhTakeBack(e.id);return;}         /* лежит на складе — ставим */
         if(lk){chime(false);flash(screens.house,'Открой: '+lk.t);return;}
         if(hhPut)hhEndPut(true);        /* прошлую примерку засчитываем, деньги уходят сейчас */
         const nowHave=hhHave(t);
@@ -7879,16 +7999,18 @@
     if(!houseSt.attPets)houseSt.attPets=[];
     if(!houseSt.attHide)houseSt.attHide=[];
     if(!houseSt.attItems)houseSt.attItems=[];
-    /* первые записи хранили питомца строкой — он уже вырос */
-    if(typeof houseSt.pet==='string')houseSt.pet=houseSt.pet?{k:'cat',at:0,seen:3}:'';
+    /* раньше питомец был один: старую запись переносим в список, строку — как выросшего кота */
+    if(typeof houseSt.pet==='string'&&houseSt.pet)houseSt.pet={k:'cat',at:0,seen:3};
+    hhPetsFix();
     /* записи первых дней хранили id без номера варианта — дописываем нулевой */
     houseSt.items.concat(houseSt.yard,houseSt.kitchen).forEach(function(o){if(!/[0-9]$/.test(o.id))o.id+='0';});
     houseSt.own=houseSt.own.map(function(s){return /[0-9]$/.test(s)?s:s+'0';});
     /* шторы убрали из каталога — чистим старые записи, обои и полы (w0,f1…) оставляем */
-    houseSt.yard=houseSt.yard.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='yard';});
-    houseSt.kitchen=houseSt.kitchen.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='kit';});
-    houseSt.bath=houseSt.bath.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='bath';});
-    houseSt.items=houseSt.items.filter(function(o){const t=hhKind(o.id);return t&&hhSc(t)==='room';});
+    /* вещи с any:1 (лавка чердака и снятое с чердака) живут в любой комнате */
+    houseSt.yard=houseSt.yard.filter(function(o){const t=hhKind(o.id);return t&&(t.any||hhSc(t)==='yard');});
+    houseSt.kitchen=houseSt.kitchen.filter(function(o){const t=hhKind(o.id);return t&&(t.any||hhSc(t)==='kit');});
+    houseSt.bath=houseSt.bath.filter(function(o){const t=hhKind(o.id);return t&&(t.any||hhSc(t)==='bath');});
+    houseSt.items=houseSt.items.filter(function(o){const t=hhKind(o.id);return t&&(t.any||hhSc(t)==='room');});
     /* на чердаке можно поставить что угодно из своего склада, поэтому по сцене не фильтруем */
     houseSt.attItems=houseSt.attItems.filter(function(o){return !!hhKind(o.id);});
     /* в own лежат и вещи, и купленные обои с полами всех комнат (w0, kf1, bw2…) */
@@ -7898,8 +8020,6 @@
     hhPaint();hhTabs();hhGrid();hhRender();hhSize();
     const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';
     hhWait=0.3;hhActT=0;hhAct='';
-    hhPetX=Math.max(6,Math.min(94,hhX-9));hhPetY=hhY;
-    hhPetGrew();
     if(!hhRaf){hhStep.p=0;hhRaf=requestAnimationFrame(hhStep);}}
   $('#hhHero').addEventListener('pointerdown',hhHeroDown);
   $('#hhBack').onclick=function(){hhEndPut(true);goWorld();};
@@ -7961,7 +8081,6 @@
     hhY=88;hhTx=hhX;hhTy=hhY;hhAct='';hhActT=0;hhActZ=0;hhWait=.5;
     hhPaint();hhTabs();hhGrid();hhRender();
     const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';h.style.zIndex=4+Math.round(hhY);
-    hhPetX=Math.max(6,Math.min(94,hhX+9));hhPetY=hhY;
     hhPose('');chime(true);save();}
   $('#hhSleep').onclick=function(){hhEndPut(true);enterSleep();};
 })();
