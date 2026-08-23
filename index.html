@@ -7504,8 +7504,15 @@
     const d=hhDrag;hhDrag=null;
     $('#hhHero').classList.remove('grab');
     if(d.hero){save();hhWait=0.6;return;}
-    if(!d.moved){hhGo(d.i);return;}   /* тап без движения — герой идёт к вещи */
+    if(!d.moved){hhTap(d.i);return;}   /* тап без движения — герой идёт к вещи */
     save();}
+  /* Тап по вещи делает сразу два дела: отправляет героя к ней и поднимает три кнопки
+     ✅ ✕ 📦. Раньше до 📦 можно было добраться только перетаскиванием, поэтому убрать
+     уже стоящую мебель или сундук ребёнок попросту не мог. Вещи на стене герою
+     недоступны (у них нет act), но убрать их теперь тоже получится. */
+  function hhTap(i){
+    hhStartPut(i,'move');
+    hhGo(i);}
   window.addEventListener('pointermove',hhMove);
   window.addEventListener('pointerup',hhUp);
   window.addEventListener('pointercancel',hhUp);
@@ -7517,7 +7524,7 @@
     const o=hhIt()[i];if(!o)return;
     hhPut={i:i,mode:mode||'move',x:o.x,y:o.y,pay:pay||null};
     $('#hhTipTxt').innerHTML=coinHTML(pay?('Нравится? ✅ — беру за '+pay.n+' '+hhEm(pay.t))
-      :mode==='move'?'Переставь, куда хочешь':'Поставь, куда хочешь');
+      :mode==='move'?'Двигай пальцем или убери 📦':'Поставь, куда хочешь');
     hhRender();}
   /* деньги списываются только по ✅ — до этого вещь просто примеряют */
   function hhCommit(){
@@ -7907,9 +7914,6 @@
       :w==='kit'?(from==='attic'?78:from==='bath'?86:12):12;
     hhY=88;hhTx=hhX;hhTy=hhY;hhAct='';hhActT=0;hhActZ=0;hhWait=.5;
     hhPaint();hhTabs();hhGrid();hhRender();
-    /* на чердак приходят за покупками, поэтому витрину показываем сразу:
-       свёрнутую панель за язычком ребёнок просто не находит */
-    if(w==='attic')hhShut(false);
     const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';h.style.zIndex=4+Math.round(hhY);
     hhPetX=Math.max(6,Math.min(94,hhX+9));hhPetY=hhY;
     hhPose('');chime(true);save();}
