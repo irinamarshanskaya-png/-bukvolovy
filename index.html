@@ -5701,7 +5701,125 @@
     {k:'bshelf',c:'bcozy',n:'Полочка',sc:'bath',p:12,w:160,wall:1,
      v:[['белая','#FFF6E6','#B7A98A'],['деревянная','#E0B072','#8A5A2B']]},
     {k:'scales',c:'bcozy',n:'Весы',sc:'bath',p:14,w:120,flat:1,sx:0,sy:.05,
-     v:[['белые','#FFF6E6','#B7A98A'],['голубые','#CDEEFB','#4A90B5']]}];
+     v:[['белые','#FFF6E6','#B7A98A'],['голубые','#CDEEFB','#4A90B5']]},
+    /* ---- ванная: по 20 вещей в каждой из четырёх категорий ----
+       Крупная мебель — за монетки, мелочь — за звёздочки: так у ребёнка всегда
+       есть что купить сразу и на что копить. */
+    {k:'wmachine',c:'bwash',n:'Стиральная машина',sc:'bath',p:24,w:150,act:'look',sx:.42,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['голубая','#CDEEFB','#4A90B5'],['мятная','#BFE9D6','#2E8F72']]},
+    {k:'wcabtall',c:'bwash',n:'Пенал',sc:'bath',p:20,w:110,act:'look',sx:.42,sy:0,
+     v:[['белый','#FFF6E6','#B7A98A'],['деревянный','#E0B072','#8A5A2B']]},
+    {k:'wcabsink',c:'bwash',n:'Тумба с раковиной',sc:'bath',p:22,w:170,act:'look',sx:.42,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['голубая','#CDEEFB','#4A90B5']]},
+    {k:'wsinkdbl',c:'bwash',n:'Двойная раковина',sc:'bath',p:24,w:200,act:'look',sx:.42,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['мятная','#BFE9D6','#2E8F72']]},
+    {k:'wbathkid',c:'bwash',n:'Детская ванночка',sc:'bath',p:16,w:150,act:'play',sx:.42,sy:0,
+     v:[['розовая','#FFE3EE','#CE6E8C'],['голубая','#CDEEFB','#4A90B5']]},
+    {k:'wtub',c:'bwash',n:'Тазик',sc:'bath',cur:'star',p:2,w:100,act:'play',sx:.42,sy:0,
+     v:[['красный','#FF8E7A','#C0483A'],['синий','#8FD4F3','#3E93C0']]},
+    {k:'wsteps',c:'bwash',n:'Ступенька',sc:'bath',p:10,w:110,act:'play',sx:.42,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['жёлтая','#FFD86B','#D8A21A']]},
+    {k:'wbench',c:'bwash',n:'Скамеечка',sc:'bath',p:12,w:130,act:'sit',sx:.42,sy:0,
+     v:[['деревянная','#E0B072','#8A5A2B'],['белая','#FFF6E6','#B7A98A']]},
+    {k:'wbrushtoil',c:'bwash',n:'Ёршик',sc:'bath',cur:'star',p:1,w:80,act:'look',sx:.42,sy:0,
+     v:[['белый','#FFF6E6','#B7A98A'],['голубой','#CDEEFB','#4A90B5']]},
+    {k:'wtap',c:'bwash',n:'Кран',sc:'bath',cur:'star',p:2,w:100,wall:1,
+     v:[['серебряный','#DCE6EF','#7A86A8'],['золотой','#FFE9A8','#D8A21A']]},
+    {k:'wcurtain',c:'bwash',n:'Шторка',sc:'bath',p:14,w:170,wall:1,
+     v:[['в горошек','#CDEEFB','#4A90B5'],['розовая','#FFD9DE','#D98BAA'],['мятная','#CDEFDF','#69B49A']]},
+    {k:'wboiler',c:'bwash',n:'Бойлер',sc:'bath',p:18,w:110,wall:1,
+     v:[['белый','#FFF6E6','#B7A98A'],['серый','#D6DBE2','#8B9099']]},
+    {k:'wrail',c:'bwash',n:'Сушилка',sc:'bath',p:12,w:150,wall:1,
+     v:[['серебряная','#DCE6EF','#7A86A8'],['белая','#FFF6E6','#B7A98A']]},
+    {k:'wmirrorbig',c:'bwash',n:'Большое зеркало',sc:'bath',p:18,w:150,wall:1,
+     v:[['в раме','#CFEFFA','#C9A063'],['без рамы','#CFEFFA','#7FB4CE']]},
+
+    {k:'sgel',c:'bsoap',n:'Гель для душа',sc:'bath',cur:'star',p:2,w:95,act:'look',sx:.42,sy:0,
+     v:[['зелёный','#9EE3C6','#2E8F72'],['голубой','#8FD4F3','#3E93C0']]},
+    {k:'sfoam',c:'bsoap',n:'Пена для ванны',sc:'bath',cur:'star',p:2,w:100,act:'play',sx:.42,sy:0,
+     v:[['клубничная','#F58BB8','#B03E71'],['лимонная','#FFD86B','#D8A21A']]},
+    {k:'sbalm',c:'bsoap',n:'Бальзам',sc:'bath',cur:'star',p:2,w:95,act:'look',sx:.42,sy:0,
+     v:[['сиреневый','#C9A8F0','#7B4FC0'],['персиковый','#FFC59A','#C4701F']]},
+    {k:'spaste',c:'bsoap',n:'Зубная паста',sc:'bath',cur:'star',p:1,w:95,act:'look',sx:.42,sy:0,
+     v:[['мятная','#CDEFDF','#2E8F72'],['клубничная','#FFC2D8','#CE6E8C']]},
+    {k:'scup',c:'bsoap',n:'Стаканчик',sc:'bath',cur:'star',p:1,w:85,act:'look',sx:.42,sy:0,
+     v:[['голубой','#CDEEFB','#4A90B5'],['жёлтый','#FFD86B','#D8A21A']]},
+    {k:'scomb',c:'bsoap',n:'Расчёска',sc:'bath',cur:'star',p:1,w:90,act:'look',sx:.42,sy:0,
+     v:[['розовая','#FFC2D8','#CE6E8C'],['голубая','#8FD4F3','#3E93C0']]},
+    {k:'shairdry',c:'bsoap',n:'Фен',sc:'bath',p:12,w:110,act:'play',sx:.42,sy:0,
+     v:[['белый','#FFF6E6','#B7A98A'],['розовый','#FFC2D8','#CE6E8C']]},
+    {k:'smirror',c:'bsoap',n:'Зеркальце',sc:'bath',cur:'star',p:2,w:90,act:'look',sx:.42,sy:0,
+     v:[['с ручкой','#CFEFFA','#C9A063'],['розовое','#CFEFFA','#CE6E8C']]},
+    {k:'sdisp',c:'bsoap',n:'Дозатор',sc:'bath',cur:'star',p:2,w:90,act:'play',sx:.42,sy:0,
+     v:[['белый','#FFF6E6','#B7A98A'],['зелёный','#9EE3C6','#2E8F72']]},
+    {k:'sbrushbody',c:'bsoap',n:'Щётка с ручкой',sc:'bath',cur:'star',p:1,w:95,act:'play',sx:.42,sy:0,
+     v:[['деревянная','#E0B072','#8A5A2B'],['голубая','#8FD4F3','#3E93C0']]},
+    {k:'scotton',c:'bsoap',n:'Ватные диски',sc:'bath',cur:'star',p:1,w:90,act:'look',sx:.42,sy:0,
+     v:[['белые','#FFFDF6','#C9D6E2'],['в коробочке','#FFE3EE','#CE6E8C']]},
+    {k:'sqtips',c:'bsoap',n:'Палочки',sc:'bath',cur:'star',p:1,w:85,act:'look',sx:.42,sy:0,
+     v:[['в баночке','#CDEEFB','#4A90B5'],['в жёлтой','#FFD86B','#D8A21A']]},
+    {k:'scream',c:'bsoap',n:'Крем',sc:'bath',cur:'star',p:1,w:85,act:'look',sx:.42,sy:0,
+     v:[['розовый','#FFC2D8','#CE6E8C'],['голубой','#CDEEFB','#4A90B5']]},
+    {k:'sperfume',c:'bsoap',n:'Флакончик',sc:'bath',cur:'star',p:3,w:85,act:'look',sx:.42,sy:0,
+     v:[['сиреневый','#C9A8F0','#7B4FC0'],['золотой','#FFE9A8','#D8A21A']]},
+
+    {k:'toctopus',c:'btoy',n:'Осьминожка',sc:'bath',cur:'star',p:2,w:110,act:'play',sx:.42,sy:0,
+     v:[['розовый','#FF9AC4','#C4478F'],['фиолетовый','#C9A8F0','#7B4FC0']]},
+    {k:'tturtle',c:'btoy',n:'Черепашка',sc:'bath',cur:'star',p:2,w:110,act:'play',sx:.42,sy:0,
+     v:[['зелёная','#7BD055','#3E8F2E'],['голубая','#8FD4F3','#3E93C0']]},
+    {k:'tcrab',c:'btoy',n:'Крабик',sc:'bath',cur:'star',p:2,w:105,act:'play',sx:.42,sy:0,
+     v:[['красный','#FF6B6B','#C0483A'],['оранжевый','#FF9A5A','#C4501F']]},
+    {k:'tstar',c:'btoy',n:'Морская звезда',sc:'bath',cur:'star',p:1,w:100,act:'play',sx:.42,sy:0,
+     v:[['оранжевая','#FFB86B','#C4701F'],['розовая','#FF9AC4','#C4478F']]},
+    {k:'tshell',c:'btoy',n:'Ракушка',sc:'bath',cur:'star',p:1,w:95,act:'look',sx:.42,sy:0,
+     v:[['розовая','#FFD9DE','#D98BAA'],['перламутр','#E7DAFB','#9A7FD0']]},
+    {k:'tseahorse',c:'btoy',n:'Морской конёк',sc:'bath',cur:'star',p:2,w:95,act:'play',sx:.42,sy:0,
+     v:[['жёлтый','#FFD86B','#D8A21A'],['бирюзовый','#7FE0D0','#2E8F72']]},
+    {k:'tdolphin',c:'btoy',n:'Дельфин',sc:'bath',cur:'star',p:3,w:130,act:'play',sx:.42,sy:0,
+     v:[['синий','#7FB6F0','#2C5FA8'],['серый','#C9D6E2','#7A86A8']]},
+    {k:'tfrog',c:'btoy',n:'Лягушонок',sc:'bath',cur:'star',p:2,w:105,act:'play',sx:.42,sy:0,
+     v:[['зелёный','#7BD055','#3E8F2E'],['салатовый','#B7E86B','#6B9E2E']]},
+    {k:'tpenguin',c:'btoy',n:'Пингвинчик',sc:'bath',cur:'star',p:2,w:100,act:'play',sx:.42,sy:0,
+     v:[['классический','#3A3550','#1E1B2E'],['голубой','#4A6FA5','#2E4A73']]},
+    {k:'tsub',c:'btoy',n:'Подводная лодка',sc:'bath',cur:'star',p:3,w:130,act:'play',sx:.42,sy:0,
+     v:[['жёлтая','#FFD23F','#D8A21A'],['красная','#FF6B6B','#C0483A']]},
+    {k:'tring',c:'btoy',n:'Круг',sc:'bath',cur:'star',p:2,w:115,act:'play',sx:.42,sy:0,
+     v:[['красно-белый','#FF6B6B','#C0483A'],['сине-белый','#4DB6E5','#2C7FA8']]},
+    {k:'twater',c:'btoy',n:'Брызгалка',sc:'bath',cur:'star',p:2,w:105,act:'play',sx:.42,sy:0,
+     v:[['зелёная','#7BD055','#3E8F2E'],['оранжевая','#FF9A5A','#C4501F']]},
+    {k:'tbucket',c:'btoy',n:'Ведёрко',sc:'bath',cur:'star',p:2,w:100,act:'play',sx:.42,sy:0,
+     v:[['синее','#4DB6E5','#2C7FA8'],['жёлтое','#FFD23F','#D8A21A']]},
+    {k:'tjelly',c:'btoy',n:'Медузка',sc:'bath',cur:'star',p:2,w:100,act:'play',sx:.42,sy:0,
+     v:[['розовая','#FF9AC4','#C4478F'],['голубая','#8FD4F3','#3E93C0']]},
+
+    {k:'cpouf',c:'bcozy',n:'Пуфик',sc:'bath',p:14,w:120,act:'sit',sx:.42,sy:0,
+     v:[['розовый','#FFD9DE','#D98BAA'],['мятный','#CDEFDF','#69B49A'],['голубой','#CDE9FB','#7FB4CE']]},
+    {k:'cstool',c:'bcozy',n:'Табуретка',sc:'bath',p:10,w:105,act:'sit',sx:.42,sy:0,
+     v:[['деревянная','#E0B072','#8A5A2B'],['белая','#FFF6E6','#B7A98A']]},
+    {k:'cbin',c:'bcozy',n:'Ведёрко',sc:'bath',p:8,w:95,act:'look',sx:.42,sy:0,
+     v:[['белое','#FFF6E6','#B7A98A'],['серое','#D6DBE2','#8B9099']]},
+    {k:'ccactus',c:'bcozy',n:'Кактус',sc:'bath',cur:'star',p:2,w:100,act:'look',sx:.42,sy:0,
+     v:[['зелёный','#6FC64C','#2F6B24'],['с цветком','#6FC64C','#C4478F']]},
+    {k:'corchid',c:'bcozy',n:'Орхидея',sc:'bath',cur:'star',p:3,w:105,act:'look',sx:.42,sy:0,
+     v:[['розовая','#FF9AC4','#C4478F'],['белая','#FFFDF6','#C9D6E2']]},
+    {k:'cfishbowl',c:'bcozy',n:'Аквариум',sc:'bath',p:16,w:120,act:'look',sx:.42,sy:0,
+     v:[['круглый','#CDEEFB','#4A90B5'],['с ракушкой','#CDEEFB','#69B49A']]},
+    {k:'ccandle',c:'bcozy',n:'Свечка',sc:'bath',cur:'star',p:2,w:85,act:'look',sx:.42,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['розовая','#FFC2D8','#CE6E8C']]},
+    {k:'cdiffuser',c:'bcozy',n:'Аромалампа',sc:'bath',p:12,w:95,act:'look',sx:.42,sy:0,
+     v:[['белая','#FFF6E6','#B7A98A'],['сиреневая','#C9A8F0','#7B4FC0']]},
+    {k:'cradio',c:'bcozy',n:'Радио',sc:'bath',p:14,w:110,act:'play',sx:.42,sy:0,
+     v:[['мятное','#9EE3C6','#2E8F72'],['красное','#FF8E7A','#C0483A']]},
+    {k:'cnight',c:'bcozy',n:'Ночник',sc:'bath',cur:'star',p:3,w:90,act:'look',sx:.42,sy:0,
+     v:[['месяц','#FFE9A8','#D8A21A'],['звёздочка','#C9A8F0','#7B4FC0']]},
+    {k:'cclock',c:'bcozy',n:'Часы',sc:'bath',p:12,w:100,wall:1,
+     v:[['круглые','#FFF6E6','#B7A98A'],['голубые','#CDEEFB','#4A90B5']]},
+    {k:'cpic',c:'bcozy',n:'Картинка',sc:'bath',p:10,w:120,wall:1,
+     v:[['с рыбками','#CDEEFB','#4A90B5'],['с корабликом','#FFF6E6','#C9A063']]},
+    {k:'cgarland',c:'bcozy',n:'Гирлянда',sc:'bath',p:12,w:180,wall:1,
+     v:[['разноцветная','#FFD23F','#D8A21A'],['голубая','#8FD4F3','#3E93C0']]},
+    {k:'cwindow',c:'bcozy',n:'Окошко',sc:'bath',p:18,w:150,wall:1,
+     v:[['круглое','#CDEEFB','#C9A063'],['квадратное','#CDEEFB','#7FB4CE']]}];
   const HH_K={};HH_KINDS.forEach(function(t){HH_K[t.k]=t;});
   /* id вещи = вид + номер варианта. Старые записи без номера читаем как первый вариант */
   function hhKind(id){const m=/^([a-z]+)(\d*)$/.exec(id||'');return m?HH_K[m[1]]:null;}
@@ -6310,6 +6428,291 @@
       '<path d="M40 63 h20" stroke="'+B+'" stroke-width="3" stroke-linecap="round"/>'+
       '<path d="M50 63 l10 -8" stroke="#E4573B" stroke-width="3.4" stroke-linecap="round"/>'+
       '<g fill="'+B+'" opacity=".4"><rect x="22" y="86" width="12" height="6" rx="3"/><rect x="66" y="86" width="12" height="6" rx="3"/></g>'+E;
+    /* ---- ванная: новые вещи. Все рисуются в том же холсте 100x100,
+       A — основной цвет варианта, B — обводка. ---- */
+    if(k==='wmachine')return S+'<rect x="14" y="20" width="72" height="72" rx="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<circle cx="50" cy="58" r="22" fill="#EAF6FA" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<circle cx="50" cy="58" r="13" fill="#8FD4F3" opacity=".6"/>'+
+      '<rect x="20" y="26" width="40" height="8" rx="4" fill="#fff" opacity=".6"/>'+
+      '<circle cx="76" cy="30" r="4" fill="'+B+'"/>'+E;
+    if(k==='wcabtall')return S+'<rect x="24" y="8" width="52" height="84" rx="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M50 10 v80" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="30" y="16" width="16" height="26" rx="4" fill="#fff" opacity=".5"/>'+
+      '<rect x="54" y="16" width="16" height="26" rx="4" fill="#fff" opacity=".5"/>'+
+      '<circle cx="44" cy="54" r="3.4" fill="'+B+'"/><circle cx="56" cy="54" r="3.4" fill="'+B+'"/>'+E;
+    if(k==='wcabsink')return S+'<rect x="12" y="44" width="76" height="48" rx="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="50" cy="42" rx="40" ry="12" fill="#FFFDF6" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<ellipse cx="50" cy="42" rx="20" ry="6" fill="#CDEEFB"/>'+
+      '<path d="M50 30 v-12 q0 -6 8 -6" stroke="#9AA6B8" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+      '<path d="M50 56 v34" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="42" cy="66" r="3.4" fill="'+B+'"/><circle cx="58" cy="66" r="3.4" fill="'+B+'"/>'+E;
+    if(k==='wsinkdbl')return S+'<rect x="6" y="50" width="88" height="42" rx="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="28" cy="48" rx="20" ry="9" fill="#FFFDF6" stroke="'+B+'" stroke-width="3"/>'+
+      '<ellipse cx="72" cy="48" rx="20" ry="9" fill="#FFFDF6" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M28 38 v-8 q0 -5 6 -5 M72 38 v-8 q0 -5 6 -5" stroke="#9AA6B8" stroke-width="3.4" fill="none" stroke-linecap="round"/>'+
+      '<path d="M50 60 v30" stroke="'+B+'" stroke-width="3" opacity=".5"/>'+E;
+    if(k==='wbathkid')return S+'<path d="M14 46 h72 l-8 38 q-2 8 -12 8 H34 q-10 0 -12 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="46" rx="36" ry="10" fill="#CDEEFB" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M22 56 q28 10 56 0" stroke="#fff" stroke-width="5" fill="none" opacity=".7"/>'+
+      '<g fill="#fff" opacity=".8"><circle cx="36" cy="38" r="6"/><circle cx="56" cy="32" r="8"/></g>'+E;
+    if(k==='wtub')return S+'<path d="M16 48 h68 l-7 32 q-2 8 -11 8 H34 q-9 0 -11 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="48" rx="34" ry="10" fill="#fff" opacity=".5"/>'+
+      '<path d="M20 62 q30 8 60 0" stroke="'+B+'" stroke-width="2.6" fill="none" opacity=".4"/>'+E;
+    if(k==='wsteps')return S+'<path d="M16 88 h68 v-18 H48 v-18 H16 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<path d="M16 70 h32" stroke="'+B+'" stroke-width="3"/>'+
+      '<g fill="'+B+'" opacity=".35"><rect x="22" y="58" width="20" height="5" rx="2.5"/><rect x="54" y="76" width="24" height="5" rx="2.5"/></g>'+E;
+    if(k==='wbench')return S+'<rect x="10" y="52" width="80" height="12" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="18" y="64" width="10" height="26" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="72" y="64" width="10" height="26" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="24" y="74" width="52" height="7" rx="3.5" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+E;
+    if(k==='wbrushtoil')return S+'<path d="M38 48 h24 l-4 40 q-1 6 -8 6 h-2 q-7 0 -8 -6 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<rect x="46" y="10" width="8" height="34" rx="4" fill="#9AA6B8"/>'+
+      '<ellipse cx="50" cy="46" rx="14" ry="8" fill="#C9D6E2" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="50" cy="10" r="6" fill="'+B+'"/>'+E;
+    if(k==='wtap')return S+'<rect x="20" y="60" width="60" height="12" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<path d="M50 60 V34 q0 -8 14 -8 h10" stroke="'+B+'" stroke-width="6" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="30" cy="66" r="8" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="70" cy="66" r="8" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M74 34 v10" stroke="#8FD4F3" stroke-width="5" stroke-linecap="round"/>'+E;
+    if(k==='wcurtain'){const dots=hhVar(id)===0;
+      let s4='<rect x="6" y="14" width="88" height="8" rx="4" fill="#C9D6E2" stroke="'+B+'" stroke-width="3"/>';
+      s4+='<path d="M14 22 h72 v62 q-9 6 -18 0 q-9 6 -18 0 q-9 6 -18 0 q-9 6 -18 0 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>';
+      s4+=dots?'<g fill="#fff" opacity=".8"><circle cx="30" cy="40" r="5"/><circle cx="52" cy="52" r="5"/><circle cx="72" cy="36" r="5"/><circle cx="40" cy="66" r="4"/></g>'
+        :'<path d="M30 24 v58 M50 24 v58 M70 24 v58" stroke="#fff" stroke-width="4" opacity=".55"/>';
+      return S+s4+E;}
+    if(k==='wboiler')return S+'<rect x="26" y="14" width="48" height="66" rx="14" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="34" y="26" width="32" height="10" rx="5" fill="#EAF6FA" stroke="'+B+'" stroke-width="2.8"/>'+
+      '<circle cx="50" cy="54" r="8" fill="#FFD23F" stroke="'+B+'" stroke-width="2.8"/>'+
+      '<path d="M40 80 v10 M60 80 v10" stroke="#9AA6B8" stroke-width="5" stroke-linecap="round"/>'+E;
+    if(k==='wrail')return S+'<rect x="8" y="26" width="10" height="52" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="82" y="26" width="10" height="52" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<g fill="'+A+'" stroke="'+B+'" stroke-width="2.8">'+
+      '<rect x="14" y="32" width="72" height="8" rx="4"/><rect x="14" y="48" width="72" height="8" rx="4"/>'+
+      '<rect x="14" y="64" width="72" height="8" rx="4"/></g>'+
+      '<path d="M30 36 h20 v34 q0 6 -6 6 h-8 q-6 0 -6 -6 z" fill="#FFD9DE" stroke="#D98BAA" stroke-width="2.8"/>'+E;
+    if(k==='wmirrorbig')return S+'<rect x="18" y="8" width="64" height="80" rx="10" fill="'+B+'"/>'+
+      '<rect x="24" y="14" width="52" height="68" rx="7" fill="'+A+'"/>'+
+      '<path d="M32 60 q12 -30 30 -40" stroke="#fff" stroke-width="9" fill="none" opacity=".7" stroke-linecap="round"/>'+
+      '<circle cx="50" cy="6" r="4" fill="'+B+'"/>'+E;
+
+    if(k==='sgel')return S+'<rect x="34" y="26" width="32" height="62" rx="12" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="36" y="48" width="28" height="22" rx="4" fill="#fff" opacity=".6"/>'+
+      '<rect x="42" y="12" width="16" height="16" rx="5" fill="'+B+'"/>'+
+      '<path d="M42 20 h-8" stroke="'+B+'" stroke-width="4" stroke-linecap="round"/>'+E;
+    if(k==='sfoam')return S+'<rect x="32" y="40" width="36" height="50" rx="9" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="40" y="28" width="20" height="14" rx="5" fill="'+B+'"/>'+
+      '<g fill="#fff" stroke="'+B+'" stroke-width="2.4" opacity=".95">'+
+      '<circle cx="26" cy="26" r="10"/><circle cx="48" cy="14" r="9"/><circle cx="70" cy="26" r="8"/></g>'+
+      '<rect x="36" y="58" width="28" height="16" rx="4" fill="#fff" opacity=".55"/>'+E;
+    if(k==='sbalm')return S+'<path d="M34 34 h32 v46 q0 10 -10 10 H44 q-10 0 -10 -10 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<rect x="40" y="20" width="20" height="16" rx="5" fill="'+B+'"/>'+
+      '<rect x="38" y="52" width="24" height="18" rx="4" fill="#fff" opacity=".6"/>'+
+      '<path d="M44 60 h12" stroke="'+B+'" stroke-width="2.6"/>'+E;
+    if(k==='spaste')return S+'<path d="M30 44 q20 -8 40 0 v34 q0 8 -8 8 H38 q-8 0 -8 -8 z" fill="#FFFDF6" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<rect x="42" y="24" width="16" height="22" rx="5" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="44" y="14" width="12" height="12" rx="4" fill="'+B+'"/>'+
+      '<path d="M36 60 h28 M36 70 h20" stroke="'+A+'" stroke-width="4" stroke-linecap="round"/>'+E;
+    if(k==='scup')return S+'<path d="M32 34 h36 l-5 50 q-1 8 -9 8 H46 q-8 0 -9 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="34" rx="18" ry="6" fill="#fff" opacity=".6"/>'+
+      '<path d="M40 50 v24" stroke="#fff" stroke-width="5" opacity=".5" stroke-linecap="round"/>'+E;
+    if(k==='scomb')return S+'<rect x="16" y="34" width="68" height="20" rx="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<g stroke="'+B+'" stroke-width="4" stroke-linecap="round">'+
+      [0,1,2,3,4,5,6].map(function(i){return '<path d="M'+(24+i*9)+' 54 v22"/>';}).join('')+'</g>'+
+      '<circle cx="76" cy="44" r="4" fill="#fff" opacity=".7"/>'+E;
+    if(k==='shairdry')return S+'<path d="M18 34 h34 v30 H18 q-10 0 -10 -15 q0 -15 10 -15 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<path d="M52 38 h20 v22 H52 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<path d="M34 64 l-8 24 q-2 6 4 6 h12 q6 0 4 -6 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<g stroke="#8FD4F3" stroke-width="4" stroke-linecap="round"><path d="M78 42 h10"/><path d="M78 50 h14"/><path d="M78 58 h10"/></g>'+E;
+    if(k==='smirror')return S+'<circle cx="50" cy="38" r="26" fill="'+B+'"/>'+
+      '<circle cx="50" cy="38" r="20" fill="'+A+'"/>'+
+      '<path d="M40 46 q8 -18 22 -22" stroke="#fff" stroke-width="6" fill="none" opacity=".75" stroke-linecap="round"/>'+
+      '<rect x="44" y="62" width="12" height="30" rx="6" fill="'+B+'"/>'+E;
+    if(k==='sdisp')return S+'<rect x="32" y="40" width="36" height="50" rx="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="34" y="58" width="32" height="18" rx="4" fill="#fff" opacity=".55"/>'+
+      '<rect x="44" y="26" width="12" height="16" rx="4" fill="#9AA6B8"/>'+
+      '<path d="M56 30 h12 q4 0 4 6" stroke="#9AA6B8" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+      '<circle cx="74" cy="46" r="5" fill="#CDEEFB" stroke="'+B+'" stroke-width="2.4"/>'+E;
+    if(k==='sbrushbody')return S+'<rect x="20" y="30" width="46" height="20" rx="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<g stroke="'+B+'" stroke-width="4.4" stroke-linecap="round">'+
+      [0,1,2,3,4].map(function(i){return '<path d="M'+(28+i*9)+' 50 v14"/>';}).join('')+'</g>'+
+      '<path d="M66 40 h18 q6 0 6 8 v22" stroke="'+A+'" stroke-width="9" fill="none" stroke-linecap="round"/>'+
+      '<path d="M66 40 h18 q6 0 6 8 v22" stroke="'+B+'" stroke-width="3" fill="none" stroke-linecap="round" opacity=".5"/>'+E;
+    if(k==='scotton')return S+'<rect x="26" y="46" width="48" height="44" rx="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<g fill="#FFFDF6" stroke="'+B+'" stroke-width="2.6">'+
+      '<circle cx="40" cy="40" r="12"/><circle cx="60" cy="36" r="13"/></g>'+
+      '<path d="M30 66 h40" stroke="'+B+'" stroke-width="2.6" opacity=".4"/>'+E;
+    if(k==='sqtips')return S+'<path d="M32 46 h36 l-4 40 q-1 6 -8 6 H44 q-7 0 -8 -6 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<g stroke="#FFFDF6" stroke-width="5" stroke-linecap="round">'+
+      '<path d="M40 46 V20"/><path d="M50 46 V14"/><path d="M60 46 V22"/></g>'+
+      '<g fill="#FFFDF6"><circle cx="40" cy="18" r="5"/><circle cx="50" cy="12" r="5"/><circle cx="60" cy="20" r="5"/></g>'+E;
+    if(k==='scream')return S+'<ellipse cx="50" cy="52" rx="30" ry="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<path d="M20 52 v26 q0 8 10 8 h40 q10 0 10 -8 V52" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<ellipse cx="50" cy="42" rx="26" ry="9" fill="#FFFDF6" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M36 66 h28" stroke="#fff" stroke-width="4" opacity=".6" stroke-linecap="round"/>'+E;
+    if(k==='sperfume')return S+'<rect x="34" y="44" width="32" height="44" rx="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="42" y="30" width="16" height="16" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<rect x="40" y="20" width="20" height="12" rx="5" fill="'+B+'"/>'+
+      '<circle cx="72" cy="26" r="7" fill="'+A+'" stroke="'+B+'" stroke-width="2.8"/>'+
+      '<g fill="#fff" opacity=".7"><circle cx="76" cy="14" r="3"/><circle cx="84" cy="20" r="2.4"/></g>'+E;
+
+    if(k==='toctopus')return S+'<circle cx="50" cy="44" r="26" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<g fill="'+A+'" stroke="'+B+'" stroke-width="3">'+
+      '<path d="M26 58 q-12 14 -4 28 q10 4 12 -10 z"/><path d="M42 68 q-6 16 2 24 q10 0 8 -14 z"/>'+
+      '<path d="M58 68 q6 16 -2 24 q-10 0 -8 -14 z"/><path d="M74 58 q12 14 4 28 q-10 4 -12 -10 z"/></g>'+
+      '<circle cx="41" cy="40" r="5.4" fill="#37344F"/><circle cx="59" cy="40" r="5.4" fill="#37344F"/>'+
+      '<circle cx="42.6" cy="38" r="2" fill="#fff"/><circle cx="60.6" cy="38" r="2" fill="#fff"/>'+
+      '<path d="M44 54 q6 6 12 0" stroke="'+B+'" stroke-width="3" fill="none" stroke-linecap="round"/>'+E;
+    if(k==='tturtle')return S+'<ellipse cx="50" cy="58" rx="34" ry="24" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<g fill="#fff" opacity=".45"><circle cx="38" cy="52" r="8"/><circle cx="58" cy="48" r="9"/><circle cx="52" cy="66" r="7"/></g>'+
+      '<circle cx="86" cy="54" r="12" fill="#B7E86B" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<circle cx="90" cy="50" r="3.4" fill="#37344F"/>'+
+      '<g fill="#B7E86B" stroke="'+B+'" stroke-width="3">'+
+      '<ellipse cx="26" cy="76" rx="11" ry="7"/><ellipse cx="66" cy="78" rx="11" ry="7"/></g>'+E;
+    if(k==='tcrab')return S+'<ellipse cx="50" cy="58" rx="30" ry="22" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<g fill="'+A+'" stroke="'+B+'" stroke-width="3">'+
+      '<path d="M20 46 q-14 -8 -14 -20 q12 2 16 12 z"/><path d="M80 46 q14 -8 14 -20 q-12 2 -16 12 z"/></g>'+
+      '<circle cx="40" cy="50" r="5.4" fill="#37344F"/><circle cx="60" cy="50" r="5.4" fill="#37344F"/>'+
+      '<circle cx="41.6" cy="48" r="2" fill="#fff"/><circle cx="61.6" cy="48" r="2" fill="#fff"/>'+
+      '<path d="M42 66 q8 6 16 0" stroke="'+B+'" stroke-width="3" fill="none" stroke-linecap="round"/>'+
+      '<g stroke="'+B+'" stroke-width="4" stroke-linecap="round"><path d="M26 74 l-10 10"/><path d="M74 74 l10 10"/></g>'+E;
+    if(k==='tstar')return S+'<path d="M50 12 L62 42 L94 44 L68 62 L78 92 L50 74 L22 92 L32 62 L6 44 L38 42 Z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<g fill="'+B+'" opacity=".35"><circle cx="50" cy="52" r="5"/><circle cx="38" cy="66" r="3.4"/><circle cx="62" cy="66" r="3.4"/></g>'+E;
+    if(k==='tshell')return S+'<path d="M50 88 q-40 0 -40 -34 q0 -34 40 -34 q40 0 40 34 q0 34 -40 34 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<g stroke="'+B+'" stroke-width="3" fill="none" opacity=".6">'+
+      '<path d="M50 88 V22"/><path d="M50 88 Q26 56 30 26"/><path d="M50 88 Q74 56 70 26"/></g>'+
+      '<circle cx="50" cy="26" r="6" fill="#fff" opacity=".7"/>'+E;
+    if(k==='tseahorse')return S+'<path d="M56 20 q22 4 20 26 q-2 18 -18 22 q-12 3 -12 14 q0 10 12 12 h-22 q-14 -4 -14 -16 q0 -16 18 -20 q12 -3 12 -14 q0 -10 -10 -12 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M56 20 q-14 -8 -22 4 q10 -2 14 6 z" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="60" cy="32" r="4.4" fill="#37344F"/><circle cx="61.4" cy="30.4" r="1.6" fill="#fff"/>'+
+      '<path d="M76 34 q10 4 8 14" stroke="'+B+'" stroke-width="3" fill="none" stroke-linecap="round"/>'+E;
+    if(k==='tdolphin')return S+'<path d="M8 66 q10 -34 44 -34 q26 0 40 20 q-8 26 -40 28 q-30 2 -44 -14 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M50 32 q4 -18 -6 -24 q-4 16 -14 22 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M8 66 l-6 -14 v28 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M20 68 q26 10 52 4" stroke="#fff" stroke-width="7" fill="none" opacity=".5" stroke-linecap="round"/>'+
+      '<circle cx="76" cy="52" r="4.6" fill="#37344F"/><circle cx="77.6" cy="50.4" r="1.7" fill="#fff"/>'+
+      '<path d="M88 60 q6 4 6 10" stroke="'+B+'" stroke-width="3" fill="none" stroke-linecap="round"/>'+E;
+    if(k==='tfrog')return S+'<ellipse cx="50" cy="64" rx="34" ry="26" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<circle cx="32" cy="34" r="14" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<circle cx="68" cy="34" r="14" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<circle cx="32" cy="34" r="6" fill="#37344F"/><circle cx="68" cy="34" r="6" fill="#37344F"/>'+
+      '<circle cx="34" cy="31" r="2.2" fill="#fff"/><circle cx="70" cy="31" r="2.2" fill="#fff"/>'+
+      '<path d="M34 66 q16 12 32 0" stroke="'+B+'" stroke-width="3.4" fill="none" stroke-linecap="round"/>'+
+      '<g fill="'+A+'" stroke="'+B+'" stroke-width="3"><ellipse cx="20" cy="84" rx="12" ry="7"/><ellipse cx="80" cy="84" rx="12" ry="7"/></g>'+E;
+    if(k==='tpenguin')return S+'<ellipse cx="50" cy="58" rx="30" ry="34" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="50" cy="64" rx="19" ry="25" fill="#FFFDF6"/>'+
+      '<circle cx="42" cy="40" r="4.6" fill="#37344F"/><circle cx="58" cy="40" r="4.6" fill="#37344F"/>'+
+      '<circle cx="43.4" cy="38.4" r="1.7" fill="#fff"/><circle cx="59.4" cy="38.4" r="1.7" fill="#fff"/>'+
+      '<path d="M44 50 h12 l-6 8 z" fill="#FF9A3F" stroke="#C4701F" stroke-width="2.4" stroke-linejoin="round"/>'+
+      '<g fill="#FF9A3F" stroke="#C4701F" stroke-width="2.6"><ellipse cx="38" cy="92" rx="10" ry="5"/><ellipse cx="62" cy="92" rx="10" ry="5"/></g>'+E;
+    if(k==='tsub')return S+'<ellipse cx="48" cy="60" rx="40" ry="24" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<rect x="38" y="26" width="22" height="16" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<path d="M48 26 v-10" stroke="'+B+'" stroke-width="4" stroke-linecap="round"/>'+
+      '<circle cx="34" cy="60" r="10" fill="#CDEEFB" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="58" cy="60" r="7" fill="#CDEEFB" stroke="'+B+'" stroke-width="2.8"/>'+
+      '<path d="M88 60 l10 -12 v24 z" fill="'+A+'" stroke="'+B+'" stroke-width="3" stroke-linejoin="round"/>'+E;
+    if(k==='tring')return S+'<circle cx="50" cy="58" r="34" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<circle cx="50" cy="58" r="14" fill="#EAF6FA" stroke="'+B+'" stroke-width="3"/>'+
+      '<g fill="#FFFDF6"><path d="M50 24 a34 34 0 0 1 24 10 l-12 12 a17 17 0 0 0 -12 -5 z"/>'+
+      '<path d="M50 92 a34 34 0 0 1 -24 -10 l12 -12 a17 17 0 0 0 12 5 z"/></g>'+
+      '<circle cx="50" cy="58" r="34" fill="none" stroke="'+B+'" stroke-width="3.6"/>'+E;
+    if(k==='twater')return S+'<path d="M22 44 h34 v26 H22 q-8 0 -8 -13 q0 -13 8 -13 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<path d="M36 70 l-6 20 q-2 6 4 6 h10 q6 0 4 -6 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<rect x="56" y="48" width="26" height="12" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<g fill="#8FD4F3"><circle cx="88" cy="54" r="4"/><circle cx="94" cy="46" r="3"/><circle cx="94" cy="62" r="2.6"/></g>'+E;
+    if(k==='tbucket')return S+'<path d="M22 40 h56 l-7 46 q-1 8 -10 8 H39 q-9 0 -10 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="40" rx="28" ry="8" fill="#fff" opacity=".5"/>'+
+      '<path d="M26 34 q10 -20 24 -20 q14 0 24 20" stroke="'+B+'" stroke-width="3.6" fill="none"/>'+
+      '<path d="M36 58 h28" stroke="#fff" stroke-width="4" opacity=".6" stroke-linecap="round"/>'+E;
+    if(k==='tjelly')return S+'<path d="M14 56 q0 -34 36 -34 q36 0 36 34 q-14 8 -36 8 q-22 0 -36 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<g stroke="'+B+'" stroke-width="3.4" fill="none" stroke-linecap="round">'+
+      '<path d="M28 62 q-4 14 2 26"/><path d="M42 64 q-4 16 2 26"/><path d="M58 64 q4 16 -2 26"/><path d="M72 62 q4 14 -2 26"/></g>'+
+      '<circle cx="40" cy="42" r="4.6" fill="#37344F"/><circle cx="60" cy="42" r="4.6" fill="#37344F"/>'+
+      '<path d="M44 52 q6 5 12 0" stroke="'+B+'" stroke-width="3" fill="none" stroke-linecap="round"/>'+E;
+
+    if(k==='cpouf')return S+'<ellipse cx="50" cy="86" rx="34" ry="8" fill="'+B+'" opacity=".25"/>'+
+      '<ellipse cx="50" cy="60" rx="34" ry="26" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M16 60 q34 16 68 0" stroke="'+B+'" stroke-width="3" fill="none" opacity=".45"/>'+
+      '<circle cx="50" cy="44" r="6" fill="'+B+'" opacity=".4"/>'+
+      '<g stroke="'+B+'" stroke-width="3" opacity=".35"><path d="M32 48 v28"/><path d="M68 48 v28"/></g>'+E;
+    if(k==='cstool')return S+'<ellipse cx="50" cy="46" rx="32" ry="12" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<g stroke="'+B+'" stroke-width="6" stroke-linecap="round">'+
+      '<path d="M26 52 l-6 34"/><path d="M74 52 l6 34"/><path d="M50 56 v32"/></g>'+
+      '<path d="M28 72 h44" stroke="'+B+'" stroke-width="4" stroke-linecap="round" opacity=".6"/>'+E;
+    if(k==='cbin')return S+'<path d="M28 36 h44 l-6 52 q-1 6 -8 6 H42 q-7 0 -8 -6 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="34" rx="26" ry="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<rect x="44" y="20" width="12" height="10" rx="4" fill="'+B+'"/>'+
+      '<path d="M40 50 v28 M50 50 v28 M60 50 v28" stroke="'+B+'" stroke-width="2.6" opacity=".35"/>'+E;
+    if(k==='ccactus'){const flower=hhVar(id)===1;
+      return S+'<path d="M34 62 h32 l-4 26 q-1 6 -8 6 H46 q-7 0 -8 -6 z" fill="#E7C58A" stroke="#B08040" stroke-width="3.4" stroke-linejoin="round"/>'+
+        '<rect x="40" y="18" width="20" height="48" rx="10" fill="'+A+'" stroke="#2F6B24" stroke-width="3.4"/>'+
+        '<path d="M40 40 h-12 q-8 0 -8 -10 q0 -8 8 -8 q8 0 8 8" fill="'+A+'" stroke="#2F6B24" stroke-width="3.2" stroke-linejoin="round"/>'+
+        '<path d="M60 48 h12 q8 0 8 -10 q0 -8 -8 -8 q-8 0 -8 8" fill="'+A+'" stroke="#2F6B24" stroke-width="3.2" stroke-linejoin="round"/>'+
+        (flower?'<circle cx="50" cy="14" r="8" fill="'+B+'"/><circle cx="50" cy="14" r="3.4" fill="#FFD23F"/>':'')+E;}
+    if(k==='corchid')return S+'<path d="M34 64 h32 l-4 24 q-1 6 -8 6 H46 q-7 0 -8 -6 z" fill="#FFFDF6" stroke="#C9D6E2" stroke-width="3.4" stroke-linejoin="round"/>'+
+      '<path d="M50 64 q-6 -30 6 -46" stroke="#5FB441" stroke-width="4" fill="none" stroke-linecap="round"/>'+
+      '<g fill="'+A+'" stroke="'+B+'" stroke-width="2.8">'+
+      '<circle cx="58" cy="20" r="10"/><circle cx="44" cy="30" r="9"/><circle cx="66" cy="38" r="8"/></g>'+
+      '<g fill="#FFD23F"><circle cx="58" cy="20" r="3"/><circle cx="44" cy="30" r="2.6"/><circle cx="66" cy="38" r="2.4"/></g>'+
+      '<path d="M50 60 q-16 2 -20 -10 q16 -2 20 10 z" fill="#5FB441" stroke="#2F6B24" stroke-width="2.8" stroke-linejoin="round"/>'+E;
+    if(k==='cfishbowl')return S+'<path d="M50 26 q34 0 34 34 q0 30 -34 30 q-34 0 -34 -30 q0 -34 34 -34 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M18 62 q32 12 64 0 q0 26 -32 26 q-32 0 -32 -26 z" fill="#8FD4F3" opacity=".55"/>'+
+      '<ellipse cx="44" cy="70" rx="12" ry="8" fill="#FF9A5A" stroke="#C4501F" stroke-width="2.6"/>'+
+      '<path d="M56 70 l10 -6 v12 z" fill="#FF9A5A" stroke="#C4501F" stroke-width="2.4" stroke-linejoin="round"/>'+
+      '<circle cx="38" cy="68" r="2.6" fill="#37344F"/>'+
+      '<g fill="#fff" opacity=".7"><circle cx="66" cy="52" r="4"/><circle cx="72" cy="42" r="3"/></g>'+E;
+    if(k==='ccandle')return S+'<path d="M36 40 h28 v42 q0 8 -8 8 H44 q-8 0 -8 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="40" rx="14" ry="5" fill="#fff" opacity=".65"/>'+
+      '<path d="M50 36 v-6" stroke="#7A5133" stroke-width="3" stroke-linecap="round"/>'+
+      '<path d="M50 8 q10 12 0 20 q-10 -8 0 -20 z" fill="#FFD23F" stroke="#E08A00" stroke-width="2.6"/>'+
+      '<circle cx="50" cy="20" r="18" fill="#FFD23F" opacity=".18"/>'+E;
+    if(k==='cdiffuser')return S+'<path d="M28 56 q0 -18 22 -18 q22 0 22 18 q0 22 -22 22 q-22 0 -22 -22 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="50" cy="80" rx="24" ry="8" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<g stroke="#CDEEFB" stroke-width="4" fill="none" stroke-linecap="round" opacity=".9">'+
+      '<path d="M42 34 q-6 -12 2 -20"/><path d="M56 32 q6 -12 -2 -20"/></g>'+
+      '<circle cx="50" cy="60" r="7" fill="#FFD23F" opacity=".7"/>'+E;
+    if(k==='cradio')return S+'<rect x="14" y="38" width="72" height="46" rx="10" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<circle cx="36" cy="61" r="14" fill="#EAF6FA" stroke="'+B+'" stroke-width="3"/>'+
+      '<g fill="'+B+'" opacity=".5"><circle cx="36" cy="61" r="5"/></g>'+
+      '<g fill="#FFFDF6" stroke="'+B+'" stroke-width="2.4"><rect x="58" y="48" width="20" height="12" rx="4"/></g>'+
+      '<g fill="'+B+'"><circle cx="62" cy="72" r="4"/><circle cx="74" cy="72" r="4"/></g>'+
+      '<path d="M70 38 l14 -22" stroke="'+B+'" stroke-width="4" stroke-linecap="round"/>'+E;
+    if(k==='cnight'){const moon=hhVar(id)===0;
+      return S+'<rect x="42" y="62" width="16" height="26" rx="6" fill="#C9D6E2" stroke="#8B9099" stroke-width="3"/>'+
+        '<ellipse cx="50" cy="90" rx="20" ry="7" fill="#C9D6E2" stroke="#8B9099" stroke-width="3"/>'+
+        (moon?'<path d="M62 18 a24 24 0 1 0 0 40 a19 19 0 0 1 0 -40 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'
+          :'<path d="M50 12 L60 36 L86 38 L66 54 L72 80 L50 66 L28 80 L34 54 L14 38 L40 36 Z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>')+
+        '<circle cx="50" cy="40" r="26" fill="#FFD23F" opacity=".16"/>'+E;}
+    if(k==='cclock')return S+'<circle cx="50" cy="50" r="36" fill="'+B+'"/>'+
+      '<circle cx="50" cy="50" r="30" fill="'+A+'"/>'+
+      '<g stroke="'+B+'" stroke-width="4" stroke-linecap="round"><path d="M50 50 V30"/><path d="M50 50 l16 8"/></g>'+
+      '<circle cx="50" cy="50" r="4" fill="'+B+'"/>'+
+      '<g fill="'+B+'" opacity=".5"><circle cx="50" cy="26" r="2.6"/><circle cx="74" cy="50" r="2.6"/>'+
+      '<circle cx="50" cy="74" r="2.6"/><circle cx="26" cy="50" r="2.6"/></g>'+E;
+    if(k==='cpic'){const fish=hhVar(id)===0;
+      let s5='<rect x="8" y="18" width="84" height="64" rx="8" fill="'+B+'"/>'+
+        '<rect x="15" y="25" width="70" height="50" rx="5" fill="'+A+'"/>';
+      s5+=fish?'<g fill="#FF9A5A" stroke="#C4501F" stroke-width="2.4"><ellipse cx="42" cy="50" rx="13" ry="9"/></g>'+
+          '<path d="M55 50 l10 -7 v14 z" fill="#FF9A5A" stroke="#C4501F" stroke-width="2.2" stroke-linejoin="round"/>'+
+          '<circle cx="36" cy="47" r="2.4" fill="#37344F"/>'+
+          '<g fill="#fff" opacity=".8"><circle cx="66" cy="36" r="4"/><circle cx="72" cy="46" r="3"/></g>'
+        :'<path d="M20 62 h60" stroke="#8FD4F3" stroke-width="6" stroke-linecap="round"/>'+
+          '<path d="M50 58 V32 l20 26 z" fill="#FF8E7A" stroke="#C0483A" stroke-width="2.4" stroke-linejoin="round"/>'+
+          '<path d="M46 58 V34 L28 56 z" fill="#FFFDF6" stroke="#C0483A" stroke-width="2.4" stroke-linejoin="round"/>';
+      return S+s5+E;}
+    if(k==='cgarland'){const many=hhVar(id)===0;
+      const cols=many?['#FF6B6B','#FFD23F','#7BD055','#4DB6E5','#C9A8F0','#FF9AC4']:['#8FD4F3','#CDEEFB','#4DB6E5','#8FD4F3','#CDEEFB','#4DB6E5'];
+      let s6='<path d="M4 26 q24 26 46 22 q22 -4 46 -22" stroke="'+B+'" stroke-width="3.4" fill="none"/>';
+      [[12,36],[27,46],[42,50],[58,50],[73,46],[88,36]].forEach(function(p,i){
+        s6+='<circle cx="'+p[0]+'" cy="'+(p[1]+10)+'" r="7" fill="'+cols[i]+'" stroke="'+B+'" stroke-width="2.4"/>'+
+          '<path d="M'+p[0]+' '+p[1]+' v4" stroke="'+B+'" stroke-width="2.6"/>';});
+      return S+s6+E;}
+    if(k==='cwindow'){const round=hhVar(id)===0;
+      let s7=round?'<circle cx="50" cy="50" r="38" fill="'+B+'"/><circle cx="50" cy="50" r="31" fill="'+A+'"/>'
+        :'<rect x="10" y="12" width="80" height="76" rx="8" fill="'+B+'"/><rect x="17" y="19" width="66" height="62" rx="5" fill="'+A+'"/>';
+      s7+='<path d="M50 14 v72 M16 50 h68" stroke="'+B+'" stroke-width="4"/>';
+      s7+='<circle cx="66" cy="32" r="8" fill="#FFD23F" opacity=".85"/>';
+      s7+='<g fill="#fff" opacity=".65"><ellipse cx="34" cy="36" rx="10" ry="5"/><ellipse cx="38" cy="66" rx="12" ry="6"/></g>';
+      return S+s7+E;}
     if(k==='path')return S+'<g fill="'+A+'" stroke="'+B+'" stroke-width="2.8">'+
       '<ellipse cx="16" cy="70" rx="13" ry="9"/><ellipse cx="42" cy="62" rx="14" ry="9"/>'+
       '<ellipse cx="68" cy="70" rx="13" ry="9"/><ellipse cx="90" cy="60" rx="10" ry="7"/>'+
