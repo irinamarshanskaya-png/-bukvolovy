@@ -376,9 +376,21 @@
   .wkwin{font-family:'Fredoka';font-weight:700;font-size:22px;color:var(--grape);text-align:center;}
   .wkgifts{display:flex;gap:14px;font-family:'Fredoka';font-weight:700;font-size:19px;color:#6b4a24;}
   .wkgift{display:flex;flex-direction:column;align-items:center;font-size:34px;animation:wkpop .5s ease-out backwards;}
-  /* монетки золотом: среди звёздочек, ключиков и пирогов их видно сразу */
-  .wkgift.coin span,.hchip.coin{color:#E09400;}
-  .wkgift span{font-size:15px;}
+  /* монетку рисуем сами: системный значок 🪙 во многих шрифтах серый, а рядом
+     жёлтая звёздочка — ребёнок не понимает, что это деньги. Размер в em,
+     поэтому монетка везде совпадает с соседними значками. */
+  .coinic{display:inline-block;position:relative;width:1.1em;height:1.1em;border-radius:50%;vertical-align:-.22em;
+    background:radial-gradient(circle at 35% 30%,#FFF6C8 0 14%,#FFD23F 44%,#F2A900 78%,#C87F00 100%);
+    box-shadow:inset 0 -.06em .02em rgba(140,80,0,.35),inset 0 .05em .02em rgba(255,255,255,.55),
+      0 .04em .06em rgba(0,0,0,.18);}
+  .coinic::after{content:'';position:absolute;inset:24%;border-radius:50%;border:.055em solid rgba(190,120,0,.5);}
+  /* панель «что выиграл» — та же карточка наград, но без кнопок и сама пропадает */
+  .lhgifts{position:absolute;left:50%;top:46%;transform:translate(-50%,-50%);display:flex;gap:22px;z-index:7;
+    background:rgba(255,255,255,.95);border-radius:26px;padding:14px 26px;pointer-events:none;
+    box-shadow:0 12px 30px rgba(0,0,0,.22);font-family:'Fredoka';font-weight:700;font-size:22px;color:#6b4a24;
+    animation:wkpop .4s ease-out backwards;}
+  .lhgifts .wkgift{font-size:46px;} .lhgifts .wkgift span:not(.coinic){font-size:22px;}
+  .wkgift span:not(.coinic){font-size:15px;}
   @keyframes wkpop{from{transform:scale(0) rotate(-25deg);opacity:0;}}
 
   /* ================= ГОРИЗОНТАЛЬНЫЙ ФОРМАТ =================
@@ -1085,7 +1097,7 @@
     <div class="nwbtns">
       <button class="nwbtn" id="sh1"><span>🧠</span>Что исчезло?</button>
       <button class="nwbtn" id="sh2"><span>🛒</span>Магазинный квест</button>
-      <button class="nwbtn" id="sh3"><span>🪙</span>Сколько стоит?</button>
+      <button class="nwbtn" id="sh3"><span class="coinic"></span>Сколько стоит?</button>
     </div>
   </section>
 
@@ -1104,7 +1116,7 @@
   </section>
 
   <section id="cash" class="screen">
-    <div class="topbar"><button class="backb" id="cashBack">← Мир чисел</button><h2>🪙 Сколько стоит?</h2><div class="prog" id="cashProg"></div></div>
+    <div class="topbar"><button class="backb" id="cashBack">← Мир чисел</button><h2><span class="coinic"></span> Сколько стоит?</h2><div class="prog" id="cashProg"></div></div>
     <div class="gwrap">
       <div class="fqq" id="cashHint"></div>
       <div class="cashstage" id="cashStage"></div>
@@ -1282,7 +1294,7 @@
       <button class="backb" id="hhBack">← Карта</button>
       <h2 id="hhTitle">🏠 Мой дом</h2>
       <div style="display:flex;gap:8px;align-items:center">
-        <div class="prog" id="hhCoins">🪙 0</div>
+        <div class="prog" id="hhCoins"><span class="coinic"></span> 0</div>
         <button class="backb" id="hhSleep">🌙 Спать</button>
       </div>
     </div>
@@ -1440,7 +1452,7 @@
         <div class="lvsel" id="tvLevels"></div>
         <div class="tvcard">
           <div class="tvseq" id="tvSeq"></div>
-          <div class="tvcnt" id="tvCnt">🪙 0</div>
+          <div class="tvcnt" id="tvCnt"><span class="coinic"></span> 0</div>
         </div>
         <div class="tvpad">
           <button class="tvb u" id="tvU">⬆️</button>
@@ -1635,7 +1647,7 @@
   function fileURL(s){return 'data:image/svg+xml,'+encodeURIComponent('<svg xmlns="http://www.w3.org/2000/svg" width="120" height="120" viewBox="0 0 120 120">'+composeInner(s)+'</svg>');}
   function renderPreview(){$('#preview').innerHTML=inlineSVG(sel);}
   function isUnlocked(cat,id){var lk=LOCK[cat]&&LOCK[cat][id];if(!lk)return true;var have=lk.k==='star'?earnedStars():lk.k==='page'?pages.length:earnedCoins();return have>=lk.n;}
-  function reqText(cat,id){var lk=LOCK[cat][id];var em=lk.k==='star'?'⭐':lk.k==='page'?'📖':'🪙';return lk.n+em;}
+  function reqText(cat,id){var lk=LOCK[cat][id];var em=lk.k==='star'?'⭐':lk.k==='page'?'📖':'🪙';return coinHTML(lk.n+em);}
   function renderTabs(){const box=$('#tabs');box.innerHTML='';TABS.forEach(function(t){const b=document.createElement('button');b.className='tab'+(t[0]===activeTab?' sel':'');b.textContent=t[1];b.onclick=function(){activeTab=t[0];renderTabs();renderOpts();};box.appendChild(b);});}
   function renderOpts(){const box=$('#opts');box.innerHTML='';
     if(activeTab==='color'){COLORS.forEach(function(c,i){var un=isUnlocked('color',i);const b=document.createElement('button');b.className='opt'+(sel.color===i?' sel':'')+(un?'':' locked');b.innerHTML='<div class="cc" style="background:'+c[0]+'"></div>'+(un?'':'<div class="lock">🔒</div><div class="req">'+reqText('color',i)+'</div>');b.onclick=function(){if(!un){lockToast('color',i);return;}sel.color=i;pick();};box.appendChild(b);});return;}
@@ -2182,7 +2194,7 @@
     $('#cfPet').classList.toggle('run',run);cfPetPlace(run);}
 
   function rewardL(){running=false;cancelAnimationFrame(raf);done.letters=true;markGame('letters_catch');save();earnPage('letters');items.forEach(o=>o.el.remove());items=[];flash(field,'Молодец!');
-    lhReward('letters_catch',1,1,8,field);
+    lhGifts(field,lhReward('letters_catch',1,1,8));
     const h=field.clientHeight,heroTop=h-12-172;pieEat(field,heroX,heroTop,hero,()=>openPicker());}
   function loop(t){if(!running)return;const dt=Math.min(.05,(t-last)/1000);last=t;const prev=heroX;heroX+=(heroTargetX-heroX)*.22;placeHero();cfPetStep(dt);
     if(Math.abs(heroX-prev)>.6||dragging)hero.classList.add('run');else hero.classList.remove('run');
@@ -2254,16 +2266,17 @@
      Префикс r2_ — новая полка отметок: цены выросли 2026-08-23, и уровень,
      пройденный по старым ценам, должен один раз выдать новую цену.
      Ключик живёт на старой отметке <id>_key — он один на игру навсегда. */
-  function lhReward(id,lvl,total,c,container){
+  /* Возвращает список наград парами [значок,'+N'] — показывает их вызывающий через
+     lhGifts, чтобы бонус за качество попал в ту же панель, а не отдельной надписью. */
+  function lhReward(id,lvl,total,c){
     const got=[],lid='r2_'+id+'_l'+lvl;
-    if(!games[lid]){coins+=c;games[lid]=true;got.push('🪙 +'+c);}
-    else{coins+=2;got.push('🪙 +2');}   /* за повтор — тот же 🪙+2, что в Мастерской и «Что исчезло?» */
+    if(!games[lid]){coins+=c;games[lid]=true;got.push(['🪙','+'+c]);}
+    else{coins+=2;got.push(['🪙','+2']);}   /* за повтор — тот же 🪙+2, что в Мастерской и «Что исчезло?» */
     if(total&&!games[id+'_key']){let all=true;
       for(let i=1;i<=total;i++)if(!games['r2_'+id+'_l'+i])all=false;
-      if(all){keys+=1;games[id+'_key']=true;got.push('🔑 +1');}}
+      if(all){keys+=1;games[id+'_key']=true;got.push(['🔑','+1']);}}
     save();updateHUD();
-    got.forEach(function(g,i){setTimeout(function(){blip();
-      popText(container,container.clientWidth/2-46+(Math.random()*70-35),container.clientHeight*0.36,g,'#FFB800');},260+i*320);});}
+    return got;}
   function shuf(a){a=a.slice();for(let i=a.length-1;i>0;i--){const j=Math.random()*(i+1)|0;const t=a[i];a[i]=a[j];a[j]=t;}return a;}
   function openLettersMenu(){const b=$('#lhScene');if(b&&!b.innerHTML)b.innerHTML=lhArt();show('lmenu');}
   $('#lmBack').onclick=goWorld;
@@ -2377,16 +2390,17 @@
     else{chime(false);asmMiss++;try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(e){}}}
   /* бонус за качество: пять слов без единого промаха — ⭐3, с парой промахов — ⭐1.
      Считается каждый раз, а не только за первое прохождение: это награда за старание. */
-  function asmBonus(){const st=asmMiss===0?3:asmMiss<=2?1:0;if(!st)return;
+  function asmBonus(){const st=asmMiss===0?3:asmMiss<=2?1:0;if(!st)return[];
     stars+=st;save();updateHUD();
-    setTimeout(function(){flash(screens.asm,asmMiss===0?'Ни одной ошибки! ⭐+'+st:'Почти без ошибок! ⭐+'+st);
-      for(let i=0;i<st;i++)setTimeout(function(){blip();
-        popText(screens.asm,screens.asm.clientWidth/2-16+(Math.random()*80-40),screens.asm.clientHeight*0.28,'⭐','#FFB800');},i*190);},950);}
+    setTimeout(function(){flash(screens.asm,asmMiss===0?'Ни одной ошибки!':'Почти без ошибок!');},1500);
+    return[['⭐','+'+st]];}
   function asmWordDone(){const item=asmSet[asmRound];setTimeout(()=>speak(wordOf(item).toLowerCase()),260);asmRound++;
     if(asmRound>=asmSet.length){setTimeout(()=>{done.letters=true;markGame('letters_assemble');save();earnPage('letters');flash(screens.asm,'Молодец!');confetti(screens.asm);
       /* «Собери слово» и «Составь из слогов» живут в одном экране, но награды у них свои */
-      if(asmMode==='letters'){lhReward('letters_word',asmLevel,4,asmCoins(),screens.asm);asmBonus();}
-      else lhReward('letters_syllwords',asmLevel,3,asmCoins(),screens.asm);
+      const got=asmMode==='letters'
+        ?lhReward('letters_word',asmLevel,4,asmCoins()).concat(asmBonus())
+        :lhReward('letters_syllwords',asmLevel,3,asmCoins());
+      lhGifts(screens.asm,got);
       /* уровень пройден — сразу следующий, не выходя из игры; после последнего — в меню */
       const H=screens.asm.clientHeight;
       pieEat(screens.asm,54,H-8-126,$('#asmHero'),asmLevel<asmMax()
@@ -2441,7 +2455,7 @@
       shuf(slUnits.slice()).forEach(u=>{const b=document.createElement('button');b.className='tile';b.innerHTML=colHTML(u);b.onclick=()=>slTap(u,b);tiles.appendChild(b);});}}
   function slTap(u,b){if(b.classList.contains('used'))return;if(u===slUnits[slNext]){const slot=$('#slSlots').children[slNext];slot.innerHTML=colHTML(u);slot.classList.add('full');b.classList.add('used');blip();sayU(u);slNext++;if(slNext>=slUnits.length)slDone();}else wiggle(b);}
   function slDone(){setTimeout(()=>speak(slWord.toLowerCase()),280);flash(screens.slog,'Отлично! '+slWord+' 🎉');stars+=1;save();updateHUD();slI++;
-    if(slI>=slN){markGame('letters_syllables');lhReward('letters_slog',slLevel,5,6+2*slLevel,screens.slog);
+    if(slI>=slN){markGame('letters_syllables');lhGifts(screens.slog,lhReward('letters_slog',slLevel,5,6+2*slLevel));
       setTimeout(()=>{confetti(screens.slog);earnPage('letters');const H=screens.slog.clientHeight;
         pieEat(screens.slog,54,H-8-126,$('#slogHero'),slLevel<5
           ?function(){slLevel++;levels.sl=slLevel;save();slI=0;renderSlLevels();flash(screens.slog,'Уровень '+slLevel+'! 🎉');nextSl();}
@@ -2480,7 +2494,7 @@
   function buildGap(cells,gapIdx,correct,word,ic,opts,hint){$('#gapPic').textContent='';$('#gapPic').style.display='none';$('#gapHint').textContent=hint;$('#gapProg').textContent=(gapI+1)+' / '+gapN;
     const row=$('#gapRow');row.innerHTML='';cells.forEach((c,i)=>{const d=document.createElement('div');d.className='gcell'+(i===gapIdx?' gap':'');d.innerHTML=i===gapIdx?'':colHTML(c);row.appendChild(d);});
     const box=$('#gapOpts');box.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='vopt';b.innerHTML=colHTML(o);b.onclick=()=>{if(o===correct){const cell=row.children[gapIdx];cell.className='gcell';cell.innerHTML=colHTML(o);blip();$('#gapPic').textContent=ic;$('#gapPic').style.display='block';setTimeout(()=>speak(word.toLowerCase()),280);flash(screens.gap,'Верно! '+word+' 🎉');stars+=1;save();updateHUD();gapI++;
-      if(gapI>=gapN){markGame('letters_gaps');lhReward('letters_gap',gapLevel,4,5+3*gapLevel,screens.gap);
+      if(gapI>=gapN){markGame('letters_gaps');lhGifts(screens.gap,lhReward('letters_gap',gapLevel,4,5+3*gapLevel));
         setTimeout(()=>{confetti(screens.gap);earnPage('letters');const H=screens.gap.clientHeight;
           pieEat(screens.gap,54,H-8-126,$('#gapHero'),gapLevel<4
             ?function(){gapLevel++;levels.gap=gapLevel;save();gapI=0;renderGapLevels();flash(screens.gap,'Уровень '+gapLevel+'! 🎉');nextGap();}
@@ -2913,8 +2927,25 @@
     requestAnimationFrame(()=>{pie.style.transform='translate(-50%,0) scale(1)';});setTimeout(()=>{pie.style.top=(heroTopPx+22)+'px';},420);
     const sizes=[.7,.4,0];let bite=0;setTimeout(function doBite(){if(bite>=sizes.length){pie.remove();popText(container,cxpx-34,heroTopPx-4,'Ням! 😋','#E4573B');speak('Ням! Вкусно!');setTimeout(onEnd,1300);return;}
       chomp();doCheer(heroEl);pie.style.transform='translate(-50%,0) scale('+sizes[bite]+')';bite++;setTimeout(doBite,380);},1100);}
-  function flash(container,t){const f=document.createElement('div');f.className='flash';f.textContent=t;container.appendChild(f);setTimeout(()=>f.remove(),1100);}
-  function popText(container,x,y,t,c){const p=document.createElement('div');p.className='pop';p.textContent=t;p.style.left=Math.max(6,Math.min(x,container.clientWidth-70))+'px';p.style.top=y+'px';p.style.color=c;container.appendChild(p);setTimeout(()=>p.remove(),700);}
+  /* Любой текст, где встречается 🪙, показываем через coinHTML: значок заменяется
+     на нарисованную жёлтую монетку. Текст сначала экранируется — в надписи может
+     попасть имя ребёнка. */
+  const COIN='<span class="coinic"></span>';
+  function coinHTML(t){return String(t).replace(/[&<>]/g,function(c){return c==='&'?'&amp;':c==='<'?'&lt;':'&gt;';})
+    .split('🪙').join(COIN);}
+  function flash(container,t){const f=document.createElement('div');f.className='flash';f.innerHTML=coinHTML(t);container.appendChild(f);setTimeout(()=>f.remove(),1100);}
+  function popText(container,x,y,t,c){const p=document.createElement('div');p.className='pop';p.innerHTML=coinHTML(t);p.style.left=Math.max(6,Math.min(x,container.clientWidth-70))+'px';p.style.top=y+'px';p.style.color=c;container.appendChild(p);setTimeout(()=>p.remove(),700);}
+  /* Что выиграл — крупно посреди экрана. Мелкие всплывашки терялись за конфетти
+     и летящим пирогом, и ребёнок видел только звёздочки. */
+  function lhGifts(container,got){
+    if(!got||!got.length)return;
+    const box=document.createElement('div');box.className='lhgifts';
+    box.innerHTML=got.map(function(g,i){
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.16)+'s">'
+        +coinHTML(g[0])+'<span>'+g[1]+'</span></div>';}).join('');
+    container.appendChild(box);
+    got.forEach(function(g,i){setTimeout(function(){blip();},260+i*220);});
+    setTimeout(function(){box.remove();},2600);}
   function rm(o){o.el.remove();items=items.filter(i=>i!==o);}
   function confetti(where){const cols=['#FF6B6B','#FFD23F','#7BC950','#4DB6E5','#9B5DE5','#F368C4'];for(let i=0;i<36;i++){const c=document.createElement('div');c.className='confetti';c.style.left=Math.random()*100+'%';c.style.background=cols[i%cols.length];c.style.animationDuration=(2+Math.random()*2)+'s';c.style.animationDelay=(Math.random()*.6)+'s';where.appendChild(c);setTimeout(()=>c.remove(),4200);}}
 
@@ -2942,7 +2973,7 @@
   /* ---------- СТРАНИЦЫ КНИГИ + ФИНАЛ ---------- */
   const PAGE_TARGET=5; // Дом букв + Раскраски + Ритм + Лес + Пекарня
   function updateHUD(){const h=$('#pagehud');if(!h)return;
-    h.innerHTML=[['⭐',stars],['🪙',coins],['🔑',keys],['🥧',pies],['📖',pages.length+'/'+PAGE_TARGET]].map(c=>'<span class="hchip'+(c[0]==='🪙'?' coin':'')+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join('');}
+    h.innerHTML=[['⭐',stars],['🪙',coins],['🔑',keys],['🥧',pies],['📖',pages.length+'/'+PAGE_TARGET]].map(c=>'<span class="hchip'+(c[0]==='🪙'?' coin':'')+'"><b>'+coinHTML(c[0])+'</b>'+c[1]+'</span>').join('');}
   function earnPage(key){if(pages.indexOf(key)>=0)return;pages.push(key);save();updateHUD();
     const cur=Object.values(screens).find(s=>s.classList.contains('active'))||screens.world;flash(cur,'📖 +1 страница!');blip();
     if(pages.length>=PAGE_TARGET&&!finaleDone)setTimeout(runFinale,1600);}
@@ -3602,7 +3633,7 @@
     speak(all?'Ты вспомнил всё! Страница книги твоя!':'Молодец!');
     $('#vanWinTxt').textContent=all?'📖 Вся серия пройдена!':'🎉 Верно!';
     $('#vanGifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+coinHTML(g[0])+'<span>'+g[1]+'</span></div>';}).join('');
     $('#vanMore').textContent=(first&&vanLevel<6)?'🧠 Следующий уровень':'🧠 Ещё раз';
     $('#vanPrize').classList.add('on');
     if(first&&vanLevel<6)vanLevel++;}
@@ -3655,7 +3686,8 @@
     if(!missing&&!extra){flash(screens.cart,'Ура! Всё куплено! 🎉');confetti(screens.cart);doCheer($('#cartHero'));qLevel++;if(qLevel>=6)questFinish();else setTimeout(loadQuest,1500);}
     else{qBusy=false;qMiss++;$('#cartMsg').textContent=missing?'Кажется, мы что-то забыли. Посмотри на список! 📝':'Ой! В тележке есть лишнее 🙂';renderShelf();}}
   /* пирог сюда приносит pieEat в самом конце — отдельно его начислять не нужно */
-  function questFinish(){markGame('shop_quest');const st=qMiss===0?3:qMiss<=2?2:1;stars+=st;coins+=6;save();updateHUD();flash(screens.cart,'⭐'+st+'  🪙+6  🥧+1');confetti(screens.cart);const H=screens.cart.clientHeight;pieEat(screens.cart,54,H-8-126,$('#cartHero'),openShopMenu);}
+  function questFinish(){markGame('shop_quest');const st=qMiss===0?3:qMiss<=2?2:1;stars+=st;coins+=10;save();updateHUD();
+    flash(screens.cart,'Молодец!');lhGifts(screens.cart,[['⭐','+'+st],['🪙','+10'],['🥧','+1']]);confetti(screens.cart);const H=screens.cart.clientHeight;pieEat(screens.cart,54,H-8-126,$('#cartHero'),openShopMenu);}
 
   /* СКОЛЬКО СТОИТ? */
   const PRICES={'🍎':3,'🍌':2,'🥛':4,'🍞':3,'🧃':2,'🧀':5,'🥚':2,'🍓':4,'🍇':5,'🥕':2,'🍅':3,'🍪':2,'🍫':4,'🥐':3,'🍊':3,'🍐':3};
@@ -3668,23 +3700,24 @@
   function numOpts(correct){const set={};set[correct]=1;while(Object.keys(set).length<3){const d=Math.max(1,correct+(Math.random()*5|0)-2);set[d]=1;}return shuf(Object.keys(set).map(Number));}
   function cOpt(n,correct){const b=document.createElement('button');b.className='vopt';b.textContent=n;b.onclick=()=>{if(correct)cashWin();else cashBad(b);};$('#cashOpts').appendChild(b);}
   function loadCash(){$('#cashMsg').textContent='';$('#cashProg').textContent='Касса '+(cashRound+1)+' / 5';const stage=$('#cashStage'),opts=$('#cashOpts');stage.innerHTML='';opts.innerHTML='';
-    if(cashRound===0){const it=cRand(CASH_KEYS),p=PRICES[it];beep();stage.innerHTML='<div>'+it+'<span class="pricetag">'+p+'🪙</span></div>';$('#cashHint').textContent='Сколько стоит?';setTimeout(()=>speak('Сколько стоит?'),350);numOpts(p).forEach(n=>cOpt(n,n===p));}
+    if(cashRound===0){const it=cRand(CASH_KEYS),p=PRICES[it];beep();stage.innerHTML='<div>'+it+'<span class="pricetag">'+p+COIN+'</span></div>';$('#cashHint').textContent='Сколько стоит?';setTimeout(()=>speak('Сколько стоит?'),350);numOpts(p).forEach(n=>cOpt(n,n===p));}
     /* сложение: пример показан целиком «2 ➕ 3 = ?» и проговаривается вслух — ребёнок ещё не читает */
     else if(cashRound===1){const a=cRand(CASH_KEYS),b=cRand(CASH_KEYS),x=PRICES[a],y=PRICES[b],sum=x+y;beep();
       stage.innerHTML='<div>'+a+'<span class="pricetag">'+x+'</span></div><div class="msign">➕</div><div>'+b+'<span class="pricetag">'+y+'</span></div><div class="msign">=</div><div class="mq">❓</div>';
       $('#cashHint').textContent='Сколько заплатить? '+x+' ➕ '+y+' = ?';
       setTimeout(()=>speak('Сколько нужно заплатить? '+x+' плюс '+y),350);numOpts(sum).forEach(n=>cOpt(n,n===sum));}
-    else if(cashRound===2){cashNeed=3+(Math.random()*5|0);cashPaid=0;$('#cashHint').textContent='Заплати монетами: '+cashNeed+'🪙';setTimeout(()=>speak('Заплати монетами'),350);stage.innerHTML='<div id="cashTray">Касса: 0 🪙</div>';[1,2,5].forEach(v=>{const b=document.createElement('button');b.className='coinbtn';b.textContent=v;b.onclick=()=>{cashPaid+=v;beep();$('#cashTray').textContent='Касса: '+cashPaid+' 🪙';if(cashPaid===cashNeed)cashWin();else if(cashPaid>cashNeed){$('#cashMsg').textContent='Слишком много! 🙂';cashPaid=0;setTimeout(()=>{if($('#cashTray'))$('#cashTray').textContent='Касса: 0 🪙';$('#cashMsg').textContent='';},800);}};opts.appendChild(b);});const rb=document.createElement('button');rb.className='btn small';rb.textContent='Сброс';rb.onclick=()=>{cashPaid=0;if($('#cashTray'))$('#cashTray').textContent='Касса: 0 🪙';};opts.appendChild(rb);}
-    else if(cashRound===3){const a=cRand(CASH_KEYS),b=cRand(CASH_KEYS),sum=PRICES[a]+PRICES[b],purse=8+(Math.random()*4|0);beep();stage.innerHTML='<div>🪙'+purse+'</div><div>'+a+PRICES[a]+' + '+b+PRICES[b]+'</div>';$('#cashHint').textContent='Хватит ли денег?';setTimeout(()=>speak('Хватит ли денег?'),350);const yes=purse>=sum;['ДА','НЕТ'].forEach(t=>{const btn=document.createElement('button');btn.className='vopt';btn.style.width='auto';btn.style.padding='0 18px';btn.textContent=t;btn.onclick=()=>{if((t==='ДА')===yes)cashWin();else cashBad(btn);};opts.appendChild(btn);});}
+    else if(cashRound===2){cashNeed=3+(Math.random()*5|0);cashPaid=0;$('#cashHint').textContent='Заплати монетами: '+cashNeed;setTimeout(()=>speak('Заплати монетами'),350);stage.innerHTML='<div id="cashTray">Касса: 0 '+COIN+'</div>';[1,2,5].forEach(v=>{const b=document.createElement('button');b.className='coinbtn';b.textContent=v;b.onclick=()=>{cashPaid+=v;beep();$('#cashTray').innerHTML='Касса: '+cashPaid+' '+COIN;if(cashPaid===cashNeed)cashWin();else if(cashPaid>cashNeed){$('#cashMsg').textContent='Слишком много! 🙂';cashPaid=0;setTimeout(()=>{if($('#cashTray'))$('#cashTray').innerHTML='Касса: 0 '+COIN;$('#cashMsg').textContent='';},800);}};opts.appendChild(b);});const rb=document.createElement('button');rb.className='btn small';rb.textContent='Сброс';rb.onclick=()=>{cashPaid=0;if($('#cashTray'))$('#cashTray').innerHTML='Касса: 0 '+COIN;};opts.appendChild(rb);}
+    else if(cashRound===3){const a=cRand(CASH_KEYS),b=cRand(CASH_KEYS),sum=PRICES[a]+PRICES[b],purse=8+(Math.random()*4|0);beep();stage.innerHTML='<div>'+COIN+purse+'</div><div>'+a+PRICES[a]+' + '+b+PRICES[b]+'</div>';$('#cashHint').textContent='Хватит ли денег?';setTimeout(()=>speak('Хватит ли денег?'),350);const yes=purse>=sum;['ДА','НЕТ'].forEach(t=>{const btn=document.createElement('button');btn.className='vopt';btn.style.width='auto';btn.style.padding='0 18px';btn.textContent=t;btn.onclick=()=>{if((t==='ДА')===yes)cashWin();else cashBad(btn);};opts.appendChild(btn);});}
     /* вычитание: сдача показана как настоящий пример «10 ➖ 6 = ?» и тоже звучит вслух */
     else{const p=5+(Math.random()*4|0),change=10-p;beep();
-      stage.innerHTML='<div>🪙10</div><div class="msign">➖</div><div>🪙'+p+'</div><div class="msign">=</div><div class="mq">❓</div>';
+      stage.innerHTML='<div>'+COIN+'10</div><div class="msign">➖</div><div>'+COIN+p+'</div><div class="msign">=</div><div class="mq">❓</div>';
       $('#cashHint').textContent='Сколько сдачи? 10 ➖ '+p+' = ?';
       setTimeout(()=>speak('Сколько сдачи? 10 минус '+p),350);numOpts(change).forEach(n=>cOpt(n,n===change));}}
   function cashBad(b){chime(false);cashMiss++;$('#cashMsg').textContent='Попробуй ещё раз! 🙂';try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(x){}}
   function cashWin(){blip();$('#cashMsg').textContent='Оплата прошла! 🎉';doCheer($('#cashHero'));cashRound++;if(cashRound>=5)cashFinish();else setTimeout(loadCash,1050);}
-  function cashFinish(){markGame('shop_cash');const st=cashMiss===0?3:cashMiss<=2?2:1;coins+=10;save();updateHUD();
-    flash(screens.cash,'Молодец!  🪙+10');confetti(screens.cash);const H=screens.cash.clientHeight;giveReward('star',st,screens.cash,null);pieEat(screens.cash,54,H-8-126,$('#cashHero'),openShopMenu);}
+  function cashFinish(){markGame('shop_cash');const st=cashMiss===0?3:cashMiss<=2?2:1;stars+=st;coins+=10;save();updateHUD();
+    flash(screens.cash,'Молодец!');lhGifts(screens.cash,[['⭐','+'+st],['🪙','+10'],['🥧','+1']]);confetti(screens.cash);
+    const H=screens.cash.clientHeight;pieEat(screens.cash,54,H-8-126,$('#cashHero'),openShopMenu);}
 
   /* Повтори последовательность / ритм */
   const SEQ_OBJ=['🦁','🐘','🎠','🤡'];const RHY=[['🥁',170],['🎺',340],['🎸',255],['🔔',520]];
@@ -4160,7 +4193,7 @@
     else coins+=2;
     if(first&&wkLevel<5&&(levels.wk||1)<wkLevel+1){levels.wk=wkLevel+1;}
     save();updateHUD();
-    $('#wkGifts').innerHTML=got.map((g,i)=>'<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>').join('');
+    $('#wkGifts').innerHTML=got.map((g,i)=>'<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+coinHTML(g[0])+'<span>'+g[1]+'</span></div>').join('');
     $('#wkMore').textContent=first&&wkLevel<5?'🔧 Механизм посложнее':'🔧 Починить ещё один';
     $('#wkPrize').classList.add('on');
     got.forEach((g,i)=>setTimeout(()=>{blip();popText(screens.wkshop,screens.wkshop.clientWidth/2-16+(Math.random()*60-30),screens.wkshop.clientHeight*0.4,g[0],'#FFB800');},300+i*220));
@@ -4423,7 +4456,7 @@
     $('#mkWinTxt').textContent=mkStage===3?(mkErr===0?'🎉 Всё без ошибок!':'🎉 Ты настоящий мастер!')
       :('🎉 Этап '+mkStage+' пройден!');
     $('#mkGifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+coinHTML(g[0])+'<span>'+g[1]+'</span></div>';}).join('');
     $('#mkMore').textContent=mkStage<3?'▶️ Этап '+(mkStage+1):'🔁 Сыграть ещё';
     $('#mkPrize').classList.add('on');
     confetti(screens.mk);}
@@ -4500,7 +4533,7 @@
     else{coins+=1;got=[['🪙','+1']];}
     save();updateHUD();
     $('#pkWinTxt').textContent=kind==='win'?'🎉 Ты выиграл!':kind==='draw'?'🤝 Ничья!':'🙂 Молодец, что играл!';
-    $('#pkGifts').innerHTML=got.map(function(g,i){return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#pkGifts').innerHTML=got.map(function(g,i){return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+coinHTML(g[0])+'<span>'+g[1]+'</span></div>';}).join('');
     $('#pkPrize').classList.add('on');}
   $('#pkBack').onclick=function(){openParkMenu();};$('#pkOut').onclick=goWorld;
   $('#pkMore').onclick=function(){$('#pkPrize').classList.remove('on');pkNew(false);};
@@ -4676,7 +4709,7 @@
         +'<div class="stdot" style="background:'+TV_COL[tvSt[k]]+'"></div><div class="stok">✅</div>');
       box.appendChild(e);tvStEl[k]=e;});
     Object.keys(tvCoin).forEach(function(k){const p=k.split(',');
-      const e=tvEl('tvcoin',+p[0],+p[1],'🪙');box.appendChild(e);tvCoinEl[k]=e;});
+      const e=tvEl('tvcoin',+p[0],+p[1],COIN);box.appendChild(e);tvCoinEl[k]=e;});
     Object.keys(tvLight).forEach(function(k){const p=k.split(',');
       const e=tvEl('tvlight '+tvLight[k],+p[0],+p[1],tvLightSVG());box.appendChild(e);tvLightEl[k]=e;});
     Object.keys(tvBlock).forEach(function(k){const p=k.split(',');
@@ -4789,7 +4822,7 @@
     if(perfect&&tvLevel>=6)earnPage('station');
     $('#tvWinTxt').textContent=perfect?'🏆 Идеальный рейс!':'🎉 Приехали!';
     $('#tvGifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+coinHTML(g[0])+'<span>'+g[1]+'</span></div>';}).join('');
     $('#tvMore').textContent=(first&&tvLevel<6)?'🚂 Следующий путь':'🚂 Ещё раз';
     $('#tvPrize').classList.add('on');
     if(first&&tvLevel<6)tvLevel++;}
@@ -4800,7 +4833,7 @@
       h+='<span class="schip'+(i<tvSeqI?' ok':'')+'" style="background:'+TV_COL[cl]+'"></span>';});
     $('#tvSeq').innerHTML=h;}
   function tvCntDraw(){$('#tvCnt').style.display=tvAll?'block':'none';
-    $('#tvCnt').textContent='🪙 '+tvGot+(tvNeed?' / '+tvNeed:'');}
+    $('#tvCnt').innerHTML=COIN+' '+tvGot+(tvNeed?' / '+tvNeed:'');}
   function tvRenderLevels(){const box=$('#tvLevels');box.innerHTML='';const open=Math.min(6,levels.tv||1);
     for(let i=1;i<=6;i++){const b=document.createElement('button');
       b.className='lvbtn'+(i===tvLevel?' sel':'');b.textContent=i;b.disabled=i>open;b.style.opacity=i>open?'.35':'';
@@ -4810,7 +4843,7 @@
     $('#tvTaskTtl').textContent='🎯 Уровень '+tvLevel;
     let h='<span class="vbig">🚂</span>';
     lv.seq.forEach(function(cl){h+='<span class="varr">→</span><span class="vchip" style="background:'+TV_COL[cl]+'"></span>';});
-    if(lv.need)h+='<span class="varr">+</span><span class="vbig">🪙</span><span class="vnum">'+lv.need+'</span>';
+    if(lv.need)h+='<span class="varr">+</span><span class="vbig">'+COIN+'</span><span class="vnum">'+lv.need+'</span>';
     if(lv.lights.length)h+='<span class="vbig">🚦</span>';
     if(lv.blocks.length)h+='<span class="vbig">🚧</span>';
     $('#tvTaskVis').innerHTML=h;$('#tvTask').classList.add('on');
@@ -5016,7 +5049,7 @@
     save();updateHUD();
     $('#m3WinTxt').textContent='🎉 Уровень пройден!';
     $('#m3Gifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+coinHTML(g[0])+'<span>'+g[1]+'</span></div>';}).join('');
     $('#m3More').textContent=(first&&m3Level<5)?'🍭 Следующий уровень':'🍭 Сыграть ещё';
     $('#m3Prize').classList.add('on');
     if(first&&m3Level<5)m3Level++;}
@@ -5312,7 +5345,7 @@
     speak(all?'Ты прошёл все уровни! Молодец!':'Молодец!');
     $('#odWinTxt').textContent=all?'🔎 Все уровни пройдены!':'🎉 Уровень пройден!';
     $('#odGifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+coinHTML(g[0])+'<span>'+g[1]+'</span></div>';}).join('');
     $('#odMore').textContent=(first&&odLevel<3)?'🔎 Следующий уровень':'🔎 Ещё раз';
     $('#odPrize').classList.add('on');
     if(first&&odLevel<3)odLevel++;}
@@ -6359,7 +6392,7 @@
     $('#hhDoor2').innerHTML=yard?(HH_HOMEDOOR+'<div class="hhdlbl">🏠 Домой</div>')
       :(HH_GARDEN+'<div class="hhdlbl">'+(hhYardOpen()?'🌳 Во дворик':'🔒 '+earnedKeys()+' / '+YARD_KEYS+' 🔑')+'</div>');
     $('#hhDoor3').innerHTML=kit?(HH_DOOR+'<div class="hhdlbl">🛋️ В комнату</div>')
-      :(HH_KITDOOR+'<div class="hhdlbl">'+(hhKitOpen()?'🍽️ На кухню':(coins>=KIT_PRICE?'🛒 ':'🔒 ')+KIT_PRICE+' 🪙')+'</div>');
+      :(HH_KITDOOR+'<div class="hhdlbl">'+(hhKitOpen()?'🍽️ На кухню':(coins>=KIT_PRICE?'🛒 ':'🔒 ')+KIT_PRICE+' '+COIN)+'</div>');
     $('#hhWrap').classList.toggle('yard',yard);
     $('#hhWrap').classList.toggle('kit',kit);
     $('#hhTitle').textContent=yard?'🌳 Мой дворик':kit?'🍽️ Моя кухня':bth?'🛁 Ванная':'🏠 Мой дом';
@@ -6369,7 +6402,7 @@
       pel.classList.remove('st0','st1','st2','st3');pel.classList.add('st'+st);
       $('#hhPetArt').innerHTML=hhPetPic(pt.k,st);}
     else $('#hhPetArt').innerHTML='';
-    $('#hhCoins').textContent='🪙 '+coins+'  ⭐ '+stars+'  🔑 '+keys+'  🥧 '+pies;}
+    $('#hhCoins').innerHTML=COIN+' '+coins+'  ⭐ '+stars+'  🔑 '+keys+'  🥧 '+pies;}
 
   function hhZ(t,y){return t.flat?1:(t.wall?2:3+Math.round(y));}
   function hhRender(){
@@ -6430,8 +6463,8 @@
     if(hhPut)hhEndPut(true);                     /* прошлую примерку засчитываем */
     const o=hhIt()[i];if(!o)return;
     hhPut={i:i,mode:mode||'move',x:o.x,y:o.y,pay:pay||null};
-    $('#hhTipTxt').textContent=pay?('Нравится? ✅ — беру за '+pay.n+' '+hhEm(pay.t))
-      :mode==='move'?'Переставь, куда хочешь':'Поставь, куда хочешь';
+    $('#hhTipTxt').innerHTML=coinHTML(pay?('Нравится? ✅ — беру за '+pay.n+' '+hhEm(pay.t))
+      :mode==='move'?'Переставь, куда хочешь':'Поставь, куда хочешь');
     hhRender();}
   /* деньги списываются только по ✅ — до этого вещь просто примеряют */
   function hhCommit(){
@@ -6473,7 +6506,7 @@
   /* общий вопрос «да/нет» на той же подсказке: покупка питомца, открытие кухни */
   function hhAskDo(txt,fn){
     hhEndPut(true);hhAsk=fn;
-    $('#hhTipTxt').textContent=txt;$('#hhBox').style.display='none';
+    $('#hhTipTxt').innerHTML=coinHTML(txt);$('#hhBox').style.display='none';
     $('#hhTip').classList.add('on');hhShut(true);blip();}
   function hhAskEnd(yes){
     const f=hhAsk;hhAsk=null;
@@ -6537,7 +6570,7 @@
     $('#hhCatName').textContent=cur?cur[2]:'';}
   function hhCell(pv,name,price,cls,onTap){
     const d=document.createElement('div');d.className='hhcell '+cls;
-    d.innerHTML='<div class="pv">'+pv+'</div><div class="nm">'+name+'</div><div class="pr">'+price+'</div>';
+    d.innerHTML='<div class="pv">'+pv+'</div><div class="nm">'+name+'</div><div class="pr">'+coinHTML(price)+'</div>';
     if(onTap)d.onclick=onTap;return d;}
   function hhGrid(){
     const box=$('#hhGrid');box.innerHTML='';
