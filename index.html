@@ -855,6 +855,31 @@
   .hhwrap.kit .hhdoor4{display:block;}
   .hhwrap.bath .hhdoor:not(.hhdoor4){display:none;}
   .hhwrap.bath .hhdoor4{display:block;left:4%;right:auto;}
+  /* ---- Чердак: комната над домом, входят по лестнице из ванной ---- */
+  /* панель мебели тут не нужна: чердак не расставляют, на нём ищут */
+  .hhwrap.attic .hhdoor,.hhwrap.attic .hhtab,.hhwrap.attic .hhpanel{display:none;}
+  .hhwrap.attic .hhroom{right:16px;}
+  .hhattic{position:absolute;inset:0;display:none;}
+  .hhwrap.attic .hhattic{display:block;}
+  .attbeam{position:absolute;background:linear-gradient(180deg,#A9743E,#835836);border-radius:5px;
+    box-shadow:0 4px 10px rgba(60,35,10,.22);}
+  .attweb{position:absolute;width:15%;pointer-events:none;opacity:.5;}
+  .attweb svg{width:100%;height:auto;display:block;}
+  .attit{position:absolute;transform:translate(-50%,-100%);cursor:pointer;transition:transform .15s;}
+  .attit:hover{transform:translate(-50%,-100%) scale(1.05);}
+  .attit>svg{width:100%;height:auto;display:block;filter:drop-shadow(0 6px 7px rgba(60,35,10,.30));}
+  .attlbl{position:absolute;left:50%;bottom:-20px;transform:translateX(-50%);white-space:nowrap;
+    font-family:'Fredoka';font-size:14px;background:rgba(255,255,255,.92);border-radius:10px;padding:1px 9px;
+    color:#5b4326;box-shadow:0 3px 7px rgba(0,0,0,.16);pointer-events:none;}
+  .attspark{position:absolute;left:50%;top:-16px;transform:translateX(-50%);font-size:28px;pointer-events:none;
+    animation:attsp 1.5s ease-in-out infinite;}
+  @keyframes attsp{0%,100%{transform:translateX(-50%) scale(1);opacity:.85}50%{transform:translateX(-50%) scale(1.28);opacity:1}}
+  /* лестница на чердак: стоит в ванной как часть комнаты, а не кнопкой поверх неё */
+  .hhladder{position:absolute;right:7%;bottom:7%;width:150px;height:76%;display:none;cursor:pointer;
+    transition:transform .15s;z-index:3;}
+  .hhwrap.bath .hhladder{display:block;}
+  .hhladder:hover{transform:scale(1.03);}
+  .hhladder>svg{width:100%;height:100%;display:block;}
   .hhdlbl{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);background:rgba(255,255,255,.94);
     border-radius:11px;padding:2px 9px;font-family:'Fredoka';font-size:13px;color:#3a2f1a;white-space:nowrap;
     box-shadow:0 3px 8px rgba(0,0,0,.18);pointer-events:none;z-index:200;}
@@ -1307,6 +1332,8 @@
         <div class="hhdoor hhdoor2" id="hhDoor2"></div>
         <div class="hhdoor hhdoor3" id="hhDoor3"></div>
         <div class="hhdoor hhdoor4" id="hhDoor4"></div>
+        <div class="hhattic" id="hhAttic"></div>
+        <div class="hhladder" id="hhLadder"></div>
         <div class="hhitems" id="hhItems"></div>
         <div class="hhpet" id="hhPet"><div class="hhpbub" id="hhPbub"></div><div class="hhpimg" id="hhPetArt"></div></div>
         <div class="hhero" id="hhHero"><div class="hhname" id="hhName"></div><div class="hhbub" id="hhBub"></div><img id="hhImg" alt="герой"></div>
@@ -1683,7 +1710,8 @@
   /* дом героя: что куплено и где стоит. Живёт рядом с остальным состоянием, потому что
      load() разбирает сохранение раньше, чем объявлен код комнаты. */
   let houseSt={wall:'w0',floor:'f0',kitWall:'kw0',kitFloor:'kf0',bathWall:'bw0',bathFloor:'bf0',
-    own:[],items:[],yard:[],kitchen:[],bath:[],kit:0,bathOpen:0,pet:''};
+    own:[],items:[],yard:[],kitchen:[],bath:[],kit:0,bathOpen:0,pet:'',
+    attic:0,attFound:[]};   /* чердак: открыт ли и какие секреты уже найдены */
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
   function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,starsSpent,keysSpent,piesSpent,house:houseSt};}
@@ -2194,7 +2222,7 @@
     $('#cfPet').classList.toggle('run',run);cfPetPlace(run);}
 
   function rewardL(){running=false;cancelAnimationFrame(raf);done.letters=true;markGame('letters_catch');save();earnPage('letters');items.forEach(o=>o.el.remove());items=[];flash(field,'Молодец!');
-    lhGifts(field,lhReward('letters_catch',1,1,8));
+    lhGifts(field,lhReward('letters_catch',1,1,8,true));
     const h=field.clientHeight,heroTop=h-12-172;pieEat(field,heroX,heroTop,hero,()=>openPicker());}
   function loop(t){if(!running)return;const dt=Math.min(.05,(t-last)/1000);last=t;const prev=heroX;heroX+=(heroTargetX-heroX)*.22;placeHero();cfPetStep(dt);
     if(Math.abs(heroX-prev)>.6||dragging)hero.classList.add('run');else hero.classList.remove('run');
@@ -2268,9 +2296,11 @@
      Ключик живёт на старой отметке <id>_key — он один на игру навсегда. */
   /* Возвращает список наград парами [значок,'+N'] — показывает их вызывающий через
      lhGifts, чтобы бонус за качество попал в ту же панель, а не отдельной надписью. */
-  function lhReward(id,lvl,total,c){
+  /* always — платить полную цену каждый раз. Так у «Поймай букву»: там каждая новая
+     буква и есть новое задание, а уровней, за которые платят один раз, нет. */
+  function lhReward(id,lvl,total,c,always){
     const got=[],lid='r2_'+id+'_l'+lvl;
-    if(!games[lid]){coins+=c;games[lid]=true;got.push(['🪙','+'+c]);}
+    if(always||!games[lid]){coins+=c;games[lid]=true;got.push(['🪙','+'+c]);}
     else{coins+=2;got.push(['🪙','+2']);}   /* за повтор — тот же 🪙+2, что в Мастерской и «Что исчезло?» */
     if(total&&!games[id+'_key']){let all=true;
       for(let i=1;i<=total;i++)if(!games['r2_'+id+'_l'+i])all=false;
@@ -6339,6 +6369,85 @@
     {id:'bf3',n:'Деревянный',p:12,bg:'repeating-linear-gradient(90deg,#E7C58A 0 52px,#D3AC6C 52px 56px)'}];
   const BATH_CATS=[['bwash','🛁','Сантехника'],['bsoap','🧼','Мыло и щётки'],
                    ['btoy','🦆','Игрушки'],['bcozy','🌿','Уют'],['walls','🌈','Стены и пол'],['store','📦','Склад']];
+  /* ---------- ЧЕРДАК ----------
+     Комната над домом. Открывается за 200 ⭐ и навсегда — это дальняя цель,
+     ради которой копят. Вещи тут не расставляют: они стоят по местам, а ребёнок
+     ходит героем и открывает спрятанное. Каждый секрет находится один раз. */
+  const ATTIC_STARS=200;
+  const ATT_SVG=function(vb,body){return '<svg viewBox="'+vb+'" style="width:100%;height:auto">'+body+'</svg>';};
+  const ATT_ART={
+    /* лестница вниз: люк в полу и ступеньки, уходящие в ванную */
+    down:ATT_SVG('0 0 120 150','<ellipse cx="60" cy="132" rx="54" ry="14" fill="#5C3E22" opacity=".35"/>'
+      +'<path d="M14 132 L34 92 h52 l20 40 Z" fill="#3B2A18"/>'
+      +'<path d="M30 96 h60 l6 12 H24 Z" fill="#7A5133"/><path d="M24 112 h72 l6 12 H18 Z" fill="#8B5E3C"/>'
+      +'<rect x="30" y="12" width="13" height="92" rx="6" fill="#C9995C"/>'
+      +'<rect x="77" y="12" width="13" height="92" rx="6" fill="#C9995C"/>'
+      +'<g fill="#B77A47">'+[0,1,2,3].map(function(i){return '<rect x="30" y="'+(24+i*22)+'" width="60" height="10" rx="5"/>';}).join('')+'</g>'),
+    tele:ATT_SVG('0 0 130 160','<ellipse cx="65" cy="150" rx="46" ry="10" fill="#5C3E22" opacity=".3"/>'
+      +'<path d="M65 60 L34 146 M65 60 L96 146 M65 60 L65 148" stroke="#7A5133" stroke-width="8" stroke-linecap="round"/>'
+      +'<g transform="rotate(-28 68 56)"><rect x="24" y="40" width="88" height="30" rx="15" fill="#4A6FA5"/>'
+      +'<rect x="24" y="40" width="88" height="13" rx="6.5" fill="#6E93C8"/>'
+      +'<rect x="100" y="33" width="22" height="44" rx="10" fill="#FFD23F" stroke="#D8A21A" stroke-width="3"/>'
+      +'<circle cx="30" cy="55" r="11" fill="#2E4A73"/></g>'
+      +'<circle cx="110" cy="18" r="4" fill="#FFF3B0"/><circle cx="96" cy="34" r="2.6" fill="#FFF3B0"/>'),
+    chest:ATT_SVG('0 0 150 120','<ellipse cx="75" cy="112" rx="62" ry="12" fill="#5C3E22" opacity=".3"/>'
+      +'<rect x="14" y="52" width="122" height="58" rx="9" fill="#A9743E"/>'
+      +'<path d="M14 56 a61 34 0 0 1 122 0 Z" fill="#C08A52"/>'
+      +'<path d="M14 56 h122" stroke="#7A5133" stroke-width="4"/>'
+      +'<rect x="64" y="46" width="22" height="30" rx="6" fill="#FFD23F" stroke="#D8A21A" stroke-width="3"/>'
+      +'<circle cx="75" cy="62" r="4" fill="#8B5E3C"/>'
+      +'<g fill="#E0B072"><rect x="26" y="60" width="8" height="48" rx="4"/><rect x="116" y="60" width="8" height="48" rx="4"/></g>'),
+    teddy:ATT_SVG('0 0 100 110','<ellipse cx="50" cy="104" rx="36" ry="8" fill="#5C3E22" opacity=".3"/>'
+      +'<circle cx="22" cy="30" r="13" fill="#C08A52"/><circle cx="78" cy="30" r="13" fill="#C08A52"/>'
+      +'<circle cx="50" cy="38" r="27" fill="#D9A46A"/>'
+      +'<ellipse cx="50" cy="80" rx="30" ry="24" fill="#D9A46A"/>'
+      +'<ellipse cx="50" cy="84" rx="17" ry="14" fill="#F0D0A8"/>'
+      +'<circle cx="40" cy="34" r="4" fill="#3A2A18"/><circle cx="60" cy="34" r="4" fill="#3A2A18"/>'
+      +'<ellipse cx="50" cy="46" rx="8" ry="6" fill="#F0D0A8"/><circle cx="50" cy="44" r="3.4" fill="#3A2A18"/>'
+      +'<path d="M40 74 q-18 0 -20 14 M60 74 q18 0 20 14" stroke="#C08A52" stroke-width="11" fill="none" stroke-linecap="round"/>'
+      +'<path d="M28 22 q22 -14 44 0" stroke="#E4573B" stroke-width="5" fill="none" stroke-linecap="round"/>'),
+    books:ATT_SVG('0 0 130 110','<ellipse cx="65" cy="104" rx="52" ry="9" fill="#5C3E22" opacity=".3"/>'
+      +'<rect x="16" y="76" width="98" height="24" rx="4" fill="#4A6FA5"/><rect x="16" y="76" width="98" height="8" rx="4" fill="#6E93C8"/>'
+      +'<rect x="22" y="54" width="86" height="22" rx="4" fill="#7BC950"/><rect x="22" y="54" width="86" height="7" rx="3.5" fill="#9BD97A"/>'
+      +'<rect x="28" y="34" width="74" height="20" rx="4" fill="#E4573B"/><rect x="28" y="34" width="74" height="7" rx="3.5" fill="#F0836E"/>'
+      +'<rect x="46" y="14" width="42" height="20" rx="4" fill="#9B5DE5"/><rect x="46" y="14" width="42" height="7" rx="3.5" fill="#BC8BF0"/>'
+      +'<g fill="#FFF3B0" opacity=".9"><rect x="30" y="82" width="5" height="12" rx="2"/><rect x="36" y="60" width="5" height="10" rx="2"/></g>'),
+    map:ATT_SVG('0 0 150 110','<rect x="6" y="6" width="138" height="98" rx="8" fill="#F0DCA8" stroke="#C9995C" stroke-width="5"/>'
+      +'<path d="M18 74 q26 -22 48 -6 q22 16 44 -10" stroke="#B77A47" stroke-width="4" fill="none" stroke-dasharray="8 7" stroke-linecap="round"/>'
+      +'<path d="M22 30 q16 8 30 0 q16 -8 30 2" stroke="#7BC950" stroke-width="5" fill="none" stroke-linecap="round"/>'
+      +'<circle cx="112" cy="56" r="9" fill="none" stroke="#E4573B" stroke-width="4"/>'
+      +'<path d="M105 49 l14 14 M119 49 l-14 14" stroke="#E4573B" stroke-width="4" stroke-linecap="round"/>'
+      +'<path d="M30 88 l6 -10 l6 10 Z" fill="#4A6FA5"/><circle cx="60" cy="24" r="5" fill="#FFD23F"/>'),
+    pic:ATT_SVG('0 0 120 100','<rect x="4" y="4" width="112" height="92" rx="7" fill="#C9995C" stroke="#8B5E3C" stroke-width="5"/>'
+      +'<rect x="14" y="14" width="92" height="72" rx="4" fill="#BFE9F5"/>'
+      +'<path d="M14 66 q22 -26 44 -6 q20 18 48 -8 v34 H14 Z" fill="#7BC950"/>'
+      +'<circle cx="88" cy="34" r="11" fill="#FFD23F"/>'
+      +'<path d="M22 40 q8 -8 16 0 q8 -8 16 0" stroke="#fff" stroke-width="3.4" fill="none" stroke-linecap="round"/>'),
+    boxes:ATT_SVG('0 0 150 130','<ellipse cx="75" cy="124" rx="62" ry="10" fill="#5C3E22" opacity=".3"/>'
+      +'<rect x="14" y="58" width="76" height="64" rx="6" fill="#C9995C"/><rect x="14" y="58" width="76" height="14" rx="6" fill="#DCB489"/>'
+      +'<path d="M52 58 v64" stroke="#A9743E" stroke-width="4"/>'
+      +'<rect x="90" y="76" width="52" height="46" rx="6" fill="#B78B57"/><rect x="90" y="76" width="52" height="11" rx="5" fill="#D0A473"/>'
+      +'<rect x="30" y="22" width="52" height="38" rx="6" fill="#DCB489"/><rect x="30" y="22" width="52" height="10" rx="5" fill="#EBCBA6"/>'
+      +'<path d="M56 22 v38" stroke="#A9743E" stroke-width="3.4"/>'),
+    lamp:ATT_SVG('0 0 90 130','<rect x="41" y="0" width="8" height="34" rx="4" fill="#7A5133"/>'
+      +'<path d="M14 66 L76 66 L60 34 H30 Z" fill="#E4573B"/>'
+      +'<path d="M14 66 L76 66 L60 34 H30 Z" fill="none" stroke="#B8412C" stroke-width="4" stroke-linejoin="round"/>'
+      +'<circle cx="45" cy="76" r="13" fill="#FFD23F"/><circle cx="45" cy="76" r="20" fill="#FFD23F" opacity=".35"/>'),
+    web:ATT_SVG('0 0 100 100','<g stroke="#fff" stroke-width="2.6" fill="none" opacity=".95">'
+      +'<path d="M0 0 L100 62 M0 0 L62 100 M0 0 L86 86 M0 0 L34 100 M0 0 L100 30"/>'
+      +'<path d="M22 5 Q16 16 5 22 M42 12 Q30 30 12 42 M62 22 Q44 44 22 62 M82 34 Q58 58 34 82"/></g>')};
+  /* Что стоит на чердаке. x,y — проценты комнаты (y — где вещь стоит на полу или висит),
+     hy — куда подойти герою. gift — что спрятано; найдётся один раз. */
+  const ATT=[
+    {id:'down', x:91,y:93,w:12,hy:90,nm:'🪜 Вниз',art:'down'},
+    {id:'tele', x:24,y:92,w:12,hy:90,nm:'🔭 Телескоп',art:'tele',pose:'look',say:'Ух ты, звёзды! ✨',gift:['star',5]},
+    {id:'chest',x:50,y:93,w:13,hy:90,nm:'🧳 Сундук',art:'chest',pose:'sit',say:'Что там внутри? 🧳',gift:['coin',15]},
+    {id:'teddy',x:67,y:92,w:8, hy:90,nm:'🧸 Мишка',art:'teddy',pose:'play',say:'Привет, мишка! 🧸',gift:['star',3]},
+    {id:'books',x:11,y:93,w:10,hy:91,nm:'📚 Книги',art:'books',pose:'look',say:'Старые книжки 📚',gift:['key',1]},
+    {id:'boxes',x:80,y:92,w:13,hy:90,nm:'📦 Коробки',art:'boxes',pose:'sit',say:'Тут что-то есть! 📦',gift:['key',1]},
+    {id:'map',  x:34,y:56,w:14,hy:90,nm:'🗺️ Карта',art:'map',pose:'look',say:'Карта сокровищ! 🗺️',gift:['gift',1]},
+    {id:'pic',  x:61,y:54,w:11,hy:90,nm:'🖼️ Картина',art:'pic',pose:'look',say:'Какая красивая 🖼️',gift:['coin',8]},
+    {id:'lamp', x:9, y:44,w:8, hy:88,nm:'🕯️ Лампа',art:'lamp',pose:'look',say:'Уютно! 🕯️'}];
   const YARD_KEYS=30;   /* дворик открывается, когда заработано столько ключиков */
   const YARD_CATS=[['grow','🌳','Растения'],['play','🎠','Качели и горки'],
                    ['gard','🪑','Садовая мебель'],['store','📦','Склад']];
@@ -6348,7 +6457,8 @@
 
   /* комната и дворик — одна сцена с двумя наборами вещей */
   let hhWhere='room';
-  function hhIt(){return hhWhere==='yard'?houseSt.yard:hhWhere==='kit'?houseSt.kitchen:hhWhere==='bath'?houseSt.bath:houseSt.items;}
+  /* на чердаке своей мебели нет — вещи там стоят по местам, поэтому список пустой */
+  function hhIt(){return hhWhere==='attic'?[]:hhWhere==='yard'?houseSt.yard:hhWhere==='kit'?houseSt.kitchen:hhWhere==='bath'?houseSt.bath:houseSt.items;}
   function hhSc(t){return t.sc||'room';}          /* в какой сцене живёт вид вещи */
   /* обои и полы у каждой сцены свои */
   function hhWallSet(){return hhWhere==='kit'?KIT_WALLS:hhWhere==='bath'?BATH_WALLS:HH_WALLS;}
@@ -6359,6 +6469,69 @@
     if(hhWhere==='kit'){if(isWall)houseSt.kitWall=id;else houseSt.kitFloor=id;}
     else if(hhWhere==='bath'){if(isWall)houseSt.bathWall=id;else houseSt.bathFloor=id;}
     else{if(isWall)houseSt.wall=id;else houseSt.floor=id;}}
+  function hhAtticOpen(){return !!houseSt.attic;}
+  function hhAttFound(id){return (houseSt.attFound||[]).indexOf(id)>=0;}
+  /* сказочная лестница на чердак: стоит в ванной, наверху люк со звёздами */
+  function hhLadderArt(){
+    const open=hhAtticOpen();
+    let s='<svg viewBox="0 0 150 300" style="width:100%;height:100%">';
+    s+='<rect x="18" y="4" width="114" height="34" rx="8" fill="'+(open?'#2E2A46':'#8B5E3C')+'"/>';
+    if(open){s+='<g fill="#FFF3B0"><circle cx="46" cy="16" r="3.4"/><circle cx="72" cy="26" r="2.6"/>'
+      +'<circle cx="100" cy="14" r="4"/><circle cx="118" cy="28" r="2.4"/></g>'
+      +'<circle cx="75" cy="22" r="10" fill="#FFD23F" opacity=".85"/>';}
+    else s+='<path d="M28 12 h94 M28 22 h94 M28 32 h94" stroke="#7A5133" stroke-width="4" stroke-linecap="round"/>';
+    s+='<path d="M18 38 h114 l-8 10 H26 Z" fill="#A9743E"/>';
+    /* тетивы и ступеньки */
+    s+='<rect x="26" y="44" width="15" height="252" rx="7" fill="#C9995C"/>';
+    s+='<rect x="109" y="44" width="15" height="252" rx="7" fill="#C9995C"/>';
+    for(let i=0;i<8;i++)s+='<rect x="26" y="'+(58+i*30)+'" width="98" height="12" rx="6" fill="#B77A47"/>';
+    s+='<path d="M33 44 v252 M116 44 v252" stroke="#DCB489" stroke-width="4" stroke-linecap="round" opacity=".7"/>';
+    if(open)s+='<circle cx="75" cy="52" r="7" fill="#FFD23F" opacity=".55"/>';
+    else s+='<g><circle cx="75" cy="150" r="26" fill="#fff" opacity=".92"/><text x="75" y="163" text-anchor="middle" font-size="34">🔒</text></g>';
+    return s+'</svg><div class="hhdlbl">'+(open?'🌙 На чердак'
+      :'🌙 Чердак 🔒 ⭐ '+ATTIC_STARS)+'</div>';}
+  /* вещи чердака: рисуются один раз при входе, тапом герой идёт к ним */
+  function hhAtticPaint(){
+    const box=$('#hhAttic');
+    let s='<div class="attbeam" style="left:0;right:0;top:16%;height:14px"></div>'
+      +'<div class="attbeam" style="left:8%;top:0;width:13px;height:26%;transform:rotate(9deg)"></div>'
+      +'<div class="attbeam" style="right:8%;top:0;width:13px;height:26%;transform:rotate(-9deg)"></div>'
+      +'<div class="attweb" style="left:-1%;top:0">'+ATT_ART.web+'</div>'
+      +'<div class="attweb" style="right:-1%;top:0;transform:scaleX(-1)">'+ATT_ART.web+'</div>';
+    ATT.forEach(function(o){
+      const secret=o.gift&&!hhAttFound(o.id);
+      s+='<div class="attit" data-id="'+o.id+'" style="left:'+o.x+'%;top:'+o.y+'%;width:'+o.w+'%">'
+        +ATT_ART[o.art]+'<div class="attlbl">'+o.nm+'</div>'
+        +(secret?'<div class="attspark">✨</div>':'')+'</div>';});
+    box.innerHTML=s;
+    Array.prototype.forEach.call(box.querySelectorAll('.attit'),function(el){
+      el.onclick=function(){hhAtticTap(el.getAttribute('data-id'));};});
+    const left=ATT.filter(function(o){return o.gift&&!hhAttFound(o.id);}).length;
+    $('#hhTitle').textContent=left?('🌙 Чердак — секретов: '+left):'🌙 Чердак';}
+  function hhAtticTap(id){
+    const o=ATT.filter(function(x){return x.id===id;})[0];if(!o)return;
+    hhEndPut(true);blip();
+    hhTx=Math.max(8,Math.min(92,o.x));hhTy=o.hy;hhWait=0;hhActT=0;hhActZ=0;
+    if(o.id==='down'){hhAct='bath';flash(screens.house,'Спускаемся 🪜');return;}
+    hhAct=o.pose||'';
+    hhAfter=function(){
+      if(o.say)flash(screens.house,o.say);
+      if(o.gift&&!hhAttFound(o.id))setTimeout(function(){hhAttGift(o);},900);};}
+  /* находка: начисляем и запоминаем, чтобы второй раз не выдавать */
+  function hhAttGift(o){
+    if(hhAttFound(o.id))return;
+    if(!houseSt.attFound)houseSt.attFound=[];
+    houseSt.attFound.push(o.id);
+    const k=o.gift[0],n=o.gift[1],got=[];
+    if(k==='star'){stars+=n;got.push(['⭐','+'+n]);}
+    else if(k==='coin'){coins+=n;got.push(['🪙','+'+n]);}
+    else if(k==='key'){keys+=n;got.push(['🔑','+'+n]);}
+    else{stars+=2;coins+=5;pies+=1;got.push(['⭐','+2'],['🪙','+5'],['🥧','+1']);}
+    save();updateHUD();chime(true);confetti(screens.house);
+    lhGifts(screens.house,got);
+    hhAtticPaint();
+    if(ATT.every(function(x){return !x.gift||hhAttFound(x.id);}))
+      setTimeout(function(){flash(screens.house,'Все секреты чердака найдены! 🎉');speak('Ты нашёл все секреты чердака!');},2700);}
   function hhYardOpen(){return earnedKeys()>=YARD_KEYS;}
   function hhKitOpen(){return !!houseSt.kit;}
   function hhBathOpen(){return !!houseSt.bathOpen;}
@@ -6381,10 +6554,16 @@
     return games[l.g]?null:{t:l.t};}
 
   function hhBg(list,id){const f=list.filter(function(o){return o.id===id;})[0]||list[0];return f.bg;}
+  const ATTIC_WALL='linear-gradient(180deg,#3E3358 0%,#5A4A72 44%,#8C6E5A 100%)';
+  const ATTIC_FLOOR='repeating-linear-gradient(90deg,rgba(90,58,28,.22) 0 4px,transparent 4px 96px),'
+    +'linear-gradient(180deg,#C9995C,#A9743E)';
   function hhPaint(){
-    const yard=hhWhere==='yard',kit=hhWhere==='kit',bth=hhWhere==='bath';
-    $('#hhWall').style.background=yard?YARD_SKY:hhBg(hhWallSet(),hhCurWall());
-    $('#hhFloor').style.background=yard?YARD_GRASS:hhBg(hhFloorSet(),hhCurFloor());
+    const yard=hhWhere==='yard',kit=hhWhere==='kit',bth=hhWhere==='bath',att=hhWhere==='attic';
+    $('#hhWall').style.background=att?ATTIC_WALL:yard?YARD_SKY:hhBg(hhWallSet(),hhCurWall());
+    $('#hhFloor').style.background=att?ATTIC_FLOOR:yard?YARD_GRASS:hhBg(hhFloorSet(),hhCurFloor());
+    $('#hhWrap').classList.toggle('attic',att);
+    $('#hhLadder').innerHTML=bth?hhLadderArt():'';
+    if(att)hhAtticPaint();else $('#hhAttic').innerHTML='';
     $('#hhDoor4').innerHTML=bth?(HH_KITDOOR+'<div class="hhdlbl">🍽️ На кухню</div>')
       :(HH_BATHDOOR+'<div class="hhdlbl">'+(hhBathOpen()?'🛁 В ванную':(pies>=BATH_PRICE?'🛒 ':'🔒 ')+BATH_PRICE+' 🥧')+'</div>');
     $('#hhWrap').classList.toggle('bath',bth);
@@ -6395,7 +6574,7 @@
       :(HH_KITDOOR+'<div class="hhdlbl">'+(hhKitOpen()?'🍽️ На кухню':(coins>=KIT_PRICE?'🛒 ':'🔒 ')+KIT_PRICE+' '+COIN)+'</div>');
     $('#hhWrap').classList.toggle('yard',yard);
     $('#hhWrap').classList.toggle('kit',kit);
-    $('#hhTitle').textContent=yard?'🌳 Мой дворик':kit?'🍽️ Моя кухня':bth?'🛁 Ванная':'🏠 Мой дом';
+    if(!att)$('#hhTitle').textContent=yard?'🌳 Мой дворик':kit?'🍽️ Моя кухня':bth?'🛁 Ванная':'🏠 Мой дом';
     const pt=houseSt.pet,pel=$('#hhPet');
     pel.classList.toggle('on',!!pt);
     if(pt){const st=hhPetStage();
@@ -6560,7 +6739,7 @@
       flash(screens.house,st===1?'Питомец вылупился! 🐣':st===3?'Питомец совсем вырос! 🎉':'Питомец подрос! 🌿');},700);}
 
   /* ——— витрина ——— */
-  function hhCats(){return hhWhere==='yard'?YARD_CATS:hhWhere==='kit'?KIT_CATS:hhWhere==='bath'?BATH_CATS:HH_CATS;}
+  function hhCats(){return hhWhere==='attic'?[]:hhWhere==='yard'?YARD_CATS:hhWhere==='kit'?KIT_CATS:hhWhere==='bath'?BATH_CATS:HH_CATS;}
   function hhTabs(){
     const box=$('#hhCats');box.innerHTML='';
     hhCats().forEach(function(c){const b=document.createElement('button');
@@ -6651,6 +6830,7 @@
 
   /* ——— герой живёт в комнате ——— */
   let hhX=50,hhY=84,hhTx=50,hhTy=84,hhAct='',hhActT=0,hhWait=0,hhRW=900,hhRH=600;
+  let hhAfter=null;   /* что сделать, когда герой дошёл до цели (находки на чердаке) */
   /* пока герой идёт к вещи и сидит на ней, он рисуется поверх неё:
      иначе кровать перекрывает лежащего, и кажется, что он лёг мимо */
   let hhActZ=0;
@@ -6692,8 +6872,9 @@
     const dx=(hhTx-hhX)*hhRW/100,dy=(hhTy-hhY)*hhRH/100,L=Math.hypot(dx,dy);
     if(L<4){
       if(hhAct==='exit'){hhAct='';hhPose('');hhEndPut(true);goWorld();return;}
-      if(hhAct==='yard'||hhAct==='kit'||hhAct==='bath'||hhAct==='home'){
-        const w=hhAct==='home'?'room':hhAct;hhAct='';hhPose('');hhSwitch(w);return;}
+      if(hhAct==='yard'||hhAct==='kit'||hhAct==='bath'||hhAct==='home'||hhAct==='attic'){
+        const w=hhAct==='home'?'room':hhAct;hhAct='';hhPose('');hhAfter=null;hhSwitch(w);return;}
+      if(hhAfter){const f=hhAfter;hhAfter=null;f();}   /* дошёл до вещи на чердаке */
       if(hhAct){hhPose(hhAct);hhActT=2.6;hhAct='';}
       else{hhPose('');hhWait=0.5+Math.random()*1.1;}
       return;}
@@ -6708,6 +6889,7 @@
     if(!houseSt.yard)houseSt.yard=[];
     if(!houseSt.kitchen)houseSt.kitchen=[];
     if(!houseSt.bath)houseSt.bath=[];
+    if(!houseSt.attFound)houseSt.attFound=[];
     /* первые записи хранили питомца строкой — он уже вырос */
     if(typeof houseSt.pet==='string')houseSt.pet=houseSt.pet?{k:'cat',at:0,seen:3}:'';
     /* записи первых дней хранили id без номера варианта — дописываем нулевой */
@@ -6762,13 +6944,27 @@
         flash(screens.house,'Ванная открыта! 🛁');});
       return;}
     hhWalkToDoor(this,'bath');flash(screens.house,'Идём в ванную 🛁');};
+  /* лестница из ванной на чердак — самая дальняя цель в доме */
+  $('#hhLadder').onclick=function(){
+    if(hhWhere!=='bath')return;
+    if(!hhAtticOpen()){
+      if(stars<ATTIC_STARS){chime(false);
+        flash(screens.house,'Нужно ещё ⭐ '+(ATTIC_STARS-stars)+' на чердак');return;}
+      hhAskDo('Откроем чердак за '+ATTIC_STARS+' ⭐?',function(){
+        stars-=ATTIC_STARS;starsSpent+=ATTIC_STARS;houseSt.attic=1;
+        if(!houseSt.attFound)houseSt.attFound=[];
+        chime(true);confetti(screens.house);save();updateHUD();hhPaint();hhGrid();
+        flash(screens.house,'Чердак открыт! 🌙');speak('Чердак открыт! Поднимайся наверх!');});
+      return;}
+    hhWalkToDoor(this,'attic');flash(screens.house,'Поднимаемся на чердак 🪜');};
   /* переход между комнатой, двориком и кухней: вещи у каждой сцены свои, всё сохраняется */
   function hhSwitch(w){
     const from=hhWhere;
-    hhEndPut(true);
-    hhWhere=w;hhCat=w==='yard'?'grow':w==='kit'?'kfurn':w==='bath'?'bwash':'furn';
-    /* появляемся у той двери, из которой вышли */
-    hhX=w==='room'?(from==='kit'?14:86):w==='kit'?(from==='bath'?86:12):12;
+    hhEndPut(true);hhAfter=null;
+    hhWhere=w;hhCat=w==='yard'?'grow':w==='kit'?'kfurn':w==='bath'?'bwash':w==='attic'?'':'furn';
+    /* появляемся у той двери, из которой вышли; на чердаке и обратно — у лестницы */
+    hhX=w==='attic'?86:w==='bath'?(from==='attic'?84:12)
+      :w==='room'?(from==='kit'?14:86):w==='kit'?(from==='bath'?86:12):12;
     hhY=88;hhTx=hhX;hhTy=hhY;hhAct='';hhActT=0;hhActZ=0;hhWait=.5;
     hhPaint();hhTabs();hhGrid();hhRender();
     const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';h.style.zIndex=4+Math.round(hhY);
