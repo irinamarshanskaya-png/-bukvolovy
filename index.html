@@ -2180,7 +2180,7 @@
     $('#cfPet').classList.toggle('run',run);cfPetPlace(run);}
 
   function rewardL(){running=false;cancelAnimationFrame(raf);done.letters=true;markGame('letters_catch');save();earnPage('letters');items.forEach(o=>o.el.remove());items=[];flash(field,'Молодец!');
-    lhReward('letters_catch',1,1,field);
+    lhReward('letters_catch',1,1,8,field);
     const h=field.clientHeight,heroTop=h-12-172;pieEat(field,heroX,heroTop,hero,()=>openPicker());}
   function loop(t){if(!running)return;const dt=Math.min(.05,(t-last)/1000);last=t;const prev=heroX;heroX+=(heroTargetX-heroX)*.22;placeHero();cfPetStep(dt);
     if(Math.abs(heroX-prev)>.6||dragging)hero.classList.add('run');else hero.classList.remove('run');
@@ -2248,12 +2248,16 @@
      Ключик один на всю игру: падает, когда пройдены все её уровни (total).
      Всё держится на общем games{} — значит, за уже пройденный уровень награда
      второй раз не выдаётся, а переигрывать сколько угодно никто не мешает. */
-  function lhReward(id,lvl,total,container){
-    const got=[];
-    if(!games[id+'_l'+lvl]){const c=4+Math.min(4,lvl);coins+=c;games[id+'_l'+lvl]=true;got.push('🪙 +'+c);}
+  /* c — монет за первое прохождение уровня, дальше за повтор 🪙+2.
+     Префикс r2_ — новая полка отметок: цены выросли 2026-08-23, и уровень,
+     пройденный по старым ценам, должен один раз выдать новую цену.
+     Ключик живёт на старой отметке <id>_key — он один на игру навсегда. */
+  function lhReward(id,lvl,total,c,container){
+    const got=[],lid='r2_'+id+'_l'+lvl;
+    if(!games[lid]){coins+=c;games[lid]=true;got.push('🪙 +'+c);}
     else{coins+=2;got.push('🪙 +2');}   /* за повтор — тот же 🪙+2, что в Мастерской и «Что исчезло?» */
-    if(!games[id+'_key']){let all=true;
-      for(let i=1;i<=total;i++)if(!games[id+'_l'+i])all=false;
+    if(total&&!games[id+'_key']){let all=true;
+      for(let i=1;i<=total;i++)if(!games['r2_'+id+'_l'+i])all=false;
       if(all){keys+=1;games[id+'_key']=true;got.push('🔑 +1');}}
     save();updateHUD();
     got.forEach(function(g,i){setTimeout(function(){blip();
@@ -2335,27 +2339,33 @@
     {parts:['РА','ДУ','ГА'],ic:'🌈'},{parts:['ПО','ГО','ДА'],ic:'🌦️'},{parts:['КО','МЕ','ТА'],ic:'☄️'},
     {parts:['ПЛА','НЕ','ТА'],ic:'🪐'}];
   let asmMode,asmSet,asmRound,asmUnits,asmNext,asmLevel=1,asmMiss=0;
-  /* «Собери слово»: уровень — это длина слова. 1-й берёт и ЁЖ, поэтому «до 3 букв».
-     Номера 1..4 совпадают со сложностью в lhReward: 🪙5, 6, 7, 8. */
-  const ASM_LEN=[3,4,5,6],ASM_N=5;
+  /* Уровни на общем экране. «Собери слово»: уровень — длина слова, 1-й берёт и ЁЖ,
+     поэтому «до 3 букв». «Составь из слогов»: 1 — слова из двух слогов, 2 — из трёх,
+     3 — вперемешку. Монеты: слово 8/10/12/14, слоги 6/8/10. */
+  const ASM_LEN=[3,4,5,6],ASM_N=5,ASM_MAX={letters:4,syll:3};
+  function asmMax(){return ASM_MAX[asmMode];}
+  function asmKey(){return asmMode==='letters'?'asm':'asmSyll';}
+  function asmCoins(){return asmMode==='letters'?6+2*asmLevel:4+2*asmLevel;}
   const sayU=u=>speak(u.toLowerCase());
   const VOWELS='АЕЁИОУЫЭЮЯ';
   function colHTML(u){let s='';for(const ch of u){let c;if(VOWELS.indexOf(ch)>=0)c='#E23B3B';else if(ch==='Ъ'||ch==='Ь')c='#8a8a8a';else c='#2E6FE0';s+='<span style="color:'+c+'">'+ch+'</span>';}return s;}
   function unitsOf(item){return asmMode==='letters'?item.w.split(''):item.parts;}
   function wordOf(item){return asmMode==='letters'?item.w:item.parts.join('');}
-  function asmPool(){const n=ASM_LEN[asmLevel-1];
-    return WORDS_LETTERS.filter(o=>asmLevel===1?o.w.length<=n:o.w.length===n);}
-  function asmPick(){return asmMode==='letters'?shuf(asmPool()).slice(0,ASM_N):shuf(WORDS_SYLL).slice(0,3);}
+  function asmPool(){
+    if(asmMode==='letters'){const n=ASM_LEN[asmLevel-1];
+      return WORDS_LETTERS.filter(o=>asmLevel===1?o.w.length<=n:o.w.length===n);}
+    if(asmLevel===1)return WORDS_SYLL.filter(o=>o.parts.length===2);
+    if(asmLevel===2)return WORDS_SYLL.filter(o=>o.parts.length===3);
+    return WORDS_SYLL;}
+  function asmPick(){return shuf(asmPool()).slice(0,ASM_N);}
   function renderAsmLevels(){const box=$('#asmLevels');box.innerHTML='';
-    for(let i=1;i<=4;i++){const b=document.createElement('button');b.className='lvbtn'+(i===asmLevel?' sel':'');
-      b.textContent=i;b.title=ASM_LEN[i-1]+' букв';
-      b.onclick=(function(n){return function(){asmLevel=n;levels.asm=n;save();asmStart();};})(i);
+    for(let i=1;i<=asmMax();i++){const b=document.createElement('button');b.className='lvbtn'+(i===asmLevel?' sel':'');
+      b.textContent=i;
+      b.onclick=(function(n){return function(){asmLevel=n;levels[asmKey()]=n;save();asmStart();};})(i);
       box.appendChild(b);}}
   /* новый заход на уровень: свежая пятёрка слов и обнулённый счётчик промахов */
-  function asmStart(){asmSet=asmPick();asmRound=0;asmMiss=0;if(asmMode==='letters')renderAsmLevels();loadAsm();}
-  function startAssemble(mode){ensureAudio();asmMode=mode;
-    $('#asmLevels').style.display=mode==='letters'?'':'none';
-    if(mode==='letters')asmLevel=levels.asm||1;
+  function asmStart(){asmSet=asmPick();asmRound=0;asmMiss=0;renderAsmLevels();loadAsm();}
+  function startAssemble(mode){ensureAudio();asmMode=mode;asmLevel=levels[asmKey()]||1;
     $('#asmTitle').textContent=mode==='letters'?'🧩 Собери слово':'🧱 Составь из слогов';show('asm');asmStart();}
   function loadAsm(){const item=asmSet[asmRound];asmUnits=unitsOf(item);asmNext=0;$('#asmPic').textContent=item.ic;$('#asmProg').textContent=(asmRound+1)+' / '+asmSet.length;
     const slots=$('#asmSlots');slots.innerHTML='';asmUnits.forEach(()=>{const d=document.createElement('div');d.className='slot';slots.appendChild(d);});
@@ -2373,9 +2383,13 @@
   function asmWordDone(){const item=asmSet[asmRound];setTimeout(()=>speak(wordOf(item).toLowerCase()),260);asmRound++;
     if(asmRound>=asmSet.length){setTimeout(()=>{done.letters=true;markGame('letters_assemble');save();earnPage('letters');flash(screens.asm,'Молодец!');confetti(screens.asm);
       /* «Собери слово» и «Составь из слогов» живут в одном экране, но награды у них свои */
-      if(asmMode==='letters'){lhReward('letters_word',asmLevel,4,screens.asm);asmBonus();}
-      else lhReward('letters_syllwords',1,1,screens.asm);
-      const H=screens.asm.clientHeight;pieEat(screens.asm,54,H-8-126,$('#asmHero'),openLettersMenu);},800);}
+      if(asmMode==='letters'){lhReward('letters_word',asmLevel,4,asmCoins(),screens.asm);asmBonus();}
+      else lhReward('letters_syllwords',asmLevel,3,asmCoins(),screens.asm);
+      /* уровень пройден — сразу следующий, не выходя из игры; после последнего — в меню */
+      const H=screens.asm.clientHeight;
+      pieEat(screens.asm,54,H-8-126,$('#asmHero'),asmLevel<asmMax()
+        ?function(){asmLevel++;levels[asmKey()]=asmLevel;save();flash(screens.asm,'Уровень '+asmLevel+'! 🎉');asmStart();}
+        :openLettersMenu);},800);}
     else{flash(screens.asm,'✓');setTimeout(loadAsm,1000);}}
 
   /* ---------- СОБЕРИ СЛОГ ---------- */
@@ -2425,7 +2439,11 @@
       shuf(slUnits.slice()).forEach(u=>{const b=document.createElement('button');b.className='tile';b.innerHTML=colHTML(u);b.onclick=()=>slTap(u,b);tiles.appendChild(b);});}}
   function slTap(u,b){if(b.classList.contains('used'))return;if(u===slUnits[slNext]){const slot=$('#slSlots').children[slNext];slot.innerHTML=colHTML(u);slot.classList.add('full');b.classList.add('used');blip();sayU(u);slNext++;if(slNext>=slUnits.length)slDone();}else wiggle(b);}
   function slDone(){setTimeout(()=>speak(slWord.toLowerCase()),280);flash(screens.slog,'Отлично! '+slWord+' 🎉');stars+=1;save();updateHUD();slI++;
-    if(slI>=slN){markGame('letters_syllables');lhReward('letters_slog',slLevel,5,screens.slog);setTimeout(()=>{confetti(screens.slog);earnPage('letters');const H=screens.slog.clientHeight;pieEat(screens.slog,54,H-8-126,$('#slogHero'),openLettersMenu);},750);}else setTimeout(nextSl,1150);}
+    if(slI>=slN){markGame('letters_syllables');lhReward('letters_slog',slLevel,5,6+2*slLevel,screens.slog);
+      setTimeout(()=>{confetti(screens.slog);earnPage('letters');const H=screens.slog.clientHeight;
+        pieEat(screens.slog,54,H-8-126,$('#slogHero'),slLevel<5
+          ?function(){slLevel++;levels.sl=slLevel;save();slI=0;renderSlLevels();flash(screens.slog,'Уровень '+slLevel+'! 🎉');nextSl();}
+          :openLettersMenu);},750);}else setTimeout(nextSl,1150);}
 
   /* ---------- КАКОЙ БУКВЫ НЕ ХВАТАЕТ? ---------- */
   /* Слова для пропущенной буквы. Длина держится ровно по уровням: 3, 4 и 6 букв.
@@ -2460,7 +2478,11 @@
   function buildGap(cells,gapIdx,correct,word,ic,opts,hint){$('#gapPic').textContent='';$('#gapPic').style.display='none';$('#gapHint').textContent=hint;$('#gapProg').textContent=(gapI+1)+' / '+gapN;
     const row=$('#gapRow');row.innerHTML='';cells.forEach((c,i)=>{const d=document.createElement('div');d.className='gcell'+(i===gapIdx?' gap':'');d.innerHTML=i===gapIdx?'':colHTML(c);row.appendChild(d);});
     const box=$('#gapOpts');box.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='vopt';b.innerHTML=colHTML(o);b.onclick=()=>{if(o===correct){const cell=row.children[gapIdx];cell.className='gcell';cell.innerHTML=colHTML(o);blip();$('#gapPic').textContent=ic;$('#gapPic').style.display='block';setTimeout(()=>speak(word.toLowerCase()),280);flash(screens.gap,'Верно! '+word+' 🎉');stars+=1;save();updateHUD();gapI++;
-      if(gapI>=gapN){markGame('letters_gaps');lhReward('letters_gap',gapLevel,4,screens.gap);setTimeout(()=>{confetti(screens.gap);earnPage('letters');const H=screens.gap.clientHeight;pieEat(screens.gap,54,H-8-126,$('#gapHero'),openLettersMenu);},850);}else setTimeout(nextGap,1250);}
+      if(gapI>=gapN){markGame('letters_gaps');lhReward('letters_gap',gapLevel,4,5+3*gapLevel,screens.gap);
+        setTimeout(()=>{confetti(screens.gap);earnPage('letters');const H=screens.gap.clientHeight;
+          pieEat(screens.gap,54,H-8-126,$('#gapHero'),gapLevel<4
+            ?function(){gapLevel++;levels.gap=gapLevel;save();gapI=0;renderGapLevels();flash(screens.gap,'Уровень '+gapLevel+'! 🎉');nextGap();}
+            :openLettersMenu);},850);}else setTimeout(nextGap,1250);}
       else{wiggle(b);$('#gapHint').textContent='Попробуй ещё раз! 🙂';}};box.appendChild(b);});}
 
   /* ---------- CIRCUS: 30 раскрасок ---------- */
@@ -3630,7 +3652,8 @@
     $('#qDepts').style.display='flex';
     if(!missing&&!extra){flash(screens.cart,'Ура! Всё куплено! 🎉');confetti(screens.cart);doCheer($('#cartHero'));qLevel++;if(qLevel>=6)questFinish();else setTimeout(loadQuest,1500);}
     else{qBusy=false;qMiss++;$('#cartMsg').textContent=missing?'Кажется, мы что-то забыли. Посмотри на список! 📝':'Ой! В тележке есть лишнее 🙂';renderShelf();}}
-  function questFinish(){markGame('shop_quest');const st=qMiss===0?3:qMiss<=2?2:1;stars+=st;coins+=10;save();updateHUD();flash(screens.cart,'⭐'+st+'  🪙+10');confetti(screens.cart);const H=screens.cart.clientHeight;pieEat(screens.cart,54,H-8-126,$('#cartHero'),openShopMenu);}
+  /* пирог сюда приносит pieEat в самом конце — отдельно его начислять не нужно */
+  function questFinish(){markGame('shop_quest');const st=qMiss===0?3:qMiss<=2?2:1;stars+=st;coins+=6;save();updateHUD();flash(screens.cart,'⭐'+st+'  🪙+6  🥧+1');confetti(screens.cart);const H=screens.cart.clientHeight;pieEat(screens.cart,54,H-8-126,$('#cartHero'),openShopMenu);}
 
   /* СКОЛЬКО СТОИТ? */
   const PRICES={'🍎':3,'🍌':2,'🥛':4,'🍞':3,'🧃':2,'🧀':5,'🥚':2,'🍓':4,'🍇':5,'🥕':2,'🍅':3,'🍪':2,'🍫':4,'🥐':3,'🍊':3,'🍐':3};
@@ -3658,7 +3681,8 @@
       setTimeout(()=>speak('Сколько сдачи? 10 минус '+p),350);numOpts(change).forEach(n=>cOpt(n,n===change));}}
   function cashBad(b){chime(false);cashMiss++;$('#cashMsg').textContent='Попробуй ещё раз! 🙂';try{b.animate([{transform:'translateX(0)'},{transform:'translateX(-4px)'},{transform:'translateX(4px)'},{transform:'translateX(0)'}],{duration:200});}catch(x){}}
   function cashWin(){blip();$('#cashMsg').textContent='Оплата прошла! 🎉';doCheer($('#cashHero'));cashRound++;if(cashRound>=5)cashFinish();else setTimeout(loadCash,1050);}
-  function cashFinish(){markGame('shop_cash');const st=cashMiss===0?3:cashMiss<=2?2:1;flash(screens.cash,'Молодец! 🎉');confetti(screens.cash);const H=screens.cash.clientHeight;giveReward('star',st,screens.cash,null);pieEat(screens.cash,54,H-8-126,$('#cashHero'),openShopMenu);}
+  function cashFinish(){markGame('shop_cash');const st=cashMiss===0?3:cashMiss<=2?2:1;coins+=10;save();updateHUD();
+    flash(screens.cash,'Молодец!  🪙+10');confetti(screens.cash);const H=screens.cash.clientHeight;giveReward('star',st,screens.cash,null);pieEat(screens.cash,54,H-8-126,$('#cashHero'),openShopMenu);}
 
   /* Повтори последовательность / ритм */
   const SEQ_OBJ=['🦁','🐘','🎠','🤡'];const RHY=[['🥁',170],['🎺',340],['🎸',255],['🔔',520]];
