@@ -7273,11 +7273,21 @@
     if(o.id==='down'){hhAct='kit';flash(screens.house,'Спускаемся на кухню 🪜');return;}
     hhAct=o.pose||'';
     hhAfter=function(){
-      /* склад и лавка — это не находки, а вход в свою вкладку витрины */
-      if(o.go){hhCat=o.go;hhTabs();hhGrid();hhShut(false);return;}
-      if(o.ch!=null){hhChestAsk(o.ch);return;}
+      if(o.ch!=null){hhChestAsk(o.ch);return;}      /* у сундуков вопрос свой */
       if(o.say)flash(screens.house,o.say);
-      if(o.gift&&!hhAttFound(o.id))setTimeout(function(){hhAttGift(o);},900);};}
+      if(o.gift&&!hhAttFound(o.id))setTimeout(function(){hhAttGift(o);},900);
+      hhAttAsk(o);};}
+  /* Один и тот же вопрос для картины, мишки, шкафа и всего остального наверху:
+     ✅ — главное дело вещи, ✕ — ничего, 📦 — убрать на склад. Убрать можно всё,
+     кроме лестницы вниз (без неё с чердака не спуститься) и паутины — она
+     нарисована фоном, а не вещью, и по ней вообще не тапают.
+     Пока в вещи спрятан ненайденный секрет, вопрос не поднимаем: сперва находка. */
+  function hhAttAsk(o){
+    if(o.gift&&!hhAttFound(o.id))return;
+    const hide=function(){hhAttHide(o.id);};
+    if(o.go){hhAskDo(o.nm+' — заглянуть внутрь?',function(){
+      hhCat=o.go;hhTabs();hhGrid();hhShut(false);},hide);return;}
+    hhAskDo(o.nm+' — убрать на склад?',hide,hide);}
   /* Секретный сундук: ключики тут именно тратятся, поэтому keysSpent растёт.
      Внутри вещи, которых нет в лавке; они ложатся на склад, ставит их ребёнок сам. */
   /* Сундук убирается, как мебель в комнатах: тап поднимает подсказку, и там есть 📦.
@@ -7301,8 +7311,9 @@
     const done=hhChestDone(i),enough=keys>=c.keys;
     /* один вопрос на все случаи: ✅ открыть (если есть чем), ✕ ничего, 📦 убрать */
     if(done||!enough){
-      hhAskDo(done?(c.n+' уже открыт ✨ Убрать его?')
-        :('Для '+c.n+' нужно ещё '+(c.keys-keys)+' 🔑'),function(){blip();},hide);
+      /* открытый сундук уже пуст — вопрос честно про «убрать», и ✅ его убирает */
+      if(done){hhAskDo(c.n+' пуст ✨ — убрать на склад?',hide||function(){blip();},hide);return;}
+      hhAskDo('Для '+c.n+' нужно ещё '+(c.keys-keys)+' 🔑',function(){blip();},hide);
       return;}
     hhAskDo('Открыть '+c.n+' за '+c.keys+' 🔑?',function(){
       keys-=c.keys;keysSpent+=c.keys;
