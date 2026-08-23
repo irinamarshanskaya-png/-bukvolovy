@@ -368,7 +368,7 @@
   .mktray.on{display:flex;}
   .mkpc{cursor:grab;touch-action:none;filter:drop-shadow(0 5px 5px rgba(0,0,0,.22));transition:transform .12s;}
   .mkpc svg{display:block;pointer-events:none;}
-  .mkpc.fly{position:absolute;z-index:30;transition:none;}
+  .mkpc.fly{position:absolute;z-index:30;transition:none;will-change:transform;}
   .mkpc.back{transition:left .3s ease,top .3s ease;}
   .wkprize{position:absolute;inset:0;display:none;align-items:center;justify-content:center;background:rgba(30,20,10,.42);z-index:8;}
   .wkprize.on{display:flex;}
@@ -376,6 +376,8 @@
   .wkwin{font-family:'Fredoka';font-weight:700;font-size:22px;color:var(--grape);text-align:center;}
   .wkgifts{display:flex;gap:14px;font-family:'Fredoka';font-weight:700;font-size:19px;color:#6b4a24;}
   .wkgift{display:flex;flex-direction:column;align-items:center;font-size:34px;animation:wkpop .5s ease-out backwards;}
+  /* монетки золотом: среди звёздочек, ключиков и пирогов их видно сразу */
+  .wkgift.coin span,.hchip.coin{color:#E09400;}
   .wkgift span{font-size:15px;}
   @keyframes wkpop{from{transform:scale(0) rotate(-25deg);opacity:0;}}
 
@@ -2940,7 +2942,7 @@
   /* ---------- СТРАНИЦЫ КНИГИ + ФИНАЛ ---------- */
   const PAGE_TARGET=5; // Дом букв + Раскраски + Ритм + Лес + Пекарня
   function updateHUD(){const h=$('#pagehud');if(!h)return;
-    h.innerHTML=[['⭐',stars],['🪙',coins],['🔑',keys],['🥧',pies],['📖',pages.length+'/'+PAGE_TARGET]].map(c=>'<span class="hchip"><b>'+c[0]+'</b>'+c[1]+'</span>').join('');}
+    h.innerHTML=[['⭐',stars],['🪙',coins],['🔑',keys],['🥧',pies],['📖',pages.length+'/'+PAGE_TARGET]].map(c=>'<span class="hchip'+(c[0]==='🪙'?' coin':'')+'"><b>'+c[0]+'</b>'+c[1]+'</span>').join('');}
   function earnPage(key){if(pages.indexOf(key)>=0)return;pages.push(key);save();updateHUD();
     const cur=Object.values(screens).find(s=>s.classList.contains('active'))||screens.world;flash(cur,'📖 +1 страница!');blip();
     if(pages.length>=PAGE_TARGET&&!finaleDone)setTimeout(runFinale,1600);}
@@ -3600,7 +3602,7 @@
     speak(all?'Ты вспомнил всё! Страница книги твоя!':'Молодец!');
     $('#vanWinTxt').textContent=all?'📖 Вся серия пройдена!':'🎉 Верно!';
     $('#vanGifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
     $('#vanMore').textContent=(first&&vanLevel<6)?'🧠 Следующий уровень':'🧠 Ещё раз';
     $('#vanPrize').classList.add('on');
     if(first&&vanLevel<6)vanLevel++;}
@@ -4158,7 +4160,7 @@
     else coins+=2;
     if(first&&wkLevel<5&&(levels.wk||1)<wkLevel+1){levels.wk=wkLevel+1;}
     save();updateHUD();
-    $('#wkGifts').innerHTML=got.map((g,i)=>'<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>').join('');
+    $('#wkGifts').innerHTML=got.map((g,i)=>'<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>').join('');
     $('#wkMore').textContent=first&&wkLevel<5?'🔧 Механизм посложнее':'🔧 Починить ещё один';
     $('#wkPrize').classList.add('on');
     got.forEach((g,i)=>setTimeout(()=>{blip();popText(screens.wkshop,screens.wkshop.clientWidth/2-16+(Math.random()*60-30),screens.wkshop.clientHeight*0.4,g[0],'#FFB800');},300+i*220));
@@ -4335,19 +4337,27 @@
     const box=screens.mk,S=box.getBoundingClientRect(),K2=S.width/box.clientWidth||1;
     const r=el.getBoundingClientRect();
     const l=(r.left-S.left)/K2,t=(r.top-S.top)/K2,w=r.width/K2,h=r.height/K2;
-    mkDrag={el:el,i:i,S:S,K:K2,w:w,h:h,home:[l,t],
+    mkDrag={el:el,i:i,S:S,K:K2,w:w,h:h,home:[l,t],x:l,y:t,raf:0,
       dx:(e.clientX-r.left)/K2,dy:(e.clientY-r.top)/K2};
     el.classList.add('fly');
     el.style.width=w+'px';el.style.height=h+'px';el.style.left=l+'px';el.style.top=t+'px';
     if(el.setPointerCapture&&e.pointerId!==undefined){try{el.setPointerCapture(e.pointerId);}catch(x){}}}
+  /* Деталь едет за пальцем через transform, а не через left/top: transform не пересчитывает
+     раскладку и рисуется композитором, поэтому тяжёлая тень у детали больше не тормозит.
+     И красим не чаще раза в кадр: мышь шлёт pointermove чаще, чем экран успевает рисовать. */
+  function mkPaintDrag(){const d=mkDrag;if(!d)return;d.raf=0;
+    d.el.style.transform='translate3d('+(d.x-d.home[0])+'px,'+(d.y-d.home[1])+'px,0)';}
   function mkMove(e){
     if(!mkDrag)return;
     const p=mkStagePos(e,mkDrag.S,mkDrag.K);
-    mkDrag.el.style.left=(p[0]-mkDrag.dx)+'px';
-    mkDrag.el.style.top=(p[1]-mkDrag.dy)+'px';}
+    mkDrag.x=p[0]-mkDrag.dx;mkDrag.y=p[1]-mkDrag.dy;
+    if(!mkDrag.raf)mkDrag.raf=requestAnimationFrame(mkPaintDrag);}
   function mkUp(){
     if(!mkDrag)return;
     const d=mkDrag;mkDrag=null;
+    if(d.raf)cancelAnimationFrame(d.raf);
+    /* дальше считаем по left/top, поэтому переносим смещение обратно в них */
+    d.el.style.transform='';d.el.style.left=d.x+'px';d.el.style.top=d.y+'px';
     const F=$('#mkField').getBoundingClientRect();
     const fx=(F.left-d.S.left)/d.K,fy=(F.top-d.S.top)/d.K;   /* поле в координатах сцены */
     /* сравниваем по передней грани детали, а не по всей картинке с объёмом */
@@ -4365,6 +4375,7 @@
       if(mkSlots.every(function(s){return s.filled;}))setTimeout(mkAlive,350);}
     else{                                        /* мимо — деталь мягко возвращается */
       blip();
+      void d.el.offsetWidth;                     /* без этого возврат стартует не с места броска */
       d.el.classList.add('back');
       d.el.style.left=d.home[0]+'px';d.el.style.top=d.home[1]+'px';
       setTimeout(function(){d.el.classList.remove('fly','back');
@@ -4398,16 +4409,21 @@
     mkPrize();}
   function mkPrize(){
     const id='wk_mk'+mkStage,first=!games[id],got=[];
-    if(first){stars+=1;coins+=5;markGame(id);got.push(['⭐','+1'],['🪙','+5']);}
+    /* монеты 8, 10, 12 по этапу. Отметка отдельная (r2_): цены выросли, и этап,
+       пройденный по старым, должен один раз доплатить по новым. */
+    const cid='r2_'+id,cn=6+2*mkStage;
+    if(first){stars+=1;markGame(id);got.push(['⭐','+1']);}
+    if(!games[cid]){coins+=cn;games[cid]=true;got.push(['🪙','+'+cn]);}
     else{coins+=2;got.push(['🪙','+2']);}
     if(mkStage===3){
       if(!games['wk_mk_all']){keys+=1;markGame('wk_mk_all');got.push(['🔑','+1']);}
-      if(mkErr===0){stars+=1;coins+=5;got.push(['⭐','+1'],['🪙','+5']);}}
+      /* всю игру без единой ошибки — по одной награде каждого вида */
+      if(mkErr===0){stars+=1;coins+=1;keys+=1;pies+=1;got.push(['⭐','+1'],['🪙','+1'],['🔑','+1'],['🥧','+1']);}}
     save();updateHUD();
     $('#mkWinTxt').textContent=mkStage===3?(mkErr===0?'🎉 Всё без ошибок!':'🎉 Ты настоящий мастер!')
       :('🎉 Этап '+mkStage+' пройден!');
     $('#mkGifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
     $('#mkMore').textContent=mkStage<3?'▶️ Этап '+(mkStage+1):'🔁 Сыграть ещё';
     $('#mkPrize').classList.add('on');
     confetti(screens.mk);}
@@ -4484,7 +4500,7 @@
     else{coins+=1;got=[['🪙','+1']];}
     save();updateHUD();
     $('#pkWinTxt').textContent=kind==='win'?'🎉 Ты выиграл!':kind==='draw'?'🤝 Ничья!':'🙂 Молодец, что играл!';
-    $('#pkGifts').innerHTML=got.map(function(g,i){return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#pkGifts').innerHTML=got.map(function(g,i){return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
     $('#pkPrize').classList.add('on');}
   $('#pkBack').onclick=function(){openParkMenu();};$('#pkOut').onclick=goWorld;
   $('#pkMore').onclick=function(){$('#pkPrize').classList.remove('on');pkNew(false);};
@@ -4773,7 +4789,7 @@
     if(perfect&&tvLevel>=6)earnPage('station');
     $('#tvWinTxt').textContent=perfect?'🏆 Идеальный рейс!':'🎉 Приехали!';
     $('#tvGifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
     $('#tvMore').textContent=(first&&tvLevel<6)?'🚂 Следующий путь':'🚂 Ещё раз';
     $('#tvPrize').classList.add('on');
     if(first&&tvLevel<6)tvLevel++;}
@@ -4989,15 +5005,18 @@
     speak('Молодец! Уровень пройден!');m3Later(m3Reward,1400);}
   function m3Reward(){const id='park_m3_l'+m3Level,first=!games[id];
     const got=[];
-    if(first){const cn=4+m3Level;stars+=1;coins+=cn;keys+=1;pies+=1;markGame(id);
-      got.push(['⭐','+1'],['🪙','+'+cn],['🔑','+1'],['🥧','+1']);
+    /* монеты 10, 12, 14, 16, 18 по уровню — на своей отметке r2_, потому что цены выросли */
+    const cid='r2_'+id,cn=8+2*m3Level;
+    if(first){stars+=1;keys+=1;pies+=1;markGame(id);got.push(['⭐','+1']);
       if(m3Level<5&&(levels.m3||1)<m3Level+1)levels.m3=m3Level+1;
-      if(m3Level>=5)markGame('park_m3_all');
-    }else{coins+=3;got.push(['🪙','+3']);}
+      if(m3Level>=5)markGame('park_m3_all');}
+    if(!games[cid]){coins+=cn;games[cid]=true;got.push(['🪙','+'+cn]);}
+    else{coins+=3;got.push(['🪙','+3']);}
+    if(first)got.push(['🔑','+1'],['🥧','+1']);
     save();updateHUD();
     $('#m3WinTxt').textContent='🎉 Уровень пройден!';
     $('#m3Gifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
     $('#m3More').textContent=(first&&m3Level<5)?'🍭 Следующий уровень':'🍭 Сыграть ещё';
     $('#m3Prize').classList.add('on');
     if(first&&m3Level<5)m3Level++;}
@@ -5293,7 +5312,7 @@
     speak(all?'Ты прошёл все уровни! Молодец!':'Молодец!');
     $('#odWinTxt').textContent=all?'🔎 Все уровни пройдены!':'🎉 Уровень пройден!';
     $('#odGifts').innerHTML=got.map(function(g,i){
-      return '<div class="wkgift" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'+g[0]+'<span>'+g[1]+'</span></div>';}).join('');
     $('#odMore').textContent=(first&&odLevel<3)?'🔎 Следующий уровень':'🔎 Ещё раз';
     $('#odPrize').classList.add('on');
     if(first&&odLevel<3)odLevel++;}
