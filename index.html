@@ -4428,7 +4428,9 @@
       el.style.width=(w+dd)+'px';el.style.height=(h+up)+'px';
       el.innerHTML='<svg viewBox="0 0 '+(w+dd)+' '+(h+up)+'" style="width:100%;height:100%">'+
         mkBrick(0,up,w,h,d[3],d[4])+'</svg>';
+      /* bw/bh — родной размер детали в лотке: после промаха её надо вернуть именно к нему */
       el.dataset.i=i;el.dataset.fw=w;el.dataset.fh=h;el.dataset.fy=up;
+      el.dataset.bw=w+dd;el.dataset.bh=h+up;
       el.addEventListener('pointerdown',function(e){mkGrab(el,i,e);});
       tray.appendChild(el);});}
   function mkPaintField(){
@@ -4472,14 +4474,17 @@
     /* сравниваем по передней грани детали, а не по всей картинке с объёмом */
     const fw=+d.el.dataset.fw||d.w,fh=+d.el.dataset.fh||d.h,ftop=+d.el.dataset.fy||0;
     const cx=parseFloat(d.el.style.left)+fw/2,cy=parseFloat(d.el.style.top)+ftop+fh/2;
+    /* Ищем ближайшее ПОДХОДЯЩЕЕ место, а не просто ближайшее пустое: иначе соседняя
+       чужая ячейка перехватывает бросок, и попасть с первого раза почти невозможно. */
+    const me=mkSlots[d.i];
     let best=-1,bd=1e9;
     mkSlots.forEach(function(sl,j){
       if(sl.filled)return;
+      if(sl.d[2]!==me.d[2]||sl.d[3]!==me.d[3]||(sl.d[4]||'b')!==(me.d[4]||'b'))return;
       const dist=Math.hypot(fx+sl.px+sl.pw/2-cx,fy+sl.py+sl.ph/2-cy);
       if(dist<bd){bd=dist;best=j;}});
-    const sl=best>=0?mkSlots[best]:null,me=mkSlots[d.i];
-    const fits=sl&&bd<Math.max(90,mkCell*1.2)&&
-      sl.d[2]===me.d[2]&&sl.d[3]===me.d[3]&&(sl.d[4]||'b')===(me.d[4]||'b');
+    const sl=best>=0?mkSlots[best]:null;
+    const fits=sl&&bd<Math.max(90,mkCell*1.2);
     if(fits){sl.filled=true;d.el.remove();chime(true);mkPaintField();
       if(mkSlots.every(function(s){return s.filled;}))setTimeout(mkAlive,350);}
     else{                                        /* мимо — деталь мягко возвращается */
@@ -4488,7 +4493,10 @@
       d.el.classList.add('back');
       d.el.style.left=d.home[0]+'px';d.el.style.top=d.home[1]+'px';
       setTimeout(function(){d.el.classList.remove('fly','back');
-        d.el.style.left='';d.el.style.top='';d.el.style.width='';d.el.style.height='';},320);}}
+        d.el.style.left='';d.el.style.top='';d.el.style.transform='';
+        /* размер возвращаем родной, а не стираем: без него svg внутри разворачивается
+           в свой размер по умолчанию, деталь распухает и больше никуда не попадает */
+        d.el.style.width=d.el.dataset.bw+'px';d.el.style.height=d.el.dataset.bh+'px';},320);}}
   window.addEventListener('pointermove',mkMove);
   window.addEventListener('pointerup',mkUp);
   window.addEventListener('pointercancel',mkUp);
@@ -4521,7 +4529,10 @@
     /* монеты 8, 10, 12 по этапу. Отметка отдельная (r2_): цены выросли, и этап,
        пройденный по старым, должен один раз доплатить по новым. */
     const cid='r2_'+id,cn=6+2*mkStage;
-    if(first){stars+=1;markGame(id);got.push(['⭐','+1']);}
+    /* звёздочки — по 8 за каждый пройденный этап, и за повторное прохождение тоже:
+       то же правило, что в играх Дома букв. Монетки и ключик по-прежнему за первый раз. */
+    stars+=8;got.push(['⭐','+8']);
+    if(first)markGame(id);
     if(!games[cid]){coins+=cn;games[cid]=true;got.push(['🪙','+'+cn]);}
     else{coins+=2;got.push(['🪙','+2']);}
     if(mkStage===3){
