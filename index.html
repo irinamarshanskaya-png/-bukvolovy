@@ -861,13 +861,15 @@
   .hhwrap.attic .hhdoor{display:none;}
   /* ---- Второй этаж: спальня. Лестница видна в комнате и в самой спальне,
      в остальных сценах слой пустой и потому спрятан. ---- */
-  .hhstair{position:absolute;right:23%;bottom:3%;width:190px;height:317px;cursor:pointer;
+  /* Лестница прижата к правой стенке. Высота подобрана так, чтобы не наехать
+     на дверь во дворик над ней: та начинается на 38% от пола. */
+  .hhstair{position:absolute;right:2%;bottom:3%;width:129px;height:215px;cursor:pointer;
     transition:transform .15s;}
   .hhstair:empty{display:none;}
   .hhstair:hover{transform:scale(1.03);}
   .hhstair svg{width:100%;height:100%;display:block;}
   .hhwrap.bed .hhdoor{display:none;}
-  .hhwrap.bed .hhstair{right:auto;left:3%;}
+  .hhwrap.bed .hhstair{right:auto;left:2%;}
   .hhattic{position:absolute;inset:0;display:none;}
   .hhwrap.attic .hhattic{display:block;}
   .attbeam{position:absolute;background:linear-gradient(180deg,#A9743E,#835836);border-radius:5px;
