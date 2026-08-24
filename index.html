@@ -1752,7 +1752,7 @@
      load() разбирает сохранение раньше, чем объявлен код комнаты. */
   let houseSt={wall:'w0',floor:'f0',kitWall:'kw0',kitFloor:'kf0',bathWall:'bw0',bathFloor:'bf0',
     own:[],items:[],yard:[],kitchen:[],bath:[],kit:0,bathOpen:0,pet:'',pets:[],
-    attic:0,attFound:[],attChest:[],attPets:[],attHide:[],attItems:[]};   /* чердак: открыт ли, какие секреты найдены, какие сундуки вскрыты и кто из тайных жителей поселился */
+    attic:0,attFound:[],attPets:[],attHide:[],attItems:[],attBox:0};   /* чердак: открыт ли, какие секреты найдены, кто из тайных жителей поселился и уехали ли сундуки на склад */
   let heroStored=false;   /* в хранилище уже лежит герой — пустотой его не затираем */
   let saveBroken=false;   /* браузер не даёт писать — предупреждаем один раз */
   function snapshot(){return {hero:heroSrc,sel,done,chosen,curNode,cDone,playerName,pages,introSeen,finaleDone,stars,coins,keys,pies,recipes,games,levels,coinsSpent,starsSpent,keysSpent,piesSpent,house:houseSt};}
@@ -5859,7 +5859,7 @@
     /* ---- Лавка чердака: вещи, которых нет в обычных магазинах. Стоят они в комнате
        (sc по умолчанию 'room'), но купить их можно только наверху — категория 'att'
        нарочно не входит ни в один набор вкладок комнат, поэтому в комнатной витрине
-       их не видно. rare:1 — из секретных сундуков, за деньги не продаётся вовсе. ---- */
+       их не видно. ---- */
     {k:'acloud',c:'att',n:'🌙 Кровать-облако',any:1,cur:'star',p:80,w:220,act:'lie',sx:0,sy:.38,
      v:[['белая','#FFFDF6','#A9C6DE'],['голубая','#CDEEFB','#4A90B5']]},
     {k:'arocket',c:'att',n:'🚀 Кровать-ракета',any:1,cur:'star',p:100,w:230,act:'lie',sx:.05,sy:.34,
@@ -5884,14 +5884,14 @@
      v:[['с кольцом','#FFB86B','#C4701F']]},
     {k:'abox',c:'att',n:'📦 Необычный сундук',any:1,cur:'key',p:2,w:145,act:'play',sx:.45,sy:0,
      v:[['звёздный','#4A6FA5','#2E4A73'],['золотой','#FFE9A8','#C79A18']]},
-    /* ---- редкости из секретных сундуков: цена 0 и rare:1, в лавке не показываются ---- */
-    {k:'agold',c:'att',n:'✨ Золотой стул',any:1,p:0,rare:1,w:115,act:'sit',sx:0,sy:.38,
+    /* ---- бывшие сокровища из сундуков: сундуки убрали, и теперь это самая дорогая полка лавки ---- */
+    {k:'agold',c:'att',n:'✨ Золотой стул',any:1,p:120,w:115,act:'sit',sx:0,sy:.38,
      v:[['золотой','#FFE08A','#C79A18']]},
-    {k:'arainbow',c:'att',n:'🌈 Радужная кровать',any:1,p:0,rare:1,w:215,act:'lie',sx:.15,sy:.40,
+    {k:'arainbow',c:'att',n:'🌈 Радужная кровать',any:1,p:180,w:215,act:'lie',sx:.15,sy:.40,
      v:[['радужная','#FF9AC4','#C4478F']]},
-    {k:'adrako',c:'att',n:'🐲 Дракончик',any:1,p:0,rare:1,w:112,act:'play',sx:.45,sy:0,
+    {k:'adrako',c:'att',n:'🐲 Дракончик',any:1,p:90,w:112,act:'play',sx:.45,sy:0,
      v:[['бирюзовый','#7FE0D0','#2E8F72']]},
-    {k:'aproj',c:'att',n:'🌌 Проектор звёздного неба',any:1,p:0,rare:1,w:135,act:'look',sx:.45,sy:0,
+    {k:'aproj',c:'att',n:'🌌 Проектор звёздного неба',any:1,p:140,w:135,act:'look',sx:.45,sy:0,
      v:[['ночной','#5A4A80','#2E2450']]},
     /* ---- лавка чердака, полка за монетки: крупные вещи для тех, кто копит 🪙 ---- */
     {k:'ahouse',c:'att',n:'🛏️ Кровать-домик',any:1,p:140,w:225,act:'lie',sx:0,sy:.34,
@@ -5906,6 +5906,25 @@
      v:[['малиновое','#F58BB8','#B03E71'],['лаймовое','#B7E86B','#6B9E2E'],['графит','#8C93B8','#5C6486']]},
     {k:'aport',c:'att',n:'🪟 Окно-иллюминатор',any:1,p:60,w:150,wall:1,
      v:[['морское','#CDEEFB','#B77A47'],['звёздное','#3E3358','#C9995C']]},
+    /* ---- Предметы для питомцев: покупаются на чердаке, а ставятся там, где питомец
+       и живёт, — any:1. Размеры мерены от самого питомца (84px): миска, мячик и
+       клубочек заметно меньше него, лежанка и домик — больше, чтобы он поместился. ---- */
+    {k:'pbowl',c:'pit',n:'🍲 Миска',any:1,p:20,w:55,
+     v:[['красная','#FF8E7A','#C0483A'],['голубая','#8FD4F3','#3E93C0']]},
+    {k:'pwater',c:'pit',n:'💧 Поилка',any:1,p:20,w:55,
+     v:[['голубая','#8FD4F3','#3E93C0'],['мятная','#9EE3C6','#2E8F72']]},
+    {k:'pball',c:'pit',n:'⚽ Мячик для игры',any:1,p:15,w:46,act:'play',sx:.45,sy:0,
+     v:[['звёздный','#FFD23F','#D8A21A'],['розовый','#FF9AC4','#C4478F']]},
+    {k:'pklub',c:'pit',n:'🧶 Клубочек',any:1,p:15,w:46,act:'play',sx:.45,sy:0,
+     v:[['малиновый','#F58BB8','#B03E71'],['лаймовый','#B7E86B','#6B9E2E']]},
+    {k:'pmat',c:'pit',n:'🐾 Коврик с лапками',any:1,p:30,w:155,act:'sit',flat:1,sx:0,sy:.05,
+     v:[['мятный','#9EE3C6','#2E8F72'],['песочный','#F3E0B8','#B7924E']]},
+    {k:'pscratch',c:'pit',n:'🪵 Когтеточка',any:1,p:45,w:95,act:'play',sx:.45,sy:0,
+     v:[['бежевая','#E0B072','#8A5A2B'],['серая','#C9D6E2','#7A8698']]},
+    {k:'pbed',c:'pit',n:'🛏️ Лежанка',any:1,p:60,w:130,
+     v:[['малиновая','#F58BB8','#B03E71'],['синяя','#7FB6F0','#2C5FA8']]},
+    {k:'phouse',c:'pit',n:'🏠 Домик для питомца',any:1,p:90,w:150,
+     v:[['мятный','#9EE3C6','#2E8F72'],['сиреневый','#C9A8F0','#7B4FC0']]},
     /* ---- вещи, снятые с чердака: рисунок берётся из ATT_ART (поле att), пропорция — ar.
        Категория 'attfix' не входит ни в одну витрину, значит купить их нельзя —
        они появляются в own, только когда ребёнок убирает их с чердака кнопкой 📦.
@@ -7016,6 +7035,54 @@
       '<g fill="'+B+'"><circle cx="50" cy="12" r="4"/><circle cx="50" cy="88" r="4"/>'+
       '<circle cx="12" cy="50" r="4"/><circle cx="88" cy="50" r="4"/></g>'+
       '<path d="M28 34 q10 -10 22 -6" stroke="#fff" stroke-width="5" fill="none" opacity=".55" stroke-linecap="round"/>'+E;
+    /* ---- вещи для питомцев: тот же холст 100x100, что и у остальной мебели ---- */
+    if(k==='pbowl')return S+'<ellipse cx="50" cy="88" rx="34" ry="6" fill="'+B+'" opacity=".2"/>'+
+      '<path d="M16 54 h68 l-9 28 q-2 8 -11 8 H36 q-9 0 -11 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="54" rx="34" ry="10" fill="#F3E0B8" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<g fill="#C08A52"><circle cx="40" cy="53" r="5"/><circle cx="53" cy="56" r="6"/><circle cx="62" cy="51" r="4.4"/></g>'+
+      '<path d="M24 62 q4 -6 12 -7" stroke="#fff" stroke-width="4" fill="none" opacity=".5" stroke-linecap="round"/>'+E;
+    if(k==='pwater')return S+'<ellipse cx="50" cy="88" rx="34" ry="6" fill="'+B+'" opacity=".2"/>'+
+      '<path d="M16 54 h68 l-9 28 q-2 8 -11 8 H36 q-9 0 -11 -8 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<ellipse cx="50" cy="54" rx="34" ry="10" fill="#CDEEFB" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<path d="M50 18 q11 14 11 21 a11 11 0 0 1 -22 0 q0 -7 11 -21 z" fill="#8FD4F3" stroke="#3E93C0" stroke-width="3.2" stroke-linejoin="round"/>'+
+      '<path d="M24 62 q4 -6 12 -7" stroke="#fff" stroke-width="4" fill="none" opacity=".5" stroke-linecap="round"/>'+E;
+    if(k==='pball')return S+'<ellipse cx="50" cy="90" rx="28" ry="5" fill="'+B+'" opacity=".22"/>'+
+      '<circle cx="50" cy="56" r="32" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M50 30 l7 15 16 2 -12 12 3 16 -14 -8 -14 8 3 -16 -12 -12 16 -2 z" fill="#FFFDF6" stroke="'+B+'" stroke-width="2.6" stroke-linejoin="round"/>'+
+      '<path d="M30 40 q7 -9 17 -11" stroke="#fff" stroke-width="5" fill="none" opacity=".6" stroke-linecap="round"/>'+E;
+    if(k==='pklub')return S+'<ellipse cx="50" cy="90" rx="28" ry="5" fill="'+B+'" opacity=".22"/>'+
+      '<circle cx="50" cy="58" r="30" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<g stroke="'+B+'" stroke-width="2.8" fill="none" opacity=".7">'+
+      '<path d="M24 48 q26 -10 50 6 M22 62 q26 -12 54 2 M28 74 q22 -14 46 -4"/>'+
+      '<path d="M38 30 q-8 26 4 54 M62 30 q8 26 -4 54"/></g>'+
+      '<path d="M78 66 q14 6 12 20 q-1 8 -9 6" stroke="'+B+'" stroke-width="3.2" fill="none" stroke-linecap="round"/>'+E;
+    if(k==='pmat'){const paw=function(x,y,s){return '<g fill="'+B+'" opacity=".55" transform="translate('+x+','+y+') scale('+s+')">'+
+        '<ellipse cx="0" cy="6" rx="9" ry="7"/><circle cx="-9" cy="-4" r="3.6"/><circle cx="-3" cy="-8" r="3.6"/>'+
+        '<circle cx="3" cy="-8" r="3.6"/><circle cx="9" cy="-4" r="3.6"/></g>';};
+      return S+'<ellipse cx="50" cy="58" rx="47" ry="29" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="50" cy="58" rx="38" ry="21" fill="none" stroke="#fff" stroke-width="4" opacity=".7"/>'+
+      paw(32,52,.85)+paw(52,64,.85)+paw(68,50,.85)+E;}
+    if(k==='pscratch')return S+'<ellipse cx="50" cy="92" rx="34" ry="6" fill="'+B+'" opacity=".2"/>'+
+      '<rect x="14" y="80" width="72" height="14" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="38" y="20" width="24" height="62" rx="7" fill="#E0B072" stroke="#8A5A2B" stroke-width="3.4"/>'+
+      '<g stroke="#B8874A" stroke-width="2.4" opacity=".8"><path d="M38 32 h24 M38 46 h24 M38 60 h24 M38 74 h24"/></g>'+
+      '<rect x="26" y="12" width="48" height="12" rx="6" fill="'+A+'" stroke="'+B+'" stroke-width="3.2"/>'+
+      '<path d="M66 24 v12" stroke="'+B+'" stroke-width="2.8" stroke-linecap="round"/>'+
+      '<circle cx="66" cy="44" r="9" fill="#FFD23F" stroke="#D8A21A" stroke-width="3"/>'+E;
+    if(k==='pbed')return S+'<ellipse cx="50" cy="90" rx="44" ry="7" fill="'+B+'" opacity=".2"/>'+
+      '<path d="M6 62 h88 v10 q0 16 -44 16 q-44 0 -44 -16 z" fill="'+B+'" opacity=".55"/>'+
+      '<ellipse cx="50" cy="62" rx="44" ry="22" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<ellipse cx="50" cy="60" rx="31" ry="13" fill="#3A2A18" opacity=".18"/>'+
+      '<path d="M20 62 q6 -16 30 -16 q24 0 30 16 q-6 12 -30 12 q-24 0 -30 -12 z" fill="#FFF6E6" stroke="'+B+'" stroke-width="3"/>'+
+      '<path d="M34 50 q16 10 32 0 M28 62 q22 8 44 0" fill="none" stroke="'+B+'" stroke-width="2.4" opacity=".4"/>'+
+      '<path d="M14 60 q4 -12 14 -16" stroke="#fff" stroke-width="4.4" fill="none" opacity=".55" stroke-linecap="round"/>'+E;
+    if(k==='phouse')return S+'<ellipse cx="50" cy="92" rx="42" ry="6" fill="'+B+'" opacity=".2"/>'+
+      '<rect x="14" y="46" width="72" height="46" rx="7" fill="'+A+'" stroke="'+B+'" stroke-width="3.6"/>'+
+      '<path d="M50 10 L94 50 H6 z" fill="'+B+'" stroke="'+B+'" stroke-width="3.6" stroke-linejoin="round"/>'+
+      '<path d="M50 20 L84 50 H16 z" fill="'+A+'" opacity=".45"/>'+
+      '<path d="M34 92 v-22 a16 16 0 0 1 32 0 v22 z" fill="#3A2A18" opacity=".85"/>'+
+      '<circle cx="50" cy="36" r="6" fill="#FFF3B0" stroke="'+B+'" stroke-width="2.6"/>'+
+      '<path d="M22 56 q6 -8 16 -10" stroke="#fff" stroke-width="4.4" fill="none" opacity=".45" stroke-linecap="round"/>'+E;
     return S+E;}
   const HH_DOOR='<svg viewBox="0 0 66 100" style="width:100%;height:100%">'+
     '<rect x="3" y="8" width="60" height="92" rx="6" fill="#C98F52" stroke="#7A4E28" stroke-width="3.6"/>'+
@@ -7203,34 +7270,28 @@
       +'<path d="M22 5 Q16 16 5 22 M42 12 Q30 30 12 42 M62 22 Q44 44 22 62 M82 34 Q58 58 34 82"/></g>')};
   /* Что стоит на чердаке. x,y — проценты комнаты (y — где вещь стоит на полу или висит),
      hy — куда подойти герою. gift — что спрятано, найдётся один раз. go — открывает свою
-     вкладку витрины вместо находки. ch — номер секретного сундука за ключики.
-     Два ряда: у дальней стены (y≈72) — склад, лавка и сундуки, впереди (y≈95) — старые находки. */
+     вкладку витрины вместо находки.
+     w — ширина в пикселях, как у обычной мебели: раньше она задавалась процентами комнаты,
+     и стоило открыть витрину, как весь чердак разом ужимался на четверть, а герой оставался
+     прежним. В пикселях вещь наверху ровно того же размера, что и она же, поставленная
+     в комнате со склада. Числа взяты из ATT_ITEM — у одной вещи один размер везде.
+     Два ряда: у дальней стены (y≈72) — склад, лавка и крупные вещи, впереди (y≈95) — мелкие. */
   const ATT=[
-    {id:'down', x:95,y:96,w:11,hy:92,nm:'🪜 Вниз',art:'down'},
-    {id:'shelf',x:13,y:72,w:16,hy:88,nm:'📦 Склад',art:'shelf',go:'store'},
-    {id:'shop', x:37,y:72,w:13,hy:88,nm:'🛒 Лавка',art:'shop',go:'ashop'},
-    {id:'box1', x:58,y:72,w:9, hy:88,nm:'Сундук №1',art:'lockbox',ch:0},
-    {id:'box2', x:71,y:72,w:10,hy:88,nm:'Сундук №2',art:'lockbox',ch:1},
-    {id:'box3', x:86,y:72,w:12,hy:88,nm:'Большой сундук',art:'lockbox',ch:2},
-    {id:'books',x:8, y:95,w:10,hy:93,nm:'📚 Книги',art:'books',pose:'look',say:'Старые книжки 📚',gift:['key',1]},
-    {id:'tele', x:21,y:95,w:12,hy:93,nm:'🔭 Телескоп',art:'tele',pose:'look',say:'Ух ты, звёзды! ✨',gift:['star',5]},
-    {id:'chest',x:36,y:96,w:13,hy:93,nm:'🧳 Старый сундук',art:'chest',pose:'sit',say:'Что там внутри? 🧳',gift:['coin',15]},
-    {id:'teddy',x:50,y:95,w:8, hy:93,nm:'🧸 Мишка',art:'teddy',pose:'play',say:'Привет, мишка! 🧸',gift:['star',3]},
-    {id:'boxes',x:64,y:95,w:13,hy:93,nm:'📦 Коробки',art:'boxes',pose:'sit',say:'Тут что-то есть! 📦',gift:['key',1]},
-    {id:'map',  x:28,y:34,w:13,hy:90,nm:'🗺️ Карта',art:'map',pose:'look',say:'Карта сокровищ! 🗺️',gift:['gift',1]},
-    {id:'pic',  x:74,y:32,w:10,hy:90,nm:'🖼️ Картина',art:'pic',pose:'look',say:'Какая красивая 🖼️',gift:['coin',8]},
-    {id:'lamp', x:9, y:28,w:8, hy:88,nm:'🕯️ Лампа',art:'lamp',pose:'look',say:'Уютно! 🕯️'}];
+    {id:'down', x:92,y:96,w:150,hy:92,nm:'🪜 Вниз',art:'down'},
+    {id:'shelf',x:11,y:72,w:212,hy:88,nm:'📦 Склад',art:'shelf',go:'store'},
+    {id:'shop', x:29,y:72,w:175,hy:88,nm:'🛒 Лавка',art:'shop',go:'ashop'},
+    {id:'boxes',x:46,y:72,w:175,hy:88,nm:'📦 Коробки',art:'boxes',pose:'sit',say:'Тут что-то есть! 📦',gift:['key',1]},
+    {id:'tele', x:64,y:72,w:160,hy:88,nm:'🔭 Телескоп',art:'tele',pose:'look',say:'Ух ты, звёзды! ✨',gift:['star',5]},
+    {id:'books',x:13,y:95,w:135,hy:93,nm:'📚 Книги',art:'books',pose:'look',say:'Старые книжки 📚',gift:['key',1]},
+    {id:'chest',x:29,y:95,w:175,hy:93,nm:'🧳 Старый сундук',art:'chest',pose:'sit',say:'Что там внутри? 🧳',gift:['coin',15]},
+    {id:'teddy',x:43,y:95,w:110,hy:93,nm:'🧸 Мишка',art:'teddy',pose:'play',say:'Привет, мишка! 🧸',gift:['star',3]},
+    {id:'map',  x:30,y:34,w:175,hy:90,nm:'🗺️ Карта',art:'map',pose:'look',say:'Карта сокровищ! 🗺️',gift:['gift',1]},
+    {id:'pic',  x:72,y:32,w:135,hy:90,nm:'🖼️ Картина',art:'pic',pose:'look',say:'Какая красивая 🖼️',gift:['coin',8]},
+    {id:'lamp', x:9, y:28,w:110,hy:88,nm:'🕯️ Лампа',art:'lamp',pose:'look',say:'Уютно! 🕯️'}];
   /* Витрина чердака. Своя, не как в комнатах: тут не обои и мебель, а редкости,
-     сундуки, тайные жители и общий склад всего дома. */
-  const ATT_CATS=[['ashop','🛒','Лавка чердака'],['achest','🧳','Секретные сундуки'],
+     вещи для питомцев, тайные жители и общий склад всего дома. */
+  const ATT_CATS=[['ashop','🛒','Лавка чердака'],['pit','🦴','Предметы для питомцев'],
                   ['apet','🕷️','Тайные жители'],['store','📦','Склад чердака']];
-  /* Секретные сундуки. Ключики тут именно тратятся (а не проверяются, как у lk),
-     поэтому идут через hhPay: keysSpent растёт, награды считаются от заработанного.
-     Внутри — вещи, которых нет ни в одной лавке. Каждый сундук открывается один раз. */
-  const ATT_CHESTS=[
-    {n:'Сундук №1',keys:1,items:['agold0']},
-    {n:'Сундук №2',keys:3,items:['arainbow0','adrako0']},
-    {n:'Большой сундук',keys:5,items:['aproj0']}];
   /* Тайные жители чердака. Живут только наверху и вниз не спускаются: их слой рисуется
      лишь при hhWhere==='attic'. Появляются, как обычный питомец, — из яйца, и растут
      от звёздочек, заработанных после покупки. mv — как двигается:
@@ -7347,7 +7408,6 @@
     if(!open)s+='<div class="ladlock">🔒</div>';
     return s+'<div class="hhdlbl">'+(open?'🌙 На чердак':'🌙 Чердак 🔒 ⭐ '+ATTIC_STARS)+'</div>';}
   /* вещи чердака: рисуются один раз при входе, тапом герой идёт к ним */
-  function hhChestDone(i){return (houseSt.attChest||[]).indexOf(i)>=0;}
   function hhAtticPaint(){
     const box=$('#hhAttic');
     let s='<div class="attbeam" style="left:0;right:0;top:16%;height:14px"></div>'
@@ -7356,15 +7416,11 @@
       +'<div class="attweb" style="left:-1%;top:0">'+ATT_ART.web+'</div>'
       +'<div class="attweb" style="right:-1%;top:0;transform:scaleX(-1)">'+ATT_ART.web+'</div>';
     ATT.forEach(function(o){
-      if(hhAttHidden(o.id))return;                 /* убранный сундук ждёт на стеллаже */
-      const chest=o.ch!=null,opened=chest&&hhChestDone(o.ch);
+      if(hhAttHidden(o.id))return;                 /* убранная вещь ждёт на стеллаже */
       const secret=o.gift&&!hhAttFound(o.id);
-      /* открытый сундук рисуется другой картинкой — видно, что в нём уже побывали */
-      const art=opened?ATT_ART.lockopen:ATT_ART[o.art];
-      const lbl=chest?(o.nm+(opened?' ✨':' 🔑 '+ATT_CHESTS[o.ch].keys)):o.nm;
-      s+='<div class="attit" data-id="'+o.id+'" style="left:'+o.x+'%;top:'+o.y+'%;width:'+o.w+'%">'
-        +art+'<div class="attlbl">'+lbl+'</div>'
-        +(chest&&!opened?'<div class="attspark">🔒</div>':secret?'<div class="attspark">✨</div>':'')+'</div>';});
+      s+='<div class="attit" data-id="'+o.id+'" style="left:'+o.x+'%;top:'+o.y+'%;width:'+o.w+'px">'
+        +ATT_ART[o.art]+'<div class="attlbl">'+o.nm+'</div>'
+        +(secret?'<div class="attspark">✨</div>':'')+'</div>';});
     box.innerHTML=s;
     Array.prototype.forEach.call(box.querySelectorAll('.attit'),function(el){
       el.onclick=function(){hhAtticTap(el.getAttribute('data-id'));};});
@@ -7377,7 +7433,6 @@
     if(o.id==='down'){hhAct='kit';flash(screens.house,'Спускаемся на кухню 🪜');return;}
     hhAct=o.pose||'';
     hhAfter=function(){
-      if(o.ch!=null){hhChestAsk(o.ch);return;}      /* у сундуков вопрос свой */
       if(o.say)flash(screens.house,o.say);
       if(o.gift&&!hhAttFound(o.id))setTimeout(function(){hhAttGift(o);},900);
       hhAttAsk(o);};}
@@ -7392,17 +7447,13 @@
     if(o.go){hhAskDo(o.nm+' — заглянуть внутрь?',function(){
       hhCat=o.go;hhTabs();hhGrid();hhShut(false);},hide);return;}
     hhAskDo(o.nm+' — убрать на склад?',hide,hide);}
-  /* Секретный сундук: ключики тут именно тратятся, поэтому keysSpent растёт.
-     Внутри вещи, которых нет в лавке; они ложатся на склад, ставит их ребёнок сам. */
-  /* Сундук убирается, как мебель в комнатах: тап поднимает подсказку, и там есть 📦.
-     Убранный сундук ложится на стеллаж чердака и возвращается оттуда. */
+  /* Вещь убирается, как мебель в комнатах: тап поднимает подсказку, и там есть 📦.
+     Убранная вещь ложится на стеллаж чердака и возвращается оттуда. */
   function hhAttHidden(id){return (houseSt.attHide||[]).indexOf(id)>=0;}
-  function hhAttNm(id){const o=ATT.filter(function(x){return x.id===id;})[0];return o?o.nm:'Сундук';}
+  function hhAttNm(id){const o=ATT.filter(function(x){return x.id===id;})[0];return o?o.nm:'Вещь';}
   /* Убранный с чердака предмет перестаёт быть частью сцены и становится обычной вещью:
-     ложится в own, и дальше его можно поставить в любой комнате и двигать пальцем.
-     Три секретных сундука дают один и тот же кованый сундук — просто ×3.
-     Сокровища от этого не теряются: сундуки открываются на вкладке 🧳, а не тапом по сцене. */
-  const ATT_ITEM={shelf:'fshelf0',shop:'fshop0',box1:'fchestbig0',box2:'fchestbig0',box3:'fchestbig0',
+     ложится в own, и дальше его можно поставить в любой комнате и двигать пальцем. */
+  const ATT_ITEM={shelf:'fshelf0',shop:'fshop0',
     books:'fbooks0',tele:'ftele0',chest:'fchestold0',teddy:'fteddy0',boxes:'fboxes0',
     map:'fmap0',pic:'fpic0',lamp:'flamp0'};
   function hhAttHide(id){
@@ -7411,28 +7462,18 @@
     if(ATT_ITEM[id])houseSt.own.push(ATT_ITEM[id]);
     save();hhAtticPaint();hhGrid();chime(true);
     flash(screens.house,hhAttNm(id)+' на складе 📦 — поставь, где хочешь');}
-  function hhChestAsk(i){
-    const c=ATT_CHESTS[i];if(!c)return;
-    const o=ATT.filter(function(x){return x.ch===i;})[0];
-    const hide=o?function(){hhAttHide(o.id);}:null;
-    const done=hhChestDone(i),enough=keys>=c.keys;
-    /* один вопрос на все случаи: ✅ открыть (если есть чем), ✕ ничего, 📦 убрать */
-    if(done||!enough){
-      /* открытый сундук уже пуст — вопрос честно про «убрать», и ✅ его убирает */
-      if(done){hhAskDo(c.n+' пуст ✨ — убрать на склад?',hide||function(){blip();},hide);return;}
-      hhAskDo('Для '+c.n+' нужно ещё '+(c.keys-keys)+' 🔑',function(){blip();},hide);
-      return;}
-    hhAskDo('Открыть '+c.n+' за '+c.keys+' 🔑?',function(){
-      keys-=c.keys;keysSpent+=c.keys;
-      if(!houseSt.attChest)houseSt.attChest=[];
-      houseSt.attChest.push(i);
-      const got=[];
-      c.items.forEach(function(id){
-        if(houseSt.own.indexOf(id)<0)houseSt.own.push(id);
-        const t=hhKind(id);got.push(['🎁',t?t.n:id]);});
-      save();updateHUD();chime(true);confetti(screens.house);
-      hhAtticPaint();hhTabs();hhGrid();lhGifts(screens.house,got);
-      setTimeout(function(){flash(screens.house,'Сокровище на складе 📦 — поставь, где хочешь');},1600);},hide);}
+  /* Секретные сундуки с чердака убрали: три кованых сундука лежат на складе чердака
+     как обычная мебель, а редкости из них переехали в лавку наверху. Тем, у кого
+     чердак уже открыт, сундуки кладём на склад один раз — те, что ребёнок успел
+     убрать коробочкой, там и так лежат. */
+  function hhAttBoxes(){
+    if(houseSt.attBox)return;
+    houseSt.attBox=1;
+    if(houseSt.attic){
+      const hid=houseSt.attHide||[];
+      ['box1','box2','box3'].forEach(function(id){
+        if(hid.indexOf(id)<0)houseSt.own.push('fchestbig0');});}
+    save();}
   /* находка: начисляем и запоминаем, чтобы второй раз не выдавать */
   function hhAttGift(o){
     if(hhAttFound(o.id))return;
@@ -7850,20 +7891,6 @@
       const d=document.createElement('div');d.className='hhnote';
       d.textContent='Тут самые крутые вещи: обычную мебель покупают в комнатах, а эти — только на чердаке. Покупка встаёт прямо тут, а потом её можно убрать 📦 и поставить в любой комнате.';
       box.appendChild(d);return;}
-    /* ——— секретные сундуки: за ключики, внутри редкости ——— */
-    if(hhCat==='achest'){
-      ATT_CHESTS.forEach(function(c,i){
-        const done=hhChestDone(i);
-        const pv='<div style="font-size:44px;line-height:1">'+(done?'✨':'🔒')+'</div>';
-        const price=done?'✔ открыт':(keys>=c.keys?'🔑 '+c.keys+' — открыть':'ещё '+(c.keys-keys)+' 🔑');
-        box.appendChild(hhCell(pv,c.n,price,done?'have':(keys>=c.keys?'':'no'),function(){hhChestAsk(i);}));});
-      const d=document.createElement('div');d.className='hhnote';
-      d.textContent='В сундуках лежат вещи, которых не купить ни за звёздочки, ни за монетки. Ключик тут тратится, а не просто проверяется.';
-      box.appendChild(d);
-      const seen=ATT_CHESTS.filter(function(c,i){return hhChestDone(i);}).length;
-      if(seen===ATT_CHESTS.length){const d2=document.createElement('div');d2.className='hhnote';
-        d2.textContent='Все сундуки открыты! Сокровища лежат на складе 📦.';box.appendChild(d2);}
-      return;}
     /* ——— тайные жители чердака: вниз не спускаются, растут из яйца ——— */
     if(hhCat==='apet'){
       /* тайных жителей тоже можно заводить сколько угодно, в том числе одинаковых */
@@ -7930,7 +7957,10 @@
         if(hhPut)hhEndPut(true);        /* прошлую примерку засчитываем, деньги уходят сейчас */
         const nowHave=hhHave(t);
         if(t.p>nowHave){chime(false);flash(screens.house,'Нужно ещё '+(t.p-nowHave)+' '+em);return;}
-        hhBuy(e.id,t);}));});}
+        hhBuy(e.id,t);}));});
+    if(hhCat==='pit'){const d=document.createElement('div');d.className='hhnote';
+      d.textContent='Всё для питомцев: покупаешь наверху, а ставишь там, где живёт питомец — в комнате или во дворике. Тайным жителям чердака эти вещи тоже нравятся.';
+      box.appendChild(d);}}
 
   function hhBuy(id,t){
     houseSt.own.push(id);
@@ -8006,10 +8036,10 @@
     if(!houseSt.kitchen)houseSt.kitchen=[];
     if(!houseSt.bath)houseSt.bath=[];
     if(!houseSt.attFound)houseSt.attFound=[];
-    if(!houseSt.attChest)houseSt.attChest=[];
     if(!houseSt.attPets)houseSt.attPets=[];
     if(!houseSt.attHide)houseSt.attHide=[];
     if(!houseSt.attItems)houseSt.attItems=[];
+    hhAttBoxes();
     /* раньше питомец был один: старую запись переносим в список, строку — как выросшего кота */
     if(typeof houseSt.pet==='string'&&houseSt.pet)houseSt.pet={k:'cat',at:0,seen:3};
     hhPetsFix();
