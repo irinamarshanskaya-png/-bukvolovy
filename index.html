@@ -2598,11 +2598,14 @@
   /* always — платить полную цену каждый раз. Так у «Поймай букву»: там каждая новая
      буква и есть новое задание, а уровней, за которые платят один раз, нет. */
   function lhReward(id,lvl,total,c,always){
-    const got=[],lid='r2_'+id+'_l'+lvl;
+    const got=[],lid='r2_'+id+'_l'+lvl,first=!games[lid];
     /* звёздочки — по 5 за каждый пройденный уровень, и за повторное прохождение тоже */
     stars+=5;got.push(['⭐','+5']);
-    if(always||!games[lid]){coins+=c;games[lid]=true;got.push(['🪙','+'+c]);}
+    if(always||first){coins+=c;games[lid]=true;got.push(['🪙','+'+c]);}
     else{coins+=2;got.push(['🪙','+2']);}   /* за повтор — тот же 🪙+2, что в Мастерской и «Что исчезло?» */
+    /* пирог — по одному за уровень. В «Поймай букву» монеты платятся за каждую букву
+       (always), а пирог всё равно один: иначе он сыпался бы горстями. */
+    if(first){pies+=1;got.push(['🥧','+1']);}
     if(total&&!games[id+'_key']){let all=true;
       for(let i=1;i<=total;i++)if(!games['r2_'+id+'_l'+i])all=false;
       if(all){keys+=1;games[id+'_key']=true;got.push(['🔑','+1']);}}
@@ -4872,9 +4875,9 @@
   const PK_FACES=['🦊','🐰','🐻','🐼','🐵','🐨'];
   const PK_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
   const PK_MARK={x:'❌',o:'⭕'};
-  /* награда за победу: чем труднее зверёк, тем больше. Монеты, ключик и пирог —
+  /* награда за победу: чем труднее зверёк, тем больше. Монеты и ключики —
      один раз за уровень, звёздочки каждый раз: они в игре за старание. */
-  const PK_PRIZE={1:{c:5,s:3},2:{c:10,s:6},3:{c:14,s:10,k:1,p:1}};
+  const PK_PRIZE={1:{c:4,s:4,k:1},2:{c:5,s:5,k:2},3:{c:6,s:6,k:3}};
   const PK_SAY={1:'Лёгкий уровень: я почти не мешаю.',2:'Средний уровень: я буду закрывать твои ряды.',
                 3:'Трудный уровень! Я закрываю всё — выиграть можно только хитростью.'};
   let pkCells=[],pkBusy=false,pkOver=false,pkLvl=1;
@@ -4913,7 +4916,7 @@
      чем выше уровень. Центр держит игру крепче всего: пока он свободен, ребёнок легко
      строит «вилку» из двух углов, — поэтому уровни различаются в первую очередь им.
      Числа подобраны автотестом на 4000 партий: толковый игрок выигрывает 94% / 69% / 40%.
-     Даже на третьем уровне выиграть можно — иначе ключик и пирог были бы недостижимы. */
+     Даже на третьем уровне выиграть можно — иначе три ключика были бы недостижимы. */
   const PK_BLOCK=[.2,.55,1],PK_CENTER=[0,.5,.8];
   function pkAiMove(){const w=pkTry('o');if(w>=0)return w;
     const b=pkTry('x');if(b>=0&&Math.random()<PK_BLOCK[pkLvl-1])return b;
@@ -4940,9 +4943,7 @@
   function pkReward(kind){let got=[];
     if(kind==='win'){const p=PK_PRIZE[pkLvl],id='pk3_l'+pkLvl,first=!games[id];
       stars+=p.s;got.push(['⭐','+'+p.s]);
-      if(first){coins+=p.c;markGame(id);got.push(['🪙','+'+p.c]);
-        if(p.k){keys+=p.k;got.push(['🔑','+'+p.k]);}
-        if(p.p){pies+=p.p;got.push(['🥧','+'+p.p]);}}
+      if(first){coins+=p.c;markGame(id);got.push(['🪙','+'+p.c]);keys+=p.k;got.push(['🔑','+'+p.k]);}
       else{coins+=2;got.push(['🪙','+2']);}
       markGame('park_win');done.park=true;
       levels.pkWins=(levels.pkWins||0)+1;}
