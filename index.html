@@ -5939,6 +5939,8 @@
      v:[['голубая','#8FD4F3','#4A90B5'],['розовая','#FFC2D8','#CE6E8C']]},
     {k:'rug',c:'cozy',n:'Коврик',cur:'star',p:3,w:220,act:'play',flat:1,sx:0,sy:.05,
      v:[['розовый','#FBCEDF','#D98BAA'],['голубой','#CDE9FB','#7FB4CE'],['зелёный','#D5EFC0','#8FBF6A']]},
+    {k:'rugsq',c:'cozy',n:'Квадратный коврик',cur:'star',p:3,w:220,act:'play',flat:1,sx:0,sy:.05,
+     v:[['песочный','#F3E0B8','#B7924E'],['сиреневый','#C9A8F0','#7B4FC0'],['мятный','#9EE3C6','#2E8F72'],['солнечный','#FFE09A','#E0A81A']]},
     {k:'chest',c:'cozy',n:'Сундук',cur:'key',p:3,w:130,act:'play',sx:.45,sy:0,v:[['с ключами','#E0B072','#7A4E28']]},
     {k:'wheel',c:'cozy',n:'Колесо из Парка',cur:'star',p:3,w:130,act:'play',sx:.45,sy:0,lk:{k:'game',g:'park_win',t:'Пройди Парк 🎡'},v:[['из Парка','#FFD23F','#7A86A8']]},
     {k:'train',c:'cozy',n:'Паровозик',cur:'star',p:4,w:150,act:'play',sx:.45,sy:0,lk:{k:'game',g:'station_all',t:'Пройди Вокзал 🚂'},v:[['с Вокзала','#4DB6E5','#1B5170']]},
@@ -6280,21 +6282,21 @@
     /* ---- Предметы для питомцев: покупаются на чердаке, а ставятся там, где питомец
        и живёт, — any:1. Размеры мерены от самого питомца (84px): миска, мячик и
        клубочек заметно меньше него, лежанка и домик — больше, чтобы он поместился. ---- */
-    {k:'pbowl',c:'pit',n:'🍲 Миска',any:1,p:20,w:55,
+    {k:'pbowl',c:'pit',n:'🍲 Миска',any:1,cur:'star',p:2,w:55,
      v:[['красная','#FF8E7A','#C0483A'],['голубая','#8FD4F3','#3E93C0']]},
-    {k:'pwater',c:'pit',n:'💧 Поилка',any:1,p:20,w:55,
+    {k:'pwater',c:'pit',n:'💧 Поилка',any:1,cur:'star',p:2,w:55,
      v:[['голубая','#8FD4F3','#3E93C0'],['мятная','#9EE3C6','#2E8F72']]},
-    {k:'pball',c:'pit',n:'⚽ Мячик для игры',any:1,p:15,w:46,act:'play',sx:.45,sy:0,
+    {k:'pball',c:'pit',n:'⚽ Мячик для игры',any:1,cur:'star',p:1,w:46,act:'play',sx:.45,sy:0,
      v:[['звёздный','#FFD23F','#D8A21A'],['розовый','#FF9AC4','#C4478F']]},
-    {k:'pklub',c:'pit',n:'🧶 Клубочек',any:1,p:15,w:46,act:'play',sx:.45,sy:0,
+    {k:'pklub',c:'pit',n:'🧶 Клубочек',any:1,cur:'star',p:1,w:46,act:'play',sx:.45,sy:0,
      v:[['малиновый','#F58BB8','#B03E71'],['лаймовый','#B7E86B','#6B9E2E']]},
-    {k:'pmat',c:'pit',n:'🐾 Коврик с лапками',any:1,p:30,w:155,act:'sit',flat:1,sx:0,sy:.05,
+    {k:'pmat',c:'pit',n:'🐾 Коврик с лапками',any:1,cur:'star',p:3,w:155,act:'sit',flat:1,sx:0,sy:.05,
      v:[['мятный','#9EE3C6','#2E8F72'],['песочный','#F3E0B8','#B7924E']]},
-    {k:'pscratch',c:'pit',n:'🪵 Когтеточка',any:1,p:45,w:95,act:'play',sx:.45,sy:0,
+    {k:'pscratch',c:'pit',n:'🪵 Когтеточка',any:1,cur:'star',p:4,w:95,act:'play',sx:.45,sy:0,
      v:[['бежевая','#E0B072','#8A5A2B'],['серая','#C9D6E2','#7A8698']]},
-    {k:'pbed',c:'pit',n:'🛏️ Лежанка',any:1,p:60,w:130,
+    {k:'pbed',c:'pit',n:'🛏️ Лежанка',any:1,cur:'star',p:5,w:130,
      v:[['малиновая','#F58BB8','#B03E71'],['синяя','#7FB6F0','#2C5FA8']]},
-    {k:'phouse',c:'pit',n:'🏠 Домик для питомца',any:1,p:90,w:150,
+    {k:'phouse',c:'pit',n:'🏠 Домик для питомца',any:1,cur:'star',p:6,w:150,
      v:[['мятный','#9EE3C6','#2E8F72'],['сиреневый','#C9A8F0','#7B4FC0']]},
     /* ---- вещи, снятые с чердака: рисунок берётся из ATT_ART (поле att), пропорция — ar.
        Категория 'attfix' не входит ни в одну витрину, значит купить их нельзя —
@@ -6574,6 +6576,9 @@
     if(k==='rug')return S+'<ellipse cx="50" cy="58" rx="47" ry="30" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
       '<ellipse cx="50" cy="58" rx="33" ry="20" fill="none" stroke="#fff" stroke-width="5"/>'+
       '<ellipse cx="50" cy="58" rx="19" ry="11" fill="'+B+'" opacity=".45"/>'+E;
+    if(k==='rugsq')return S+'<rect x="7" y="33" width="86" height="52" rx="9" fill="'+A+'" stroke="'+B+'" stroke-width="3.4"/>'+
+      '<rect x="17" y="41" width="66" height="36" rx="6" fill="none" stroke="#fff" stroke-width="5"/>'+
+      '<rect x="30" y="50" width="40" height="18" rx="4" fill="'+B+'" opacity=".45"/>'+E;
     if(k==='chest')return S+'<path d="M10 46 q40 -26 80 0 v6 H10 z" fill="'+A+'" stroke="'+B+'" stroke-width="3.4" stroke-linejoin="round"/>'+
       '<rect x="10" y="50" width="80" height="36" rx="5" fill="#C98F52" stroke="'+B+'" stroke-width="3.4"/>'+
       '<path d="M10 62 h80" stroke="'+B+'" stroke-width="3"/>'+
@@ -8562,7 +8567,9 @@
     /* Карточка вещи. Одинаковых можно купить сколько угодно: пока на складе есть
        свободная — карточка её ставит, а когда все расставлены, снова показывает цену.
        Сколько всего таких у ребёнка, пишем рядом с именем: «Стул ×3». */
-    HH_LIST.filter(function(e){return e.t.c===hhCat;}).forEach(function(e){
+    /* во вкладке «Уют и игрушки» показываем и предметы для питомцев: тот же товар,
+       что в лавке чердака, но купить его можно с первой комнаты, не открывая чердак */
+    HH_LIST.filter(function(e){return e.t.c===hhCat||(hhCat==='cozy'&&e.t.c==='pit');}).forEach(function(e){
       const t=e.t,lk=hhLock(t),own=hhOwned(e.id),free=hhFree(e.id);
       const nm=(t.v.length>1?t.n+' '+t.v[e.i][0]:t.n)+(own>1?' ×'+own:'');
       const em=hhEm(t),have=hhHave(t);
@@ -8576,7 +8583,7 @@
         if(t.p>nowHave){chime(false);flash(screens.house,'Нужно ещё '+(t.p-nowHave)+' '+em);return;}
         hhBuy(e.id,t);}));});
     if(hhCat==='pit'){const d=document.createElement('div');d.className='hhnote';
-      d.textContent='Всё для питомцев: покупаешь наверху, а ставишь там, где живёт питомец — в комнате или во дворике. Тайным жителям чердака эти вещи тоже нравятся.';
+      d.textContent='Всё для питомцев: эти же вещи есть в комнате, во вкладке «Уют и игрушки». Ставить их можно там, где живёт питомец, — в комнате или во дворике. Тайным жителям чердака они тоже нравятся.';
       box.appendChild(d);}}
 
   function hhBuy(id,t){
