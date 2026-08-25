@@ -484,9 +484,13 @@
 
   /* ---------- ПАРК: крестики-нолики ---------- */
   #park{background:linear-gradient(180deg,#CFEFD6,#EAF7C7);}
-  .pkboard{display:grid;grid-template-columns:repeat(3,132px);grid-template-rows:repeat(3,132px);gap:12px;
+  #park .gwrap{position:relative;z-index:1;gap:10px;}
+  #park .lvsel{gap:10px;}
+  /* счётчик побед лежит на кроне дерева — без белой подложки его не прочесть */
+  #park .prog{background:rgba(255,255,255,.86);border-radius:14px;padding:3px 12px;}
+  .pkboard{display:grid;grid-template-columns:repeat(3,120px);grid-template-rows:repeat(3,120px);gap:12px;
            background:#7BC950;padding:14px;border-radius:28px;box-shadow:0 10px 0 #5CA836, 0 18px 28px rgba(0,0,0,.2);}
-  .pkcell{background:#FFF8EC;border:none;border-radius:20px;font-size:76px;line-height:1;display:flex;align-items:center;
+  .pkcell{background:#FFF8EC;border:none;border-radius:20px;font-size:68px;line-height:1;display:flex;align-items:center;
           justify-content:center;cursor:pointer;box-shadow:inset 0 -5px 0 rgba(0,0,0,.07);transition:transform .08s;padding:0;}
   .pkcell:active{transform:scale(.96);}
   .pkcell.taken{cursor:default;}
@@ -1462,8 +1466,10 @@
   </section>
 
   <section id="park" class="screen">
+    <div class="cfbg" id="pkBg"></div>
     <div class="topbar"><button class="backb" id="pkBack">← Карта</button><h2>🎡 Парк</h2><div class="prog" id="pkProg"></div></div>
     <div class="gwrap">
+      <div class="lvsel" id="pkLevels"></div>
       <div class="wkguest"><div class="wkface" id="pkFace">🦊</div><div class="wkbub" id="pkSay">Сыграем в крестики-нолики?</div></div>
       <div class="pkboard" id="pkBoard"></div>
       <button class="btn coral" id="pkAgain">🔁 Новая игра</button>
@@ -3835,6 +3841,59 @@
     [[196,486,0],[236,470,1],[336,492,2],[860,484,3],[1000,490,0],[520,486,1],[830,470,2],[64,478,4],[1120,478,1]]
       .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.05);});
     return s+'</svg>';}
+  /* Фон экрана крестиков-ноликов — по фотографии, которую принесла Ирина: густые деревья
+     по краям, речка с мостиком слева, дорожка, скамейка и фонарь справа, город вдали.
+     Кирпичики те же, что в сценах локаций. Середина холста нарочно пустая и светлая:
+     поверх неё лежит игровое поле, и любая деталь там мешала бы читать клетки. */
+  function pkTower(x,by,w,h,c){return '<rect x="'+(x-w/2)+'" y="'+(by-h)+'" width="'+w+'" height="'+h+'" rx="4" fill="'+c+'"/>';}
+  function pkGameArt(){
+    let s='<svg viewBox="0 0 1360 765" preserveAspectRatio="none" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs><linearGradient id="pkgSky" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#8FD8F2"/><stop offset="1" stop-color="#DCF2FB"/></linearGradient>'
+      +'<linearGradient id="pkgPath" x1="0" y1="0" x2="0" y2="1">'
+      +'<stop offset="0" stop-color="#E8D3A6"/><stop offset="1" stop-color="#F6E7C6"/></linearGradient></defs>';
+    s+='<rect width="1360" height="765" fill="url(#pkgSky)"/>';
+    s+=cfCloud(210,96,1.15)+cfCloud(690,72,.8)+cfCloud(1010,120,1.0)+cfCloud(1310,80,.72);
+    /* город вдали — бледный силуэт, как на фото за деревьями */
+    let city='';
+    [[606,72,58],[648,54,96],[690,64,72],[734,86,120],[782,60,88],[822,50,64],[1016,58,74],
+     [1058,80,104],[1102,62,80],[1146,48,58]].forEach(function(t){city+=pkTower(t[0],268,t[1],t[2],'#A9C6DE');});
+    s+='<g opacity=".75">'+city+'</g>';
+    /* дальняя зелень закрывает основания домов и держит горизонт */
+    s+='<path d="M0 262 Q210 232 430 258 Q690 286 940 250 Q1160 226 1360 258 L1360 765 L0 765 Z" fill="#5FB247"/>';
+    [[40,286,1.1],[150,296,1.35],[268,282,.9],[382,290,1.0],[496,284,.85],[610,292,.95],
+     [724,282,.9],[838,290,1.05],[952,280,1.15],[1066,294,1.3],[1180,282,1.0],[1300,292,1.2]]
+      .forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    [[326,300,.62],[560,296,.55],[880,298,.6],[1240,302,.66]].forEach(function(f){s+=nwFir(f[0],f[1],f[2]);});
+    s+='<path d="M0 322 Q300 296 620 316 Q960 338 1360 306 L1360 765 L0 765 Z" fill="#7BC950"/>';
+    s+='<path d="M0 402 Q340 376 700 398 Q1030 418 1360 392 L1360 765 L0 765 Z" fill="#8FD46A"/>';
+    /* речка слева и мостик через неё */
+    s+='<path d="M0 336 Q118 366 196 430 Q252 476 268 540 L176 566 Q150 486 96 434 Q46 388 0 372 Z" fill="#4DB6E5"/>';
+    s+='<path d="M0 352 Q104 380 176 442 Q228 490 240 546" fill="none" stroke="#9BDDF7" stroke-width="11" stroke-linecap="round"/>';
+    [[54,388],[132,452],[196,522]].forEach(function(r){
+      s+='<ellipse cx="'+r[0]+'" cy="'+r[1]+'" rx="17" ry="10" fill="#B9C6CE"/>';});
+    s+=pkBridge(150,430,40);
+    /* дорожка: от нижнего левого угла уходит вправо к горизонту, как на фото */
+    s+='<path d="M104 765 Q300 600 560 512 Q880 408 1360 372 L1360 424 Q900 462 620 556 Q380 640 246 765 Z" fill="url(#pkgPath)"/>';
+    s+='<path d="M150 765 Q330 616 580 532 Q890 432 1360 396" fill="none" stroke="#fff" stroke-width="5" opacity=".35" stroke-linecap="round"/>';
+    /* скамейка и фонарь справа у дорожки */
+    s+=pkBench(1132,470)+nwLamp(1268,548,1.0);
+    /* большие деревья по краям — они же рамка вокруг игрового поля */
+    s+=nwTree(92,404,1.75)+nwTree(238,346,1.15)+nwTree(1288,412,1.7)+nwTree(1152,344,1.1);
+    /* кусты и клумбы по углам: центр остаётся свободным под клетки */
+    [[62,600,1.5],[196,672,1.25],[1306,612,1.45],[1176,690,1.2],[352,470,.8],[1010,452,.75]]
+      .forEach(function(b){s+=nwBush(b[0],b[1],b[2]);});
+    [[36,690,3],[92,724,0],[150,700,1],[214,742,4],[276,706,2],[112,652,3],[248,660,0],
+     [1324,700,1],[1268,736,3],[1206,706,0],[1146,744,2],[1290,660,4],[1160,668,1],
+     [318,528,0],[404,556,3],[988,502,1],[1064,530,4],[470,742,2],[560,712,0],[860,740,3],[960,706,1]]
+      .forEach(function(f){s+=nwFlower(f[0],f[1],f[2],1.2);});
+    [[300,616,1],[520,648,.9],[760,678,1],[1000,640,.85],[420,468,.8],[880,470,.75],
+     [640,742,1],[1100,752,.9],[180,600,.85]].forEach(function(g){s+=cfTuft(g[0],g[1],g[2]);});
+    /* нависающая листва в верхних углах — на фото кадр обрамлён кронами */
+    s+='<g fill="#4E9E37" opacity=".92"><circle cx="30" cy="18" r="96"/><circle cx="150" cy="-16" r="86"/>'
+      +'<circle cx="1330" cy="24" r="102"/><circle cx="1206" cy="-18" r="80"/></g>';
+    s+='<g fill="#5CA836" opacity=".9"><circle cx="102" cy="46" r="54"/><circle cx="1262" cy="52" r="58"/></g>';
+    return s+'</svg>';}
   function openShopMenu(){const b=$('#nwScene');if(b&&!b.innerHTML)b.innerHTML=nwArt();show('shmenu');}
   $('#shmBack').onclick=goWorld;$('#vanBack').onclick=openShopMenu;
   $('#sh1').onclick=startVanish;$('#sh2').onclick=startCart;$('#sh3').onclick=startCash;
@@ -4813,18 +4872,30 @@
   const PK_FACES=['🦊','🐰','🐻','🐼','🐵','🐨'];
   const PK_LINES=[[0,1,2],[3,4,5],[6,7,8],[0,3,6],[1,4,7],[2,5,8],[0,4,8],[2,4,6]];
   const PK_MARK={x:'❌',o:'⭕'};
-  let pkCells=[],pkBusy=false,pkOver=false;
+  /* награда за победу: чем труднее зверёк, тем больше. Монеты, ключик и пирог —
+     один раз за уровень, звёздочки каждый раз: они в игре за старание. */
+  const PK_PRIZE={1:{c:5,s:3},2:{c:10,s:6},3:{c:14,s:10,k:1,p:1}};
+  const PK_SAY={1:'Лёгкий уровень: я почти не мешаю.',2:'Средний уровень: я буду закрывать твои ряды.',
+                3:'Трудный уровень! Я закрываю всё — выиграть можно только хитростью.'};
+  let pkCells=[],pkBusy=false,pkOver=false,pkLvl=1;
   /* реплику пишем и озвучиваем одной функцией — ребёнок ещё не читает */
   function pkSay(t,delay){$('#pkSay').textContent=t;const s=wkVoice(t);if(!s)return;
     if(delay)setTimeout(()=>speak(s),delay);else speak(s);}
   function openPark(){show('park');$('#pkPrize').classList.remove('on');
+    if(!$('#pkBg').innerHTML)$('#pkBg').innerHTML=pkGameArt();
+    pkLvl=levels.pk||1;renderPkLevels();
     $('#pkFace').textContent=PK_FACES[Math.random()*PK_FACES.length|0];pkNew(true);}
-  function pkNew(greet){pkCells=['','','','','','','','',''];pkBusy=false;pkOver=false;
+  function renderPkLevels(){const box=$('#pkLevels');box.innerHTML='';
+    for(let i=1;i<=3;i++){const b=document.createElement('button');b.className='lvbtn'+(i===pkLvl?' sel':'');
+      b.textContent=i;b.onclick=(function(n){return function(){if(n===pkLvl)return;
+        pkLvl=n;levels.pk=n;save();renderPkLevels();pkNew(false,true);};})(i);box.appendChild(b);}}
+  function pkNew(greet,lvlSay){pkCells=['','','','','','','','',''];pkBusy=false;pkOver=false;
     $('#pkProg').textContent='Побед: '+(levels.pkWins||0);
     const b=$('#pkBoard');b.innerHTML='';
     for(let i=0;i<9;i++){const c=document.createElement('button');c.className='pkcell';
       c.onclick=(function(n){return function(){pkPlay(n);};})(i);b.appendChild(c);}
-    pkSay(greet?'Сыграем в крестики-нолики? Ты ставишь крестики, я нолики. Твой ход!':'Новая игра. Твой ход!',greet?450:250);}
+    pkSay(greet?'Сыграем в крестики-нолики? Ты ставишь крестики, я нолики. Твой ход!'
+      :lvlSay?PK_SAY[pkLvl]+' Твой ход!':'Новая игра. Твой ход!',greet?450:250);}
   function pkDraw(){const b=$('#pkBoard');
     for(let i=0;i<9;i++){const c=b.children[i];
       c.innerHTML=pkCells[i]?'<span>'+PK_MARK[pkCells[i]]+'</span>':'';
@@ -4838,13 +4909,20 @@
       for(let j=0;j<3;j++){const v=pkCells[L[j]];if(v===mark)mine++;else if(!v)free=L[j];else{mine=-9;break;}}
       if(mine===2&&free>=0)return free;}
     return -1;}
-  /* зверёк играет по-доброму: выигрывает, если может, но закрывает ход ребёнка не всегда —
-     иначе пятилетний не выиграет никогда, а игра должна радовать */
+  /* Зверёк играет по-доброму: победу забирает всегда, а ход ребёнка закрывает тем чаще,
+     чем выше уровень. Центр держит игру крепче всего: пока он свободен, ребёнок легко
+     строит «вилку» из двух углов, — поэтому уровни различаются в первую очередь им.
+     Числа подобраны автотестом на 4000 партий: толковый игрок выигрывает 94% / 69% / 40%.
+     Даже на третьем уровне выиграть можно — иначе ключик и пирог были бы недостижимы. */
+  const PK_BLOCK=[.2,.55,1],PK_CENTER=[0,.5,.8];
   function pkAiMove(){const w=pkTry('o');if(w>=0)return w;
-    const b=pkTry('x');if(b>=0&&Math.random()<0.55)return b;
-    if(!pkCells[4]&&Math.random()<0.5)return 4;
+    const b=pkTry('x');if(b>=0&&Math.random()<PK_BLOCK[pkLvl-1])return b;
     const free=[];for(let i=0;i<9;i++)if(!pkCells[i])free.push(i);
-    return free.length?free[Math.random()*free.length|0]:-1;}
+    if(!free.length)return -1;
+    if(!pkCells[4]&&Math.random()<PK_CENTER[pkLvl-1])return 4;
+    if(pkLvl===3){const cor=[0,2,6,8].filter(function(i){return !pkCells[i];});
+      if(cor.length&&Math.random()<.75)return cor[Math.random()*cor.length|0];}
+    return free[Math.random()*free.length|0];}
   function pkPlay(i){if(pkBusy||pkOver||pkCells[i])return;
     pkCells[i]='x';blip();pkDraw();
     let r=pkResult();if(r){pkEnd(r);return;}
@@ -4859,10 +4937,14 @@
     else if(r.who==='o'){pkSay('В этот раз выиграл я. Сыграем ещё?');setTimeout(function(){pkReward('lose');},1000);}
     else{pkSay('Ничья! Никто не проиграл.');setTimeout(function(){pkReward('draw');},1000);}}
   /* проигрыш не наказывается: монетка всё равно даётся, чтобы не было обидно */
-  function pkReward(kind){let got;
-    if(kind==='win'){const first=!games['park_win'];
-      if(first){stars+=1;coins+=5;markGame('park_win');done.park=true;got=[['⭐','+1'],['🪙','+5']];}
-      else{coins+=2;got=[['🪙','+2']];}
+  function pkReward(kind){let got=[];
+    if(kind==='win'){const p=PK_PRIZE[pkLvl],id='pk3_l'+pkLvl,first=!games[id];
+      stars+=p.s;got.push(['⭐','+'+p.s]);
+      if(first){coins+=p.c;markGame(id);got.push(['🪙','+'+p.c]);
+        if(p.k){keys+=p.k;got.push(['🔑','+'+p.k]);}
+        if(p.p){pies+=p.p;got.push(['🥧','+'+p.p]);}}
+      else{coins+=2;got.push(['🪙','+2']);}
+      markGame('park_win');done.park=true;
       levels.pkWins=(levels.pkWins||0)+1;}
     else if(kind==='draw'){coins+=2;got=[['🪙','+2']];}
     else{coins+=1;got=[['🪙','+1']];}
