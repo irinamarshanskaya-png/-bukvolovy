@@ -2515,7 +2515,7 @@
     $('#cfPet').classList.toggle('run',run);cfPetPlace(run);}
 
   function rewardL(){running=false;cancelAnimationFrame(raf);done.letters=true;markGame('letters_catch');save();earnPage('letters');items.forEach(o=>o.el.remove());items=[];flash(field,'Молодец!');
-    lhGifts(field,lhReward('letters_catch',1,1,8,true));
+    lhGifts(field,lhReward('letters_catch',1,1,10,true));
     const h=field.clientHeight,heroTop=h-12-172;pieEat(field,heroX,heroTop,hero,()=>openPicker());}
   function loop(t){if(!running)return;const dt=Math.min(.05,(t-last)/1000);last=t;const prev=heroX;heroX+=(heroTargetX-heroX)*.22;placeHero();cfPetStep(dt);
     if(Math.abs(heroX-prev)>.6||dragging)hero.classList.add('run');else hero.classList.remove('run');
@@ -2578,8 +2578,8 @@
     return s+'</svg>';}
 
   /* ---------- ДОМ БУКВ: меню + игры ---------- */
-  /* Награда за пройденную игру Дома букв. Монеты зависят от сложности уровня:
-     1 — лёгкий 🪙5, 2 — средний 🪙6, 3 — сложный 🪙7, 4 и выше — очень сложный 🪙8.
+  /* Награда за пройденную игру Дома букв: 🪙10 за первое прохождение любого
+     уровня — цена одна для всех игр и уровней Дома букв.
      Ключик один на всю игру: падает, когда пройдены все её уровни (total).
      Всё держится на общем games{} — значит, за уже пройденный уровень награда
      второй раз не выдаётся, а переигрывать сколько угодно никто не мешает. */
@@ -2685,7 +2685,6 @@
   const ASM_LEN=[3,4,5,6],ASM_N=5,ASM_MAX={letters:4,syll:3};
   function asmMax(){return ASM_MAX[asmMode];}
   function asmKey(){return asmMode==='letters'?'asm':'asmSyll';}
-  function asmCoins(){return asmMode==='letters'?6+2*asmLevel:4+2*asmLevel;}
   const sayU=u=>speak(u.toLowerCase());
   const VOWELS='АЕЁИОУЫЭЮЯ';
   function colHTML(u){let s='';for(const ch of u){let c;if(VOWELS.indexOf(ch)>=0)c='#E23B3B';else if(ch==='Ъ'||ch==='Ь')c='#8a8a8a';else c='#2E6FE0';s+='<span style="color:'+c+'">'+ch+'</span>';}return s;}
@@ -2723,8 +2722,8 @@
     if(asmRound>=asmSet.length){setTimeout(()=>{done.letters=true;markGame('letters_assemble');save();earnPage('letters');flash(screens.asm,'Молодец!');confetti(screens.asm);
       /* «Собери слово» и «Составь из слогов» живут в одном экране, но награды у них свои */
       const got=asmMode==='letters'
-        ?lhReward('letters_word',asmLevel,4,asmCoins()).concat(asmBonus())
-        :lhReward('letters_syllwords',asmLevel,3,asmCoins());
+        ?lhReward('letters_word',asmLevel,4,10).concat(asmBonus())
+        :lhReward('letters_syllwords',asmLevel,3,10);
       lhGifts(screens.asm,got);
       /* уровень пройден — сразу следующий, не выходя из игры; после последнего — в меню */
       const H=screens.asm.clientHeight;
@@ -2780,7 +2779,7 @@
       shuf(slUnits.slice()).forEach(u=>{const b=document.createElement('button');b.className='tile';b.innerHTML=colHTML(u);b.onclick=()=>slTap(u,b);tiles.appendChild(b);});}}
   function slTap(u,b){if(b.classList.contains('used'))return;if(u===slUnits[slNext]){const slot=$('#slSlots').children[slNext];slot.innerHTML=colHTML(u);slot.classList.add('full');b.classList.add('used');blip();sayU(u);slNext++;if(slNext>=slUnits.length)slDone();}else wiggle(b);}
   function slDone(){setTimeout(()=>speak(slWord.toLowerCase()),280);flash(screens.slog,'Отлично! '+slWord+' 🎉');stars+=1;save();updateHUD();slI++;
-    if(slI>=slN){markGame('letters_syllables');lhGifts(screens.slog,lhReward('letters_slog',slLevel,5,6+2*slLevel));
+    if(slI>=slN){markGame('letters_syllables');lhGifts(screens.slog,lhReward('letters_slog',slLevel,5,10));
       setTimeout(()=>{confetti(screens.slog);earnPage('letters');const H=screens.slog.clientHeight;
         pieEat(screens.slog,54,H-8-126,$('#slogHero'),slLevel<5
           ?function(){slLevel++;levels.sl=slLevel;save();slI=0;renderSlLevels();flash(screens.slog,'Уровень '+slLevel+'! 🎉');nextSl();}
@@ -2819,7 +2818,7 @@
   function buildGap(cells,gapIdx,correct,word,ic,opts,hint){$('#gapPic').textContent='';$('#gapPic').style.display='none';$('#gapHint').textContent=hint;$('#gapProg').textContent=(gapI+1)+' / '+gapN;
     const row=$('#gapRow');row.innerHTML='';cells.forEach((c,i)=>{const d=document.createElement('div');d.className='gcell'+(i===gapIdx?' gap':'');d.innerHTML=i===gapIdx?'':colHTML(c);row.appendChild(d);});
     const box=$('#gapOpts');box.innerHTML='';opts.forEach(o=>{const b=document.createElement('button');b.className='vopt';b.innerHTML=colHTML(o);b.onclick=()=>{if(o===correct){const cell=row.children[gapIdx];cell.className='gcell';cell.innerHTML=colHTML(o);blip();$('#gapPic').textContent=ic;$('#gapPic').style.display='block';setTimeout(()=>speak(word.toLowerCase()),280);flash(screens.gap,'Верно! '+word+' 🎉');stars+=1;save();updateHUD();gapI++;
-      if(gapI>=gapN){markGame('letters_gaps');lhGifts(screens.gap,lhReward('letters_gap',gapLevel,4,5+3*gapLevel));
+      if(gapI>=gapN){markGame('letters_gaps');lhGifts(screens.gap,lhReward('letters_gap',gapLevel,4,10));
         setTimeout(()=>{confetti(screens.gap);earnPage('letters');const H=screens.gap.clientHeight;
           pieEat(screens.gap,54,H-8-126,$('#gapHero'),gapLevel<4
             ?function(){gapLevel++;levels.gap=gapLevel;save();gapI=0;renderGapLevels();flash(screens.gap,'Уровень '+gapLevel+'! 🎉');nextGap();}
