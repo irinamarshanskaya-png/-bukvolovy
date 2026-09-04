@@ -873,7 +873,10 @@
   .hhstair:hover{transform:scale(1.03);}
   .hhstair svg{width:100%;height:100%;display:block;}
   .hhwrap.bed .hhdoor{display:none;}
-  .hhwrap.bed .hhstair{right:auto;left:2%;}
+  /* В спальне лестница — единственный выход, дверей тут нет. Поэтому она лежит
+     поверх мебели: иначе кровать у левой стены перехватывает тап, и ребёнок
+     остаётся запертым на втором этаже. Вещи выше 101 не поднимаются (hhZ). */
+  .hhwrap.bed .hhstair{right:auto;left:2%;z-index:110;}
   .hhattic{position:absolute;inset:0;display:none;}
   .hhwrap.attic .hhattic{display:block;}
   .attbeam{position:absolute;background:linear-gradient(180deg,#A9743E,#835836);border-radius:5px;
@@ -937,7 +940,7 @@
     border-radius:50%;background:radial-gradient(ellipse,rgba(255,210,63,.75),rgba(255,210,63,0) 70%);}
   .hhdlbl{position:absolute;left:50%;bottom:-6px;transform:translateX(-50%);background:rgba(255,255,255,.94);
     border-radius:11px;padding:2px 9px;font-family:'Fredoka';font-size:13px;color:#3a2f1a;white-space:nowrap;
-    box-shadow:0 3px 8px rgba(0,0,0,.18);pointer-events:none;z-index:200;}
+    box-shadow:0 3px 8px rgba(0,0,0,.18);pointer-events:auto;cursor:pointer;z-index:200;}
   /* дворик: небо вместо обоев, трава вместо пола, заборчик по горизонту */
   .hhwrap.yard .hhbase{height:26px;transform:translateY(-26px);border-top:none;
     background:repeating-linear-gradient(90deg,#EFD6AC 0 15px,#C9A063 15px 21px);
@@ -6215,6 +6218,13 @@
      v:[['розовый','#FBC3D8','#C4478F'],['мятный','#B7E8D2','#2E8F72'],['звёздный','#B9A8F0','#6B4FC0']]},
     {k:'scurt',c:'sdeco',n:'Шторы со звёздами',sc:'bed',p:10,w:175,wall:1,
      v:[['голубые','#CDEEFB','#4A90B5'],['сиреневые','#D9C9F5','#7B3FC4']]},
+    /* окна спальни: рама A, обводка B; у «ночного» вид за стеклом другой (hhVar===2) */
+    {k:'swin',c:'sdeco',n:'Окно',sc:'bed',p:14,w:170,wall:1,
+     v:[['белое','#FFFDF6','#C6AC7C'],['мятное','#B7E8D2','#2E8F72'],['ночное','#D9C9F5','#7B3FC4']]},
+    {k:'swinark',c:'sdeco',n:'Окно-арка',sc:'bed',p:16,w:140,wall:1,
+     v:[['белое','#FFFDF6','#C6AC7C'],['голубое','#CDEEFB','#4A90B5'],['розовое','#FBC3D8','#C4478F']]},
+    {k:'swinr',c:'sdeco',n:'Круглое окошко',sc:'bed',p:11,w:110,wall:1,
+     v:[['белое','#FFFDF6','#C6AC7C'],['жёлтое','#FFE08A','#D8A21A']]},
     {k:'spillow',c:'scozy',n:'Подушки-обнимашки',sc:'bed',cur:'star',p:3,w:115,act:'sit',sx:0,sy:.20,
      v:[['сердечко','#FF9AC4','#C4478F'],['звёздочка','#FFE08A','#D8A21A'],['облачко','#CDEEFB','#4A90B5']]},
     {k:'sunicorn',c:'scozy',n:'Качалка-единорог',sc:'bed',cur:'star',p:6,w:175,act:'play',sx:.45,sy:0,
@@ -7570,6 +7580,25 @@
       '<g stroke="'+B+'" stroke-width="1.8" fill="none" opacity=".45"><path d="M18 20 q4 34 0 62"/><path d="M82 20 q-4 34 0 62"/></g>'+
       '<g fill="#FFF3B0"><path d="M50 32 l3 6.6 6.6 3 -6.6 3 -3 6.6 -3 -6.6 -6.6 -3 6.6 -3 z"/>'+
       '<circle cx="50" cy="60" r="3.4"/><circle cx="42" cy="76" r="2.6"/><circle cx="58" cy="74" r="2.6"/></g>'+E;
+    if(k==='swin'){const night=hhVar(id)===2;
+      let s='<rect x="8" y="12" width="84" height="66" rx="8" fill="'+(night?'#3B3670':'#8FD4F3')+'" stroke="'+B+'" stroke-width="3"/>';
+      s+=night?'<path d="M70 22 a11 11 0 1 0 8 17 a13 13 0 0 1 -8 -17 z" fill="#FFE9A8"/>'+
+          '<g fill="#FFF3B0"><circle cx="24" cy="26" r="2.6"/><circle cx="38" cy="38" r="2"/><circle cx="22" cy="56" r="2.2"/><circle cx="60" cy="62" r="2"/><circle cx="80" cy="62" r="2.4"/></g>'
+        :'<circle cx="70" cy="30" r="9" fill="#FFE08A"/>'+
+          '<g fill="#fff" opacity=".85"><ellipse cx="34" cy="34" rx="14" ry="8"/><ellipse cx="46" cy="38" rx="10" ry="6"/></g>';
+      s+='<path d="M50 12 V78 M8 45 H92" stroke="'+A+'" stroke-width="7" stroke-linecap="round"/>';
+      s+='<rect x="8" y="12" width="84" height="66" rx="8" fill="none" stroke="'+A+'" stroke-width="7"/>';
+      s+='<rect x="2" y="76" width="96" height="10" rx="4" fill="'+A+'" stroke="'+B+'" stroke-width="3"/>';
+      return S+s+E;}
+    if(k==='swinark')return S+'<path d="M14 92 V46 a36 36 0 0 1 72 0 v46 z" fill="#8FD4F3" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="66" cy="34" r="8" fill="#FFE08A"/>'+
+      '<g fill="#fff" opacity=".85"><ellipse cx="36" cy="42" rx="13" ry="7"/><ellipse cx="46" cy="64" rx="11" ry="6"/></g>'+
+      '<path d="M50 12 V92 M16 56 H84" stroke="'+A+'" stroke-width="6.5" stroke-linecap="round"/>'+
+      '<path d="M14 92 V46 a36 36 0 0 1 72 0 v46 z" fill="none" stroke="'+A+'" stroke-width="7" stroke-linejoin="round"/>'+E;
+    if(k==='swinr')return S+'<circle cx="50" cy="48" r="36" fill="#8FD4F3" stroke="'+B+'" stroke-width="3"/>'+
+      '<circle cx="64" cy="34" r="7" fill="#FFE08A"/><ellipse cx="38" cy="42" rx="12" ry="6" fill="#fff" opacity=".85"/>'+
+      '<path d="M50 12 V84 M14 48 H86" stroke="'+A+'" stroke-width="6.5"/>'+
+      '<circle cx="50" cy="48" r="36" fill="none" stroke="'+A+'" stroke-width="7"/>'+E;
     if(k==='spillow'){const v=hhVar(id);
       const shape=v===0?'<path d="M50 84 q-30 -18 -30 -34 a15 15 0 0 1 30 -6 a15 15 0 0 1 30 6 q0 16 -30 34 z"'
         :v===1?'<path d="M50 16 l11 24 26 3 -19 18 5 26 -23 -13 -23 13 5 -26 -19 -18 26 -3 z"'
@@ -8728,7 +8757,7 @@
   /* лестница на второй этаж: наверх из комнаты, вниз из спальни.
      Отдельной цены нет — этаж открыт тем, кто купил 🏡 Двухэтажный домик. */
   $('#hhStair').onclick=function(){
-    if(hhWhere==='bed'){hhWalkToDoor(this,'room');flash(screens.house,'Спускаемся в комнату 🛋️');return;}
+    if(hhWhere==='bed'){hhWalkToDoor(this,'home');flash(screens.house,'Спускаемся в комнату 🛋️');return;}
     if(!hhFloor2Open()){chime(false);
       flash(screens.house,'Второй этаж появится с домиком 🏡 Двухэтажный — он в витрине, вкладка 🏡');
       return;}
