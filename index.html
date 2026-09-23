@@ -1022,6 +1022,83 @@
     cursor:pointer;box-shadow:-4px 4px 14px rgba(40,60,90,.22);transition:transform .34s ease;z-index:8;}
   .hhwrap.shut .hhtab{transform:translate(0,-50%);}
   .hhtab:active{transform:translate(0,-50%) scale(.94);}
+
+  /* ============ ВОКЗАЛ: ЭКРАН ЛОКАЦИИ ============ */
+  #smenu{background:linear-gradient(180deg,#BFE9F5 0%,#E7F4FA 44%,#CFE0C4 44%,#B7D69A 100%);padding:0;}
+  #smenu .nwbtn{width:420px;}
+
+  /* ============ ВОКЗАЛ: «ПОЕЗД-ЗМЕЙКА» ============
+     Поле — сетка клеток, размер клетки свой у каждого уровня (84/74/66), но само
+     поле всегда примерно 900x590, поэтому боковая панель никуда не съезжает.
+     Состав лежит абсолютно и едет через transition left/top — ни одного кадра
+     вручную, и в headless-тесте это считается, в отличие от requestAnimationFrame. */
+  #tsnake{background:linear-gradient(180deg,#BFE9F5 0%,#E3F4FB 42%,#CDE6B6 42%,#AFD98C 100%);}
+  .snbody{flex:1;display:flex;align-items:center;justify-content:center;gap:26px;padding:2px 26px 10px;}
+  .snfield{position:relative;flex:none;border-radius:26px;overflow:hidden;touch-action:none;
+           box-shadow:0 10px 26px rgba(40,60,90,.24), inset 0 0 0 6px rgba(255,255,255,.72);}
+  .sngrid{position:absolute;left:0;top:0;width:100%;height:100%;}
+  .snobj{position:absolute;left:0;top:0;right:0;bottom:0;}
+  .snit{position:absolute;transform:translate(-50%,-50%);display:flex;align-items:center;justify-content:center;
+        line-height:1;pointer-events:none;z-index:3;animation:snin .34s ease-out backwards;}
+  .snit svg{width:100%;height:100%;display:block;}
+  @keyframes snin{from{transform:translate(-50%,-50%) scale(.25);opacity:0;}}
+  .snit.wag{filter:drop-shadow(0 4px 3px rgba(0,0,0,.22));}
+  /* всё, что лежит на поле, подпрыгивает — иначе вагончик-приз не отличить от вагонов состава */
+  .snit.wag,.snit.coin,.snit.star,.snit.gift{animation:snin .34s ease-out backwards, snbob 1.5s ease-in-out .34s infinite;}
+  @keyframes snbob{50%{transform:translate(-50%,-62%) scale(1.06);}}
+  .snit.gone{animation:sngone .32s ease-out forwards;}
+  @keyframes sngone{to{transform:translate(-50%,-170%) scale(1.7);opacity:0;}}
+  .snblk{position:absolute;transform:translate(-50%,-50%);line-height:1;pointer-events:none;z-index:2;
+         filter:drop-shadow(0 4px 3px rgba(0,0,0,.26));}
+  .snpart{position:absolute;z-index:5;animation:snpop .34s ease-out backwards;}
+  @keyframes snpop{from{opacity:0;}}
+  .snbd{position:relative;width:100%;height:100%;transform:rotate(var(--a,0deg));transition:transform .18s ease;}
+  .snbd svg{position:absolute;left:0;top:0;width:100%;height:100%;}
+  .snpart.crash{animation:sncrash .55s ease 2;}
+  @keyframes sncrash{0%,100%{transform:translate(0,0);}20%{transform:translate(-7px,4px);}
+                     45%{transform:translate(7px,-5px);}70%{transform:translate(-5px,-2px);}}
+  .snboom{position:absolute;transform:translate(-50%,-50%);font-size:76px;line-height:1;pointer-events:none;z-index:7;
+          animation:snboom 1s ease-out forwards;}
+  @keyframes snboom{0%{transform:translate(-50%,-50%) scale(.3);opacity:0;}
+                    30%{transform:translate(-50%,-50%) scale(1.25);opacity:1;}
+                    100%{transform:translate(-50%,-50%) scale(1.7);opacity:0;}}
+  /* ---- боковая панель: крестовина стрелок взята у «Путешествия» (.tvpad/.tvb) ---- */
+  .snside{width:316px;flex:none;display:flex;flex-direction:column;align-items:center;gap:12px;}
+  .sncard{width:100%;background:var(--cream);border-radius:22px;padding:12px 14px;
+          box-shadow:0 6px 0 rgba(0,0,0,.10);display:flex;flex-direction:column;align-items:center;gap:8px;}
+  .sngoal{display:flex;justify-content:center;flex-wrap:wrap;gap:16px;
+          font-family:'Fredoka';font-weight:700;font-size:25px;color:#6b4a24;}
+  .sngoal .g{display:flex;align-items:center;gap:7px;}
+  .sngoal .g.ok{color:#4a8b2a;}
+  .sngoal .g i{font-style:normal;font-size:30px;line-height:1;}
+  .snhint{font-family:'Fredoka';font-weight:600;font-size:18px;color:#4b6b7a;text-align:center;
+          background:rgba(255,255,255,.78);border-radius:14px;padding:6px 14px;}
+  .snsad{font-family:'Fredoka';font-weight:600;font-size:19px;color:#6b4a24;text-align:center;max-width:250px;}
+
+  /* ============ ДЕПО: витрина паровоза ============ */
+  #depot{background:linear-gradient(180deg,#CFE3EA 0%,#EDF6F9 46%,#D8E9C4 46%,#BFDDA0 100%);}
+  .dpbody{flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 26px 10px;}
+  .dpview{width:460px;height:104px;flex:none;position:relative;border-radius:22px;
+          background:rgba(255,255,255,.66);box-shadow:inset 0 0 0 4px rgba(255,255,255,.7);}
+  .dptrain{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:350px;height:86px;}
+  .dppart{position:absolute;top:0;width:86px;height:86px;}
+  .dppart svg{width:100%;height:100%;display:block;}
+  .dprows{display:flex;flex-direction:column;gap:6px;width:100%;align-items:center;}
+  .dprow{display:flex;flex-direction:column;align-items:center;gap:3px;}
+  .dpttl{font-family:'Fredoka';font-weight:700;font-size:20px;color:#3f5a68;}
+  .dpcards{display:flex;gap:10px;justify-content:center;}
+  .dpcard{width:132px;border:none;border-radius:20px;background:#fff;cursor:pointer;padding:7px 6px 8px;
+          display:flex;flex-direction:column;align-items:center;gap:3px;box-shadow:0 5px 0 rgba(0,0,0,.13);
+          font-family:'Fredoka';font-weight:600;font-size:15px;color:var(--ink);
+          transition:transform .07s,box-shadow .07s;}
+  .dpcard:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.13);}
+  .dpcard.sel{outline:4px solid var(--grape);outline-offset:2px;}
+  .dpcard.no{opacity:.52;}
+  .dppic{width:78px;height:78px;}
+  .dppic svg{width:100%;height:100%;display:block;}
+  .dpnm{line-height:1.05;}
+  .dpprice{font-size:16px;font-weight:700;color:#6b4a24;display:flex;align-items:center;gap:4px;}
+  .dpprice.free{color:#4a8b2a;}
 </style>
 </head>
 <body>
@@ -1487,7 +1564,7 @@
   </section>
 
   <section id="board" class="screen">
-    <div class="topbar"><button class="backb" id="bdBack">← Карта</button><h2>🚂 Вокзал</h2><div class="prog">Посадка</div></div>
+    <div class="topbar"><button class="backb" id="bdBack">← Вокзал</button><h2>🚂 Вокзал</h2><div class="prog">Посадка</div></div>
     <div class="bdcloud" style="left:60px;top:70px">☁️</div>
     <div class="bdcloud" style="left:-200px;top:130px;animation-delay:-13s">⛅</div>
     <div class="bdcloud" style="left:-500px;top:40px;animation-delay:-25s">☁️</div>
@@ -1534,7 +1611,7 @@
   </section>
 
   <section id="train" class="screen">
-    <div class="topbar"><button class="backb" id="tvBack">← Карта</button><h2>🚂 Путешествие</h2><div class="prog" id="tvProg"></div></div>
+    <div class="topbar"><button class="backb" id="tvBack">← Вокзал</button><h2>🚂 Путешествие</h2><div class="prog" id="tvProg"></div></div>
     <div class="tvbody">
       <div class="tvmap"><div class="tvfield">
         <svg class="tvrails" id="tvRails" viewBox="0 0 924 588"></svg>
@@ -1565,8 +1642,68 @@
       <div class="wkwin" id="tvWinTxt">🎉 Приехали!</div>
       <div class="wkgifts" id="tvGifts"></div>
       <button class="btn small" id="tvMore">🚂 Дальше</button>
-      <button class="btn small coral" id="tvOut">← На карту</button>
+      <button class="btn small coral" id="tvOut">← Вокзал</button>
     </div></div>
+  </section>
+
+  <section id="smenu" class="screen">
+    <div class="topbar"><button class="backb" id="smBack">← Карта</button><h2>🚂 Вокзал</h2><div style="width:70px"></div></div>
+    <div class="nwscene" id="stScene"></div>
+    <div class="nwbtns">
+      <button class="nwbtn" id="sm1"><span>🚉</span>Путешествие</button>
+      <button class="nwbtn" id="sm2"><span>🚂</span>Поезд-змейка</button>
+    </div>
+  </section>
+
+  <section id="tsnake" class="screen">
+    <div class="topbar"><button class="backb" id="snBack">← Вокзал</button><h2>🚂 Поезд-змейка</h2><div class="prog" id="snProg"></div></div>
+    <div class="snbody">
+      <div class="snfield" id="snField">
+        <svg class="sngrid" id="snGrid"></svg>
+        <div class="snobj" id="snObj"></div>
+      </div>
+      <div class="snside">
+        <div class="lvsel" id="snLevels"></div>
+        <div class="sncard"><div class="sngoal" id="snGoal"></div></div>
+        <div class="tvpad">
+          <button class="tvb u" id="snU">⬆️</button>
+          <button class="tvb l" id="snL">⬅️</button>
+          <button class="tvb c" id="snBell">🔔</button>
+          <button class="tvb r" id="snR">➡️</button>
+          <button class="tvb d" id="snD">⬇️</button>
+        </div>
+        <div class="snhint">👆 Веди пальцем по полю<br>или нажимай стрелки</div>
+      </div>
+    </div>
+    <div class="tvtask" id="snTask"><div class="wkcard">
+      <div class="wkwin" id="snTaskTtl">🎯 Уровень 1</div>
+      <div class="tvvis" id="snTaskVis"></div>
+      <button class="btn" id="snStart">🚂 Поехали!</button>
+      <button class="btn small" id="snShop1">🚉 Депо</button>
+    </div></div>
+    <div class="wkprize" id="snPrize"><div class="wkcard">
+      <div class="wkwin" id="snWinTxt">🎉 Поезд собран!</div>
+      <div class="wkgifts" id="snGifts"></div>
+      <button class="btn small" id="snMore">🚂 Дальше</button>
+      <button class="btn small" id="snShop2">🚉 Депо</button>
+      <button class="btn small coral" id="snOut">← Вокзал</button>
+    </div></div>
+    <div class="wkprize" id="snOver"><div class="wkcard">
+      <div class="wkwin">💨 Паровозик остановился</div>
+      <div class="snsad" id="snSad">Ничего страшного, попробуем ещё раз?</div>
+      <div class="wkgifts" id="snKept"></div>
+      <button class="btn" id="snAgain">🔁 Ещё раз</button>
+      <button class="btn small" id="snShop3">🚉 Депо</button>
+      <button class="btn small coral" id="snOut2">← Вокзал</button>
+    </div></div>
+  </section>
+
+  <section id="depot" class="screen">
+    <div class="topbar"><button class="backb" id="dpBack">← К поезду</button><h2>🚉 Депо</h2><div class="prog" id="dpMoney"></div></div>
+    <div class="dpbody">
+      <div class="dpview"><div class="dptrain" id="dpTrain"></div></div>
+      <div class="dprows" id="dpRows"></div>
+    </div>
   </section>
 
   <section id="pmenu" class="screen">
@@ -1629,7 +1766,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={house:$('#house'),intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),wkmenu:$('#wkmenu'),mk:$('#mk'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={house:$('#house'),intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),wkmenu:$('#wkmenu'),mk:$('#mk'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),smenu:$('#smenu'),tsnake:$('#tsnake'),depot:$('#depot'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -2410,7 +2547,7 @@
       /* локация открывается только когда герой дошёл — короткая пауза «пришёл» */
       setTimeout(function(){actAt(idx);},280);}
     requestAnimationFrame(step);}
-  function actAt(idx){const n=NODES[idx];if(n.room==='home')openHouse();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakeryMenu();else if(n.room==='workshop')openWorkshopMenu();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStation();else openSoon(n);}
+  function actAt(idx){const n=NODES[idx];if(n.room==='home')openHouse();else if(n.room==='letters')openLettersMenu();else if(n.room==='circus')openCircusMenu();else if(n.room==='forest')openForestMenu();else if(n.room==='shop')openShopMenu();else if(n.room==='bakery')openBakeryMenu();else if(n.room==='workshop')openWorkshopMenu();else if(n.room==='park')openParkMenu();else if(n.room==='station')openStationMenu();else openSoon(n);}
   function openSoon(n){const ic={shop:'🛒',bakery:'🍰',workshop:'🛠️',station:'🚂',park:'🎡'}[n.room]||'✨';$('#stubIc').textContent=ic;$('#stubTitle').textContent=n.nm;$('#stubTxt').textContent='Здесь скоро будут игры! Заходи позже ✨';show('stub');}$('#stubBack').onclick=goWorld;
 
   /* ---------- ПЕКАРНЯ: Создай свой десерт ---------- */
@@ -5276,7 +5413,7 @@
     $('#tvPrize').classList.remove('on');tvClearHints();
     tvRenderLevels();tvRender();tvSeqDraw();tvCntDraw();tvPlaceTrain(0);tvAngle();
     tvShowTask();}
-  function tvLeave(){tvClear();bdClear();tvBusy=true;goWorld();}
+  function tvLeave(){tvClear();bdClear();tvBusy=true;openStationMenu();}
   $('#tvU').onclick=()=>tvPress('U');$('#tvD').onclick=()=>tvPress('D');
   $('#tvL').onclick=()=>tvPress('L');$('#tvR').onclick=()=>tvPress('R');
   $('#tvBell').onclick=function(){ensureAudio();tone(1180,1560,'sine',.16,.3);
@@ -5292,7 +5429,7 @@
   function bdLater(fn,ms){bdT.push(setTimeout(fn,ms));}
   function bdClear(){bdT.forEach(clearTimeout);bdT=[];}
   function bdToGame(){bdClear();show('train');tvLoad();}
-  function openStation(){
+  function stBoard(){
     tvLevel=Math.min(6,levels.tv||1);
     bdClear();tvClear();show('board');
     const w=$('#bdWalk'),d=$('#bdDoor'),cb=$('#bdCab'),cp=$('#bdCap'),tr=$('#bdTrain');
@@ -5312,7 +5449,439 @@
       tvChuffRun(6,bdLater);},4800);
     bdLater(bdToGame,6200);}
   $('#bdSkip').onclick=bdToGame;
-  $('#bdBack').onclick=function(){bdClear();goWorld();};
+  $('#bdBack').onclick=function(){bdClear();openStationMenu();};
+
+  /* ============ ВОКЗАЛ: ЭКРАН ЛОКАЦИИ ============
+     Вокзал был единственной локацией без своего меню: с карты сразу начиналась
+     посадка в паровоз. Игр стало две, поэтому появился перрон с двумя кнопками,
+     а посадка осталась входом только в «Путешествие». */
+  function stRail(y,w){let s='';
+    for(let x=-20;x<1380;x+=34)s+='<rect x="'+x+'" y="'+(y-3)+'" width="22" height="'+(w+6)+'" rx="3" fill="#9A7247"/>';
+    s+='<rect x="-20" y="'+y+'" width="1400" height="7" rx="3.5" fill="#A9B2BA"/>';
+    s+='<rect x="-20" y="'+(y+w-7)+'" width="1400" height="7" rx="3.5" fill="#A9B2BA"/>';
+    return s;}
+  /* паровоз сбоку — на перроне он стоит боком, сверху его видно только в самой игре */
+  function stSideLoco(x,y,s){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<rect x="-6" y="-150" width="16" height="26" rx="6" fill="#37344F"/>'
+    +'<rect x="-14" y="-160" width="32" height="13" rx="6" fill="#4A465F"/>'
+    +'<rect x="96" y="-156" width="74" height="86" rx="16" fill="#E4573B"/>'
+    +'<rect x="106" y="-146" width="52" height="38" rx="9" fill="#CDEEFB" stroke="#fff" stroke-width="5"/>'
+    +'<path d="M92 -162 h82 v13 h-82 z" fill="#C0553F"/>'
+    +'<rect x="-22" y="-126" width="126" height="62" rx="26" fill="#E4573B"/>'
+    +'<circle cx="8" cy="-95" r="21" fill="#FFF7E8" stroke="#C0553F" stroke-width="6"/>'
+    +'<circle cx="8" cy="-95" r="7" fill="#FFD23F"/>'
+    +'<rect x="-28" y="-70" width="204" height="15" rx="7" fill="#37344F"/>'
+    +'<circle cx="18" cy="-36" r="30" fill="#37344F"/><circle cx="18" cy="-36" r="12" fill="#9AA0A6"/>'
+    +'<circle cx="94" cy="-42" r="23" fill="#37344F"/><circle cx="94" cy="-42" r="9" fill="#9AA0A6"/>'
+    +'<circle cx="148" cy="-42" r="23" fill="#37344F"/><circle cx="148" cy="-42" r="9" fill="#9AA0A6"/></g>';}
+  function stSideWag(x,y,s,col){return '<g transform="translate('+x+','+y+') scale('+s+')">'
+    +'<rect x="0" y="-130" width="150" height="76" rx="18" fill="'+col+'"/>'
+    +'<path d="M-4 -136 h158 v13 h-158 z" fill="rgba(0,0,0,.18)"/>'
+    +'<rect x="16" y="-118" width="42" height="34" rx="8" fill="#CDEEFB" stroke="#fff" stroke-width="4"/>'
+    +'<rect x="92" y="-118" width="42" height="34" rx="8" fill="#CDEEFB" stroke="#fff" stroke-width="4"/>'
+    +'<rect x="-6" y="-58" width="162" height="13" rx="6" fill="#37344F"/>'
+    +'<circle cx="34" cy="-32" r="21" fill="#37344F"/><circle cx="34" cy="-32" r="8" fill="#9AA0A6"/>'
+    +'<circle cx="116" cy="-32" r="21" fill="#37344F"/><circle cx="116" cy="-32" r="8" fill="#9AA0A6"/>'
+    +'<rect x="150" y="-48" width="18" height="9" rx="4" fill="#37344F"/></g>';}
+  function stArt(){
+    let s='<svg class="nwart" viewBox="0 0 1360 510" xmlns="http://www.w3.org/2000/svg">';
+    s+='<defs>'+bGrad('stSky','#BFE9F5','#EDF7FB')+bGrad('stRoof','#4FB0DE','#22688C')
+      +bGrad('stWall','#FFF3E0','#F0DCBE')+'</defs>';
+    s+='<rect width="1360" height="510" fill="url(#stSky)"/>';
+    /* дальняя зелень держит горизонт */
+    s+='<path d="M0 236 Q250 210 520 234 Q820 260 1360 228 L1360 340 L0 340 Z" fill="#6FBF52"/>';
+    [[70,244,.5],[178,240,.42],[1212,242,.46],[1318,246,.54]].forEach(function(f){s+=nwFir(f[0],f[1],f[2]);});
+    s+=nwTree(272,250,.5)+nwTree(1122,248,.46);
+    /* здание вокзала: пологая крыша, под ней остаётся стена под часы, вывеску и двери */
+    s+='<path d="M430 128 L680 44 L930 128 L930 146 L430 146 Z" fill="url(#stRoof)"/>';
+    s+='<rect x="446" y="140" width="468" height="152" rx="10" fill="url(#stWall)"/>';
+    s+='<rect x="446" y="140" width="468" height="12" fill="#E2CBA6"/>';
+    /* часы на фронтоне */
+    s+='<circle cx="680" cy="104" r="30" fill="#FFF7E8" stroke="#1B5170" stroke-width="6"/>';
+    s+='<g stroke="#37344F" stroke-width="5" stroke-linecap="round"><path d="M680 104 V86"/><path d="M680 104 L693 113"/></g>';
+    s+='<circle cx="680" cy="104" r="4" fill="#E4573B"/>';
+    /* вывеска ВОКЗАЛ */
+    s+='<rect x="556" y="160" width="248" height="52" rx="18" fill="#1B5170"/>';
+    s+='<rect x="564" y="168" width="232" height="36" rx="13" fill="#2C7FA8"/>';
+    'ВОКЗАЛ'.split('').forEach(function(ch,i){
+      s+='<text x="'+(600+i*36)+'" y="196" text-anchor="middle" font-family="Fredoka,sans-serif" '
+        +'font-weight="700" font-size="28" fill="#FFF7E8">'+ch+'</text>';});
+    /* двери и окна */
+    s+='<rect x="620" y="222" width="120" height="70" rx="12" fill="#63C7EE" stroke="#1B5170" stroke-width="5"/>';
+    s+='<path d="M680 222 V292" stroke="#1B5170" stroke-width="5"/>';
+    [[482,232],[536,232],[790,232],[844,232]].forEach(function(w){
+      s+='<rect x="'+w[0]+'" y="'+w[1]+'" width="46" height="52" rx="10" fill="#CDEEFB" stroke="#fff" stroke-width="5"/>';});
+    /* навес над перроном на двух столбиках */
+    s+='<rect x="404" y="268" width="552" height="16" rx="8" fill="#E4573B"/>';
+    s+='<path d="M404 284 h552 l-16 18 h-520 z" fill="#C0553F"/>';
+    s+='<rect x="416" y="284" width="11" height="74" rx="5" fill="#8A97A0"/>';
+    s+='<rect x="934" y="284" width="11" height="74" rx="5" fill="#8A97A0"/>';
+    /* перрон */
+    s+='<rect x="0" y="322" width="1360" height="50" fill="#E7DCC6"/>';
+    s+='<rect x="0" y="362" width="1360" height="10" fill="#C9B994"/>';
+    s+='<rect x="0" y="348" width="1360" height="7" fill="#FFD23F"/>';
+    s+=nwLamp(196,358,.44)+nwLamp(1256,358,.44);
+    s+=pkBench(470,356)+nwCrate(300,356,.5,'#FF6B6B','#7BC950');
+    s+='<g transform="translate(360,356) scale(.52)">'
+      +'<rect x="-34" y="-46" width="68" height="46" rx="9" fill="#9B5DE5"/>'
+      +'<rect x="-34" y="-30" width="68" height="8" fill="#7B3FC4"/>'
+      +'<rect x="-9" y="-56" width="18" height="12" rx="6" fill="#7B3FC4"/></g>';
+    /* насыпь: без неё шпалы висят прямо на небе */
+    s+='<rect x="0" y="372" width="1360" height="126" fill="#D9CDB4"/>';
+    s+='<rect x="0" y="372" width="1360" height="7" fill="#C2B294"/>';
+    /* путь один, и поезд стоит колёсами ровно на его рельсе */
+    s+=stRail(424,44);
+    s+=stSideWag(700,436,.62,'#FFD23F')+stSideWag(793,436,.62,'#7BC950')+stSideLoco(900,433,.62);
+    s+='<rect x="0" y="498" width="1360" height="12" fill="#8FD46A"/>';
+    return s+'</svg>';}
+  function openStationMenu(){const b=$('#stScene');if(b&&!b.innerHTML)b.innerHTML=stArt();
+    bdClear();tvClear();snStop();show('smenu');}
+  $('#smBack').onclick=goWorld;
+  $('#sm1').onclick=stBoard;
+  $('#sm2').onclick=function(){snOpen();};
+
+  /* ============ ВОКЗАЛ: «ПОЕЗД-ЗМЕЙКА» ============
+     Паровозик едет сам, ребёнок только задаёт направление — пальцем по полю,
+     кнопками сбоку или стрелками на клавиатуре. Вагончик прицепился — состав стал
+     длиннее. Врезался в край поля или в свой же хвост — авария и «ещё раз».
+
+     Состав лежит абсолютными клетками и едет через transition left/top: так весь
+     поезд скользит плавно без единого кадра, нарисованного вручную (и это считается
+     в headless-тесте, где requestAnimationFrame почти не тикает).
+
+     Весь прогресс живёт в levels.sn / levels.snShop и games['snake_*'] — новых полей
+     верхнего уровня нет, поэтому старые сохранения читаются как прежде. */
+  const SN_LEVELS=[
+    {cols:10,rows:7,cell:84,ms:560,wag:5,coin:0,star:0,blocks:0,gift:0,
+     say:'Ты машинист! Веди паровозик и собирай вагончики. Проведи пальцем по полю — туда он и поедет.'},
+    {cols:12,rows:8,cell:74,ms:450,wag:7,coin:6,star:3,blocks:4,gift:0,
+     say:'Поле стало больше! Собери семь вагончиков, шесть монеток и три звёздочки. И объезжай завалы!'},
+    {cols:14,rows:9,cell:66,ms:360,wag:9,coin:10,star:5,blocks:8,gift:1,
+     say:'Большой рейс! Девять вагончиков, десять монеток и пять звёздочек. А ещё где-то спрятан подарок!'}];
+  const SN_PRIZE={1:{c:10,s:5,k:0},2:{c:14,s:6,k:1},3:{c:18,s:8,k:2}};
+  const SN_ANG={R:0,D:90,L:180,U:270};
+  const SN_OPP={R:'L',L:'R',U:'D',D:'U'};
+  const SN_STEP={R:[1,0],L:[-1,0],U:[0,-1],D:[0,1]};
+  const SN_WCOL=['#7BC950','#4DB6E5','#FFD23F','#F368C4','#9B5DE5','#FF9F45','#3FC6B0','#FF6B6B'];
+
+  /* ---- витрина депо ---- */
+  const SN_LOCO=[{id:'red',n:'Красный',a:'#E4573B',b:'#C0553F',p:0},
+    {id:'blue',n:'Синий',a:'#4DB6E5',b:'#2C88B8',p:12},
+    {id:'green',n:'Зелёный',a:'#7BC950',b:'#5AA336',p:12},
+    {id:'grape',n:'Сиреневый',a:'#9B5DE5',b:'#7B3FC4',p:16},
+    {id:'pink',n:'Розовый',a:'#F368C4',b:'#C94E9F',p:16},
+    {id:'gold',n:'Золотой',a:'#FFC93C',b:'#E0A417',p:25}];
+  const SN_WAG=[{id:'plain',n:'Обычный',p:0,cur:'coin'},
+    {id:'pass',n:'Пассажирский',p:20,cur:'coin'},
+    {id:'cargo',n:'Грузовой',p:25,cur:'coin'},
+    {id:'party',n:'Праздничный',p:20,cur:'star'},
+    {id:'mail',n:'Почтовый',p:25,cur:'star'},
+    {id:'tank',n:'Цистерна',p:30,cur:'coin'}];
+  const SN_DEC=[{id:'bell',n:'Колокольчик',p:8,cur:'star'},
+    {id:'flag',n:'Флажок',p:10,cur:'star'},
+    {id:'lamp',n:'Фонарик',p:12,cur:'star'},
+    {id:'smoke',n:'Дымок',p:15,cur:'star'},
+    {id:'star',n:'Звёздочки',p:18,cur:'star'}];
+  function snShop(){const s=levels.snShop=levels.snShop||{};
+    s.own=s.own||{};s.dec=s.dec||{};s.loco=s.loco||'red';s.wag=s.wag||'plain';return s;}
+  function snFind(list,id){return list.filter(function(x){return x.id===id;})[0]||list[0];}
+
+  /* ---- рисунки состава: вид сверху, как в «Путешествии» ---- */
+  function snLocoArt(col,dec){
+    let s='<svg viewBox="0 0 100 100">'
+      +'<rect x="12" y="17" width="76" height="12" rx="6" fill="#37344F"/>'
+      +'<rect x="12" y="71" width="76" height="12" rx="6" fill="#37344F"/>'
+      +'<rect x="8" y="26" width="84" height="48" rx="18" fill="'+col.a+'"/>'
+      +'<rect x="56" y="30" width="36" height="40" rx="16" fill="'+col.b+'"/>'
+      +'<circle cx="74" cy="50" r="9" fill="#37344F"/><circle cx="74" cy="50" r="4.4" fill="#9AA0A6"/>'
+      +'<rect x="12" y="30" width="44" height="40" rx="15" fill="#FFF3E0"/>';
+    if(dec.lamp)s+='<circle cx="91" cy="50" r="10" fill="#FFF3B0" opacity=".8"/>';
+    s+='<circle cx="90" cy="50" r="5" fill="#FFD23F"/>';
+    /* дымок виден и в витрине депо: иначе карточка «Дымок» ничем не отличается от обычной */
+    if(dec.smoke)s+='<g fill="#F2F6F8" stroke="#AEBCC6" stroke-width="1.4">'
+      +'<circle cx="72" cy="34" r="6.5"/><circle cx="79" cy="23" r="4.6"/><circle cx="85" cy="15" r="3"/></g>';
+    if(dec.bell)s+='<circle cx="60" cy="35" r="5" fill="#FFD23F" stroke="#C99A16" stroke-width="1.6"/>';
+    if(dec.flag)s+='<rect x="60" y="58" width="2.6" height="17" fill="#8B5E3C"/><path d="M62 60 L75 64 L62 68 Z" fill="#F368C4"/>';
+    if(dec.star)s+='<g fill="#FFD23F">'
+      +'<path d="M26 38 l2.4 5 5.4.6 -4 3.7 1.1 5.3 -4.9-2.7 -4.9 2.7 1.1-5.3 -4-3.7 5.4-.6 z"/>'
+      +'<path d="M26 62 l1.8 3.7 4 .5 -3 2.7 .8 4 -3.6-2 -3.6 2 .8-4 -3-2.7 4-.5 z"/></g>';
+    return s+'</svg>';}
+  function snWagArt(kind,col){
+    let s='<svg viewBox="0 0 100 100">'
+      +'<rect x="14" y="19" width="72" height="11" rx="5.5" fill="#37344F"/>'
+      +'<rect x="14" y="70" width="72" height="11" rx="5.5" fill="#37344F"/>';
+    if(kind==='tank'){
+      s+='<rect x="12" y="29" width="76" height="42" rx="21" fill="'+col+'"/>'
+        +'<rect x="30" y="29" width="7" height="42" fill="rgba(0,0,0,.16)"/>'
+        +'<rect x="63" y="29" width="7" height="42" fill="rgba(0,0,0,.16)"/>'
+        +'<circle cx="50" cy="50" r="10" fill="#FFF3E0"/>';}
+    else{
+      s+='<rect x="10" y="27" width="80" height="46" rx="16" fill="'+col+'"/>';
+      if(kind==='pass')s+='<rect x="19" y="37" width="17" height="26" rx="8" fill="#CDEEFB"/>'
+        +'<rect x="42" y="37" width="17" height="26" rx="8" fill="#CDEEFB"/>'
+        +'<rect x="65" y="37" width="17" height="26" rx="8" fill="#CDEEFB"/>';
+      else if(kind==='cargo')s+='<rect x="18" y="34" width="64" height="32" rx="9" fill="#C08A52"/>'
+        +'<rect x="23" y="38" width="24" height="24" rx="6" fill="#A97440"/>'
+        +'<rect x="53" y="38" width="24" height="24" rx="6" fill="#D9A469"/>';
+      else if(kind==='party')s+='<rect x="20" y="38" width="60" height="24" rx="11" fill="#FFF3E0"/>'
+        +'<circle cx="32" cy="50" r="8" fill="#F368C4"/><circle cx="50" cy="50" r="8" fill="#4DB6E5"/>'
+        +'<circle cx="68" cy="50" r="8" fill="#FFD23F"/>';
+      else if(kind==='mail')s+='<rect x="22" y="36" width="56" height="28" rx="7" fill="#FFF7E8"/>'
+        +'<path d="M22 38 L50 56 L78 38" fill="none" stroke="#E4573B" stroke-width="4" stroke-linecap="round"/>';
+      else s+='<rect x="22" y="36" width="56" height="28" rx="11" fill="#FFF3E0" opacity=".9"/>';}
+    return s+'<rect x="86" y="46" width="12" height="8" rx="4" fill="#37344F"/></svg>';}
+  function snLocoSVG(){const s=snShop();return snLocoArt(snFind(SN_LOCO,s.loco),s.dec);}
+  function snWagSVG(i){const s=snShop();return snWagArt(s.wag,SN_WCOL[(i-1)%SN_WCOL.length]);}
+
+  /* ---- состояние партии ---- */
+  let snLv=1,snC=10,snR=7,snS=84,snMs=560;
+  let snBody=[],snEls=[],snDir='R',snNext='R',snIt={},snBlk={};
+  let snWagN=0,snCoinN=0,snStarN=0,snGiftN=0,snEarnC=0,snEarnS=0;
+  let snTimer=0,snRun=false,snTouch=null,snTm=[];
+  const snKey=(c,r)=>c+','+r;
+  function snLater(fn,ms){const id=setTimeout(fn,ms);snTm.push(id);return id;}
+  function snStop(){snRun=false;clearTimeout(snTimer);snTimer=0;snTm.forEach(clearTimeout);snTm=[];}
+
+  function snGridSVG(){const W=snC*snS,H=snR*snS;let s='';
+    s+='<rect width="'+W+'" height="'+H+'" fill="#EDE3CC"/>';
+    for(let r=0;r<snR;r++)for(let c=0;c<snC;c++)if((c+r)%2)
+      s+='<rect x="'+(c*snS)+'" y="'+(r*snS)+'" width="'+snS+'" height="'+snS+'" fill="#E4D8BC"/>';
+    /* край поля виден как шпалы: в него нельзя врезаться, значит его надо показать */
+    for(let x=0;x<W;x+=snS/2)s+='<rect x="'+(x+3)+'" y="2" width="'+(snS/2-6)+'" height="11" rx="5" fill="#B98E55"/>'
+      +'<rect x="'+(x+3)+'" y="'+(H-13)+'" width="'+(snS/2-6)+'" height="11" rx="5" fill="#B98E55"/>';
+    for(let y=0;y<H;y+=snS/2)s+='<rect x="2" y="'+(y+3)+'" width="11" height="'+(snS/2-6)+'" rx="5" fill="#B98E55"/>'
+      +'<rect x="'+(W-13)+'" y="'+(y+3)+'" width="11" height="'+(snS/2-6)+'" rx="5" fill="#B98E55"/>';
+    $('#snGrid').setAttribute('viewBox','0 0 '+W+' '+H);
+    $('#snGrid').innerHTML=s;}
+
+  function snFree(){const out=[];
+    for(let r=0;r<snR;r++)for(let c=0;c<snC;c++){const k=snKey(c,r);
+      if(snBlk[k]||snIt[k])continue;
+      if(snBody.some(function(p){return p.c===c&&p.r===r;}))continue;
+      /* прямо перед носом ничего не ставим: ребёнок не успеет ни свернуть, ни решить */
+      const h=snBody[0];if(h&&Math.abs(c-h.c)<=1&&Math.abs(r-h.r)<=1)continue;
+      out.push([c,r]);}
+    return out;}
+  function snEl(cls,c,r,html){const e=document.createElement('div');e.className=cls;
+    e.style.left=(c*snS+snS/2)+'px';e.style.top=(r*snS+snS/2)+'px';e.innerHTML=html;
+    $('#snObj').appendChild(e);return e;}
+  /* размер предмета считается от клетки: она у каждого уровня своя (84/74/66) */
+  function snPut(t){const f=snFree();if(!f.length)return;
+    const p=f[Math.random()*f.length|0],k=snKey(p[0],p[1]);
+    const e=snEl('snit '+t,p[0],p[1],t==='wag'?snWagSVG(1):t==='coin'?COIN:t==='star'?'⭐':'🎁');
+    if(t==='wag'){e.style.width=(snS*.8)+'px';e.style.height=(snS*.8)+'px';}
+    else e.style.fontSize=(snS*(t==='coin'?.46:.58))+'px';
+    snIt[k]={t:t,el:e};}
+  /* на поле всегда есть что собирать: подбираем пропажу после каждого сбора */
+  function snFill(){const lv=SN_LEVELS[snLv-1];
+    const has=function(t){return Object.keys(snIt).filter(function(k){return snIt[k].t===t;}).length;};
+    if(snWagN<lv.wag&&!has('wag'))snPut('wag');
+    const cw=Math.min(3,lv.coin-snCoinN);
+    for(let i=has('coin');i<cw;i++)snPut('coin');
+    const sw=Math.min(2,lv.star-snStarN);
+    for(let i=has('star');i<sw;i++)snPut('star');
+    if(lv.gift&&!snGiftN&&snWagN>=4&&!has('gift'))snPut('gift');}
+
+  function snAddPart(i){const e=document.createElement('div');e.className='snpart';
+    e.style.width=(snS*.94)+'px';e.style.height=(snS*.94)+'px';
+    e.style.margin=(-snS*.47)+'px 0 0 '+(-snS*.47)+'px';
+    e.innerHTML='<div class="snbd">'+(i?snWagSVG(i):snLocoSVG())+'</div>';
+    $('#snObj').appendChild(e);snEls.push(e);
+    /* новый вагончик появляется там, где только что был хвост — ставим без анимации */
+    const p=snBody[i];if(p){e.style.left=(p.c*snS+snS/2)+'px';e.style.top=(p.r*snS+snS/2)+'px';
+      e.firstChild.style.setProperty('--a',SN_ANG[p.d]+'deg');}
+    return e;}
+  function snPlace(ms){snBody.forEach(function(p,i){const e=snEls[i];if(!e)return;
+    e.style.zIndex=5+(snBody.length-i);
+    e.style.transition=ms?('left '+ms+'ms linear, top '+ms+'ms linear'):'none';
+    e.style.left=(p.c*snS+snS/2)+'px';e.style.top=(p.r*snS+snS/2)+'px';
+    e.firstChild.style.setProperty('--a',SN_ANG[p.d]+'deg');});}
+  function snPuff(){const h=snBody[0];if(!h)return;
+    const e=snEl('tvpuff',h.c,h.r,'💨');setTimeout(function(){e.remove();},1200);}
+
+  function snGoalDraw(){const lv=SN_LEVELS[snLv-1];const g=[];
+    g.push(['🚃',snWagN,lv.wag]);
+    if(lv.coin)g.push(['🪙',snCoinN,lv.coin]);
+    if(lv.star)g.push(['⭐',snStarN,lv.star]);
+    $('#snGoal').innerHTML=g.map(function(x){
+      return '<span class="g'+(x[1]>=x[2]?' ok':'')+'"><i>'+coinHTML(x[0])+'</i>'+x[1]+'/'+x[2]+'</span>';}).join('');}
+  function snDone(){const lv=SN_LEVELS[snLv-1];
+    return snWagN>=lv.wag&&snCoinN>=lv.coin&&snStarN>=lv.star;}
+
+  function snTurn(d){if(!snRun)return;if(SN_OPP[d]===snDir)return;
+    if(snNext!==d){snNext=d;blip();}}
+  function snTick(){if(!snRun)return;
+    snDir=snNext;
+    const st=SN_STEP[snDir],h=snBody[0],nc=h.c+st[0],nr=h.r+st[1],k=snKey(nc,nr);
+    if(nc<0||nr<0||nc>=snC||nr>=snR||snBlk[k]||snBody.some(function(p){return p.c===nc&&p.r===nr;}))
+      {snCrash(nc,nr);return;}
+    const it=snIt[k];
+    snBody.unshift({c:nc,r:nr,d:snDir});
+    if(it){delete snIt[k];it.el.classList.add('gone');setTimeout(function(){it.el.remove();},320);
+      const box=$('#snObj'),px=nc*snS+snS/2,py=nr*snS+snS/2;
+      if(it.t==='wag'){snWagN++;stars+=1;coins+=2;snEarnS+=1;snEarnC+=2;
+        snAddPart(snBody.length-1);tone(560,880,'sine',.16,.22);
+        popText(box,px-34,py-52,'⭐+1 🪙+2','#6b4a24');}
+      else{snBody.pop();
+        if(it.t==='coin'){snCoinN++;coins+=1;snEarnC+=1;blip();popText(box,px-22,py-48,'🪙+1','#8a6a3a');}
+        else if(it.t==='star'){snStarN++;stars+=1;snEarnS+=1;blip();popText(box,px-22,py-48,'⭐+1','#8a6a3a');}
+        else{snGiftN=1;coins+=5;stars+=2;snEarnC+=5;snEarnS+=2;chime(true);
+          popText(box,px-42,py-52,'🎁 ⭐+2 🪙+5','#7B3FC4');}}
+      save();updateHUD();snGoalDraw();}
+    else snBody.pop();
+    snPlace(snMs);
+    if(snShop().dec.smoke)snPuff();
+    if(snDone()){snWin();return;}
+    snFill();
+    snTimer=setTimeout(snTick,snMs);}
+
+  function snCrash(nc,nr){snStop();
+    const el=snEls[0];if(el)el.classList.add('crash');
+    snEl('snboom',Math.max(0,Math.min(snC-1,nc)),Math.max(0,Math.min(snR-1,nr)),'💥');
+    tone(260,120,'triangle',.22,.5);chime(false);
+    tvSpeak('Ой! Паровозик остановился. Попробуем ещё раз?');
+    snLater(function(){
+      $('#snKept').innerHTML=(snEarnS||snEarnC)
+        ?[['⭐',snEarnS],['🪙',snEarnC]].filter(function(g){return g[1];}).map(function(g,i){
+          return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.16)+'s">'
+            +coinHTML(g[0])+'<span>+'+g[1]+'</span></div>';}).join(''):'';
+      $('#snSad').textContent=(snEarnS||snEarnC)?'Собранное остаётся с тобой!':'Ничего страшного, попробуем ещё раз?';
+      $('#snOver').classList.add('on');},1100);}
+
+  function snWin(){snStop();confetti(screens.tsnake);tvWhistle();
+    tvSpeak('Ура! Поезд собран! Молодец, машинист!');
+    snLater(snReward,1400);}
+  function snReward(){const id='snake_l'+snLv,first=!games[id],p=SN_PRIZE[snLv],got=[];
+    const c=first?p.c:2,s=first?p.s:5;
+    coins+=c;stars+=s;got.push(['🪙','+'+c],['⭐','+'+s]);
+    if(first){if(p.k){keys+=p.k;got.push(['🔑','+'+p.k]);}
+      pies+=1;got.push(['🥧','+1']);
+      markGame(id);
+      if(snLv<3&&(levels.sn||1)<snLv+1)levels.sn=snLv+1;
+      if(snLv>=3)markGame('snake_all');}
+    save();updateHUD();
+    $('#snWinTxt').textContent=first?'🎉 Поезд собран!':'🎉 И ещё один рейс!';
+    $('#snGifts').innerHTML=got.map(function(g,i){
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'
+        +coinHTML(g[0])+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#snMore').textContent=(first&&snLv<3)?'🚂 Следующий уровень':'🚂 Ещё раз';
+    $('#snPrize').classList.add('on');
+    if(first&&snLv<3)snLv++;}
+
+  function snRenderLevels(){const box=$('#snLevels');box.innerHTML='';const open=Math.min(3,levels.sn||1);
+    for(let i=1;i<=3;i++){const b=document.createElement('button');
+      b.className='lvbtn'+(i===snLv?' sel':'');b.textContent=i;b.disabled=i>open;b.style.opacity=i>open?'.35':'';
+      b.onclick=(function(n){return function(){snLv=n;snLoad();};})(i);box.appendChild(b);}}
+  function snShowTask(){const lv=SN_LEVELS[snLv-1];
+    $('#snTaskTtl').textContent='🎯 Уровень '+snLv;
+    let v='<span class="vbig">🚃</span><span class="vnum">×'+lv.wag+'</span>';
+    if(lv.coin)v+='<span class="vbig">'+COIN+'</span><span class="vnum">×'+lv.coin+'</span>';
+    if(lv.star)v+='<span class="vbig">⭐</span><span class="vnum">×'+lv.star+'</span>';
+    $('#snTaskVis').innerHTML=v;
+    $('#snTask').classList.add('on');
+    tvSpeak(lv.say);}
+
+  function snLoad(){snStop();
+    const lv=SN_LEVELS[snLv-1];
+    snC=lv.cols;snR=lv.rows;snS=lv.cell;snMs=lv.ms;
+    snWagN=0;snCoinN=0;snStarN=0;snGiftN=0;snEarnC=0;snEarnS=0;
+    snIt={};snBlk={};snEls=[];snTouch=null;
+    const f=$('#snField');f.style.width=(snC*snS)+'px';f.style.height=(snR*snS)+'px';
+    $('#snObj').innerHTML='';snGridSVG();
+    const mid=snR>>1;
+    snBody=[{c:2,r:mid,d:'R'}];snDir='R';snNext='R';
+    /* завалы: не в стартовом ряду, не у самого носа и не вплотную друг к другу,
+       иначе из двух соседних получается стенка через всё поле */
+    let tries=0;
+    while(Object.keys(snBlk).length<lv.blocks&&tries++<200){
+      const c=3+(Math.random()*(snC-4)|0),r=Math.random()*snR|0;
+      if(r===mid&&c<6)continue;
+      let near=false;
+      Object.keys(snBlk).forEach(function(k){const p=k.split(',');
+        if(Math.abs(+p[0]-c)<2&&Math.abs(+p[1]-r)<2)near=true;});
+      if(near)continue;
+      snBlk[snKey(c,r)]=1;}
+    Object.keys(snBlk).forEach(function(k){const p=k.split(',');
+      snEl('snblk',+p[0],+p[1],'🚧').style.fontSize=(snS*.62)+'px';});
+    snAddPart(0);snPlace(0);
+    snFill();snGoalDraw();snRenderLevels();
+    $('#snProg').textContent='Уровень '+snLv+' / 3';
+    $('#snPrize').classList.remove('on');$('#snOver').classList.remove('on');
+    show('tsnake');snShowTask();}
+  function snOpen(){snLv=Math.min(3,levels.sn||1);snLoad();}
+  function snGo(){$('#snTask').classList.remove('on');snRun=true;tvWhistle();ensureAudio();
+    snTimer=setTimeout(snTick,snMs);}
+  function snLeave(){snStop();openStationMenu();}
+
+  /* ---- управление: палец, кнопки, клавиши ---- */
+  (function(){const f=$('#snField');
+    f.addEventListener('pointerdown',function(e){snTouch=[sx(e),sy(e)];});
+    f.addEventListener('pointermove',function(e){if(!snTouch)return;
+      const dx=sx(e)-snTouch[0],dy=sy(e)-snTouch[1];
+      if(Math.abs(dx)<26&&Math.abs(dy)<26)return;
+      snTurn(Math.abs(dx)>Math.abs(dy)?(dx>0?'R':'L'):(dy>0?'D':'U'));
+      snTouch=[sx(e),sy(e)];});
+    f.addEventListener('pointerup',function(e){snTouch=null;});
+    f.addEventListener('pointercancel',function(){snTouch=null;});})();
+  $('#snU').onclick=function(){snTurn('U');};$('#snD').onclick=function(){snTurn('D');};
+  $('#snL').onclick=function(){snTurn('L');};$('#snR').onclick=function(){snTurn('R');};
+  $('#snBell').onclick=function(){ensureAudio();tone(1180,1560,'sine',.16,.3);
+    snLater(function(){tone(980,1320,'sine',.12,.25);},150);snPuff();};
+  addEventListener('keydown',function(e){
+    if(!screens.tsnake.classList.contains('active'))return;
+    const m={ArrowUp:'U',ArrowDown:'D',ArrowLeft:'L',ArrowRight:'R',
+             w:'U',s:'D',a:'L',d:'R','ц':'U','ы':'D','ф':'L','в':'R'};
+    const k=m[e.key]||m[(e.key||'').toLowerCase()];
+    if(k){e.preventDefault();snTurn(k);}});
+  $('#snStart').onclick=snGo;
+  $('#snAgain').onclick=function(){$('#snOver').classList.remove('on');snLoad();};
+  $('#snMore').onclick=function(){$('#snPrize').classList.remove('on');snLoad();};
+  $('#snBack').onclick=snLeave;$('#snOut').onclick=snLeave;$('#snOut2').onclick=snLeave;
+
+  /* ============ ДЕПО: витрина паровоза ============
+     Платит ребёнок монетками и звёздочками, поэтому трата обязана пройти через
+     coinsSpent/starsSpent: разблокировки конструктора героя считаются от
+     ЗАРАБОТАННОГО за всё время, иначе покупка вагона закрыла бы уже открытые детали. */
+  function dpOpen(){snStop();dpDraw();show('depot');}
+  $('#snShop1').onclick=dpOpen;$('#snShop2').onclick=dpOpen;$('#snShop3').onclick=dpOpen;
+  $('#dpBack').onclick=function(){snLoad();};
+  function dpPic(g,it){const s=snShop();
+    if(g==='loco')return snLocoArt(it,s.dec);
+    if(g==='wag')return snWagArt(it.id,'#7BC950');
+    const d={};d[it.id]=1;return snLocoArt(snFind(SN_LOCO,s.loco),d);}
+  function dpRow(ttl,list,g){const s=snShop();
+    let h='<div class="dprow"><div class="dpttl">'+ttl+'</div><div class="dpcards">';
+    list.forEach(function(it){
+      const key=g+':'+it.id,own=!it.p||s.own[key];
+      const on=g==='dec'?!!s.dec[it.id]:s[g]===it.id;
+      const enough=own||((it.cur==='star'?stars:coins)>=it.p);
+      h+='<button class="dpcard'+(on?' sel':'')+(enough?'':' no')+'" data-g="'+g+'" data-id="'+it.id+'">'
+        +'<div class="dppic">'+dpPic(g,it)+'</div><div class="dpnm">'+it.n+'</div>'
+        +'<div class="dpprice'+(own?' free':'')+'">'
+        +(own?(on?'✓ надето':'есть'):coinHTML((it.cur==='star'?'⭐':'🪙')+' '+it.p))+'</div></button>';});
+    return h+'</div></div>';}
+  function dpDraw(){const s=snShop();
+    $('#dpMoney').innerHTML=coinHTML('🪙 '+coins+'  ⭐ '+stars);
+    let t='';
+    for(let i=3;i>=0;i--)t+='<div class="dppart" style="left:'+((3-i)*88)+'px">'
+      +(i?snWagSVG(i):snLocoSVG())+'</div>';
+    $('#dpTrain').innerHTML=t;
+    $('#dpRows').innerHTML=dpRow('Паровоз',SN_LOCO,'loco')+dpRow('Вагончики',SN_WAG,'wag')
+      +dpRow('Оформление',SN_DEC,'dec');}
+  $('#dpRows').onclick=function(e){
+    const b=e.target.closest?e.target.closest('.dpcard'):null;if(!b)return;
+    const g=b.dataset.g,id=b.dataset.id,s=snShop();
+    const it=snFind(g==='loco'?SN_LOCO:g==='wag'?SN_WAG:SN_DEC,id);
+    const key=g+':'+id;
+    if(it.p&&!s.own[key]){
+      const st=it.cur==='star';
+      if((st?stars:coins)<it.p){chime(false);flash(screens.depot,'Пока не хватает '+(st?'⭐':'🪙'));return;}
+      if(st){stars-=it.p;starsSpent+=it.p;}else{coins-=it.p;coinsSpent+=it.p;}
+      s.own[key]=1;chime(true);flash(screens.depot,'Куплено! 🎉');}
+    else blip();
+    if(g==='dec')s.dec[id]=s.dec[id]?0:1;else s[g]=id;
+    save();updateHUD();dpDraw();};
+
 
   /* ---------- ПАРК: «СЛАДКАЯ ТРОЙКА» ----------
      Match-3 на поле 7x7. Правило одно: три одинаковых в ряд — исчезли, сверху упали новые.
