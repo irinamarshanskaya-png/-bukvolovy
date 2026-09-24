@@ -1075,30 +1075,6 @@
           background:rgba(255,255,255,.78);border-radius:14px;padding:6px 14px;}
   .snsad{font-family:'Fredoka';font-weight:600;font-size:19px;color:#6b4a24;text-align:center;max-width:250px;}
 
-  /* ============ ДЕПО: витрина паровоза ============ */
-  #depot{background:linear-gradient(180deg,#CFE3EA 0%,#EDF6F9 46%,#D8E9C4 46%,#BFDDA0 100%);}
-  .dpbody{flex:1;display:flex;flex-direction:column;align-items:center;gap:10px;padding:0 26px 10px;}
-  .dpview{width:460px;height:104px;flex:none;position:relative;border-radius:22px;
-          background:rgba(255,255,255,.66);box-shadow:inset 0 0 0 4px rgba(255,255,255,.7);}
-  .dptrain{position:absolute;left:50%;top:50%;transform:translate(-50%,-50%);width:350px;height:86px;}
-  .dppart{position:absolute;top:0;width:86px;height:86px;}
-  .dppart svg{width:100%;height:100%;display:block;}
-  .dprows{display:flex;flex-direction:column;gap:6px;width:100%;align-items:center;}
-  .dprow{display:flex;flex-direction:column;align-items:center;gap:3px;}
-  .dpttl{font-family:'Fredoka';font-weight:700;font-size:20px;color:#3f5a68;}
-  .dpcards{display:flex;gap:10px;justify-content:center;}
-  .dpcard{width:132px;border:none;border-radius:20px;background:#fff;cursor:pointer;padding:7px 6px 8px;
-          display:flex;flex-direction:column;align-items:center;gap:3px;box-shadow:0 5px 0 rgba(0,0,0,.13);
-          font-family:'Fredoka';font-weight:600;font-size:15px;color:var(--ink);
-          transition:transform .07s,box-shadow .07s;}
-  .dpcard:active{transform:translateY(3px);box-shadow:0 2px 0 rgba(0,0,0,.13);}
-  .dpcard.sel{outline:4px solid var(--grape);outline-offset:2px;}
-  .dpcard.no{opacity:.52;}
-  .dppic{width:78px;height:78px;}
-  .dppic svg{width:100%;height:100%;display:block;}
-  .dpnm{line-height:1.05;}
-  .dpprice{font-size:16px;font-weight:700;color:#6b4a24;display:flex;align-items:center;gap:4px;}
-  .dpprice.free{color:#4a8b2a;}
 
   /* ============ ВОКЗАЛ: «ПЕРЕЙДИ БЕЗОПАСНО» ============
      Полосы вертикальные, монстрик идёт слева направо. Ширина полосы своя у каждого
@@ -1747,13 +1723,11 @@
       <div class="wkwin" id="snTaskTtl">🎯 Уровень 1</div>
       <div class="tvvis" id="snTaskVis"></div>
       <button class="btn" id="snStart">🚂 Поехали!</button>
-      <button class="btn small" id="snShop1">🚉 Депо</button>
     </div></div>
     <div class="wkprize" id="snPrize"><div class="wkcard">
       <div class="wkwin" id="snWinTxt">🎉 Поезд собран!</div>
       <div class="wkgifts" id="snGifts"></div>
       <button class="btn small" id="snMore">🚂 Дальше</button>
-      <button class="btn small" id="snShop2">🚉 Депо</button>
       <button class="btn small coral" id="snOut">← Вокзал</button>
     </div></div>
     <div class="wkprize" id="snOver"><div class="wkcard">
@@ -1761,17 +1735,8 @@
       <div class="snsad" id="snSad">Ничего страшного, попробуем ещё раз?</div>
       <div class="wkgifts" id="snKept"></div>
       <button class="btn" id="snAgain">🔁 Ещё раз</button>
-      <button class="btn small" id="snShop3">🚉 Депо</button>
       <button class="btn small coral" id="snOut2">← Вокзал</button>
     </div></div>
-  </section>
-
-  <section id="depot" class="screen">
-    <div class="topbar"><button class="backb" id="dpBack">← К поезду</button><h2>🚉 Депо</h2><div class="prog" id="dpMoney"></div></div>
-    <div class="dpbody">
-      <div class="dpview"><div class="dptrain" id="dpTrain"></div></div>
-      <div class="dprows" id="dpRows"></div>
-    </div>
   </section>
 
   <section id="cross" class="screen">
@@ -1861,7 +1826,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={house:$('#house'),intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),wkmenu:$('#wkmenu'),mk:$('#mk'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),smenu:$('#smenu'),tsnake:$('#tsnake'),depot:$('#depot'),cross:$('#cross'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={house:$('#house'),intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),wkmenu:$('#wkmenu'),mk:$('#mk'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),smenu:$('#smenu'),tsnake:$('#tsnake'),cross:$('#cross'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -5659,74 +5624,30 @@
   const SN_STEP={R:[1,0],L:[-1,0],U:[0,-1],D:[0,1]};
   const SN_WCOL=['#7BC950','#4DB6E5','#FFD23F','#F368C4','#9B5DE5','#FF9F45','#3FC6B0','#FF6B6B'];
 
-  /* ---- витрина депо ---- */
-  const SN_LOCO=[{id:'red',n:'Красный',a:'#E4573B',b:'#C0553F',p:0},
-    {id:'blue',n:'Синий',a:'#4DB6E5',b:'#2C88B8',p:12},
-    {id:'green',n:'Зелёный',a:'#7BC950',b:'#5AA336',p:12},
-    {id:'grape',n:'Сиреневый',a:'#9B5DE5',b:'#7B3FC4',p:16},
-    {id:'pink',n:'Розовый',a:'#F368C4',b:'#C94E9F',p:16},
-    {id:'gold',n:'Золотой',a:'#FFC93C',b:'#E0A417',p:25}];
-  const SN_WAG=[{id:'plain',n:'Обычный',p:0,cur:'coin'},
-    {id:'pass',n:'Пассажирский',p:20,cur:'coin'},
-    {id:'cargo',n:'Грузовой',p:25,cur:'coin'},
-    {id:'party',n:'Праздничный',p:20,cur:'star'},
-    {id:'mail',n:'Почтовый',p:25,cur:'star'},
-    {id:'tank',n:'Цистерна',p:30,cur:'coin'}];
-  const SN_DEC=[{id:'bell',n:'Колокольчик',p:8,cur:'star'},
-    {id:'flag',n:'Флажок',p:10,cur:'star'},
-    {id:'lamp',n:'Фонарик',p:12,cur:'star'},
-    {id:'smoke',n:'Дымок',p:15,cur:'star'},
-    {id:'star',n:'Звёздочки',p:18,cur:'star'}];
-  function snShop(){const s=levels.snShop=levels.snShop||{};
-    s.own=s.own||{};s.dec=s.dec||{};s.loco=s.loco||'red';s.wag=s.wag||'plain';return s;}
-  function snFind(list,id){return list.filter(function(x){return x.id===id;})[0]||list[0];}
+  /* Депо и покупки убраны 2026-09-24 по просьбе Ирины: поезд всегда один и тот же —
+     красный паровозик и разноцветные вагончики. Записи levels.snShop в старых
+     сохранениях просто перестают читаться, ломать их не нужно. */
+  const SN_RED={a:'#E4573B',b:'#C0553F'};
 
   /* ---- рисунки состава: вид сверху, как в «Путешествии» ---- */
-  function snLocoArt(col,dec){
-    let s='<svg viewBox="0 0 100 100">'
+  function snLocoArt(col){
+    return '<svg viewBox="0 0 100 100">'
       +'<rect x="12" y="17" width="76" height="12" rx="6" fill="#37344F"/>'
       +'<rect x="12" y="71" width="76" height="12" rx="6" fill="#37344F"/>'
       +'<rect x="8" y="26" width="84" height="48" rx="18" fill="'+col.a+'"/>'
       +'<rect x="56" y="30" width="36" height="40" rx="16" fill="'+col.b+'"/>'
       +'<circle cx="74" cy="50" r="9" fill="#37344F"/><circle cx="74" cy="50" r="4.4" fill="#9AA0A6"/>'
-      +'<rect x="12" y="30" width="44" height="40" rx="15" fill="#FFF3E0"/>';
-    if(dec.lamp)s+='<circle cx="91" cy="50" r="10" fill="#FFF3B0" opacity=".8"/>';
-    s+='<circle cx="90" cy="50" r="5" fill="#FFD23F"/>';
-    /* дымок виден и в витрине депо: иначе карточка «Дымок» ничем не отличается от обычной */
-    if(dec.smoke)s+='<g fill="#F2F6F8" stroke="#AEBCC6" stroke-width="1.4">'
-      +'<circle cx="72" cy="34" r="6.5"/><circle cx="79" cy="23" r="4.6"/><circle cx="85" cy="15" r="3"/></g>';
-    if(dec.bell)s+='<circle cx="60" cy="35" r="5" fill="#FFD23F" stroke="#C99A16" stroke-width="1.6"/>';
-    if(dec.flag)s+='<rect x="60" y="58" width="2.6" height="17" fill="#8B5E3C"/><path d="M62 60 L75 64 L62 68 Z" fill="#F368C4"/>';
-    if(dec.star)s+='<g fill="#FFD23F">'
-      +'<path d="M26 38 l2.4 5 5.4.6 -4 3.7 1.1 5.3 -4.9-2.7 -4.9 2.7 1.1-5.3 -4-3.7 5.4-.6 z"/>'
-      +'<path d="M26 62 l1.8 3.7 4 .5 -3 2.7 .8 4 -3.6-2 -3.6 2 .8-4 -3-2.7 4-.5 z"/></g>';
-    return s+'</svg>';}
-  function snWagArt(kind,col){
-    let s='<svg viewBox="0 0 100 100">'
+      +'<rect x="12" y="30" width="44" height="40" rx="15" fill="#FFF3E0"/>'
+      +'<circle cx="90" cy="50" r="5" fill="#FFD23F"/></svg>';}
+  function snWagArt(col){
+    return '<svg viewBox="0 0 100 100">'
       +'<rect x="14" y="19" width="72" height="11" rx="5.5" fill="#37344F"/>'
-      +'<rect x="14" y="70" width="72" height="11" rx="5.5" fill="#37344F"/>';
-    if(kind==='tank'){
-      s+='<rect x="12" y="29" width="76" height="42" rx="21" fill="'+col+'"/>'
-        +'<rect x="30" y="29" width="7" height="42" fill="rgba(0,0,0,.16)"/>'
-        +'<rect x="63" y="29" width="7" height="42" fill="rgba(0,0,0,.16)"/>'
-        +'<circle cx="50" cy="50" r="10" fill="#FFF3E0"/>';}
-    else{
-      s+='<rect x="10" y="27" width="80" height="46" rx="16" fill="'+col+'"/>';
-      if(kind==='pass')s+='<rect x="19" y="37" width="17" height="26" rx="8" fill="#CDEEFB"/>'
-        +'<rect x="42" y="37" width="17" height="26" rx="8" fill="#CDEEFB"/>'
-        +'<rect x="65" y="37" width="17" height="26" rx="8" fill="#CDEEFB"/>';
-      else if(kind==='cargo')s+='<rect x="18" y="34" width="64" height="32" rx="9" fill="#C08A52"/>'
-        +'<rect x="23" y="38" width="24" height="24" rx="6" fill="#A97440"/>'
-        +'<rect x="53" y="38" width="24" height="24" rx="6" fill="#D9A469"/>';
-      else if(kind==='party')s+='<rect x="20" y="38" width="60" height="24" rx="11" fill="#FFF3E0"/>'
-        +'<circle cx="32" cy="50" r="8" fill="#F368C4"/><circle cx="50" cy="50" r="8" fill="#4DB6E5"/>'
-        +'<circle cx="68" cy="50" r="8" fill="#FFD23F"/>';
-      else if(kind==='mail')s+='<rect x="22" y="36" width="56" height="28" rx="7" fill="#FFF7E8"/>'
-        +'<path d="M22 38 L50 56 L78 38" fill="none" stroke="#E4573B" stroke-width="4" stroke-linecap="round"/>';
-      else s+='<rect x="22" y="36" width="56" height="28" rx="11" fill="#FFF3E0" opacity=".9"/>';}
-    return s+'<rect x="86" y="46" width="12" height="8" rx="4" fill="#37344F"/></svg>';}
-  function snLocoSVG(){const s=snShop();return snLocoArt(snFind(SN_LOCO,s.loco),s.dec);}
-  function snWagSVG(i){const s=snShop();return snWagArt(s.wag,SN_WCOL[(i-1)%SN_WCOL.length]);}
+      +'<rect x="14" y="70" width="72" height="11" rx="5.5" fill="#37344F"/>'
+      +'<rect x="10" y="27" width="80" height="46" rx="16" fill="'+col+'"/>'
+      +'<rect x="22" y="36" width="56" height="28" rx="11" fill="#FFF3E0" opacity=".9"/>'
+      +'<rect x="86" y="46" width="12" height="8" rx="4" fill="#37344F"/></svg>';}
+  function snLocoSVG(){return snLocoArt(SN_RED);}
+  function snWagSVG(i){return snWagArt(SN_WCOL[(i-1)%SN_WCOL.length]);}
 
   /* ---- состояние партии ---- */
   let snLv=1,snC=10,snR=7,snS=84,snMs=560;
@@ -5825,7 +5746,7 @@
       save();updateHUD();snGoalDraw();}
     else snBody.pop();
     snPlace(snMs);
-    if(snShop().dec.smoke)snPuff();
+    snPuff();
     if(snDone()){snWin();return;}
     snFill();
     snTimer=setTimeout(snTick,snMs);}
@@ -5840,7 +5761,9 @@
         ?[['⭐',snEarnS],['🪙',snEarnC]].filter(function(g){return g[1];}).map(function(g,i){
           return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.16)+'s">'
             +coinHTML(g[0])+'<span>+'+g[1]+'</span></div>';}).join(''):'';
-      $('#snSad').textContent=(snEarnS||snEarnC)?'Собранное остаётся с тобой!':'Ничего страшного, попробуем ещё раз?';
+      $('#snSad').textContent=snWagN
+        ?('Вагончики остаются с тобой — их уже '+snWagN+'! Поехали дальше?')
+        :'Ничего страшного, попробуем ещё раз?';
       $('#snOver').classList.add('on');},1100);}
 
   function snWin(){snStop();confetti(screens.tsnake);tvWhistle();
@@ -5876,21 +5799,26 @@
     $('#snTask').classList.add('on');
     tvSpeak(lv.say);}
 
-  function snLoad(){snStop();
+  /* keep=true — «Ещё раз» после аварии: собранное и длина состава остаются, ребёнок
+     продолжает уровень, а не начинает его с одного паровозика. */
+  function snLoad(keep){snStop();
     const lv=SN_LEVELS[snLv-1];
     snC=lv.cols;snR=lv.rows;snS=lv.cell;snMs=lv.ms;
-    snWagN=0;snCoinN=0;snStarN=0;snGiftN=0;snEarnC=0;snEarnS=0;
+    if(!keep){snWagN=0;snCoinN=0;snStarN=0;snGiftN=0;snEarnC=0;snEarnS=0;}
     snIt={};snBlk={};snEls=[];snTouch=null;
     const f=$('#snField');f.style.width=(snC*snS)+'px';f.style.height=(snR*snS)+'px';
     $('#snObj').innerHTML='';snGridSVG();
     const mid=snR>>1;
-    snBody=[{c:2,r:mid,d:'R'}];snDir='R';snNext='R';
+    /* состав выкладываем хвостом влево от головы, чтобы длинный поезд поместился */
+    const len=Math.min(snWagN+1,snC-2),head=Math.max(2,len-1);
+    snBody=[];for(let i=0;i<len;i++)snBody.push({c:head-i,r:mid,d:'R'});
+    snDir='R';snNext='R';
     /* завалы: не в стартовом ряду, не у самого носа и не вплотную друг к другу,
        иначе из двух соседних получается стенка через всё поле */
     let tries=0;
     while(Object.keys(snBlk).length<lv.blocks&&tries++<200){
       const c=3+(Math.random()*(snC-4)|0),r=Math.random()*snR|0;
-      if(r===mid&&c<6)continue;
+      if(r===mid&&c<=head+2)continue;
       let near=false;
       Object.keys(snBlk).forEach(function(k){const p=k.split(',');
         if(Math.abs(+p[0]-c)<2&&Math.abs(+p[1]-r)<2)near=true;});
@@ -5898,7 +5826,8 @@
       snBlk[snKey(c,r)]=1;}
     Object.keys(snBlk).forEach(function(k){const p=k.split(',');
       snEl('snblk',+p[0],+p[1],'🚧').style.fontSize=(snS*.62)+'px';});
-    snAddPart(0);snPlace(0);
+    for(let i=0;i<len;i++)snAddPart(i);
+    snPlace(0);
     snFill();snGoalDraw();snRenderLevels();
     $('#snProg').textContent='Уровень '+snLv+' / 3';
     $('#snPrize').classList.remove('on');$('#snOver').classList.remove('on');
@@ -5908,15 +5837,25 @@
     snTimer=setTimeout(snTick,snMs);}
   function snLeave(){snStop();openStationMenu();}
 
-  /* ---- управление: палец, кнопки, клавиши ---- */
+  /* ---- управление: палец, кнопки, клавиши ----
+     Порог движения маленький (12 px в координатах сцены): детский палец ведёт
+     короткими рывками, и при прежних 26 px половина движений не считалась поворотом.
+     Короткий тычок тоже поворачивает — остаток жеста разбирается на отпускании,
+     с ещё меньшим порогом. */
+  const SN_SWIPE=12,SN_FLICK=7;
   (function(){const f=$('#snField');
-    f.addEventListener('pointerdown',function(e){snTouch=[sx(e),sy(e)];});
+    function way(dx,dy){return Math.abs(dx)>Math.abs(dy)?(dx>0?'R':'L'):(dy>0?'D':'U');}
+    f.addEventListener('pointerdown',function(e){e.preventDefault();snTouch=[sx(e),sy(e)];
+      if(f.setPointerCapture&&e.pointerId!==undefined){try{f.setPointerCapture(e.pointerId);}catch(x){}}});
     f.addEventListener('pointermove',function(e){if(!snTouch)return;
       const dx=sx(e)-snTouch[0],dy=sy(e)-snTouch[1];
-      if(Math.abs(dx)<26&&Math.abs(dy)<26)return;
-      snTurn(Math.abs(dx)>Math.abs(dy)?(dx>0?'R':'L'):(dy>0?'D':'U'));
+      if(Math.abs(dx)<SN_SWIPE&&Math.abs(dy)<SN_SWIPE)return;
+      snTurn(way(dx,dy));
       snTouch=[sx(e),sy(e)];});
-    f.addEventListener('pointerup',function(e){snTouch=null;});
+    f.addEventListener('pointerup',function(e){
+      if(snTouch){const dx=sx(e)-snTouch[0],dy=sy(e)-snTouch[1];
+        if(Math.abs(dx)>=SN_FLICK||Math.abs(dy)>=SN_FLICK)snTurn(way(dx,dy));}
+      snTouch=null;});
     f.addEventListener('pointercancel',function(){snTouch=null;});})();
   $('#snU').onclick=function(){snTurn('U');};$('#snD').onclick=function(){snTurn('D');};
   $('#snL').onclick=function(){snTurn('L');};$('#snR').onclick=function(){snTurn('R');};
@@ -5929,53 +5868,9 @@
     const k=m[e.key]||m[(e.key||'').toLowerCase()];
     if(k){e.preventDefault();snTurn(k);}});
   $('#snStart').onclick=snGo;
-  $('#snAgain').onclick=function(){$('#snOver').classList.remove('on');snLoad();};
+  $('#snAgain').onclick=function(){$('#snOver').classList.remove('on');snLoad(true);};
   $('#snMore').onclick=function(){$('#snPrize').classList.remove('on');snLoad();};
   $('#snBack').onclick=snLeave;$('#snOut').onclick=snLeave;$('#snOut2').onclick=snLeave;
-
-  /* ============ ДЕПО: витрина паровоза ============
-     Платит ребёнок монетками и звёздочками, поэтому трата обязана пройти через
-     coinsSpent/starsSpent: разблокировки конструктора героя считаются от
-     ЗАРАБОТАННОГО за всё время, иначе покупка вагона закрыла бы уже открытые детали. */
-  function dpOpen(){snStop();dpDraw();show('depot');}
-  $('#snShop1').onclick=dpOpen;$('#snShop2').onclick=dpOpen;$('#snShop3').onclick=dpOpen;
-  $('#dpBack').onclick=function(){snLoad();};
-  function dpPic(g,it){const s=snShop();
-    if(g==='loco')return snLocoArt(it,s.dec);
-    if(g==='wag')return snWagArt(it.id,'#7BC950');
-    const d={};d[it.id]=1;return snLocoArt(snFind(SN_LOCO,s.loco),d);}
-  function dpRow(ttl,list,g){const s=snShop();
-    let h='<div class="dprow"><div class="dpttl">'+ttl+'</div><div class="dpcards">';
-    list.forEach(function(it){
-      const key=g+':'+it.id,own=!it.p||s.own[key];
-      const on=g==='dec'?!!s.dec[it.id]:s[g]===it.id;
-      const enough=own||((it.cur==='star'?stars:coins)>=it.p);
-      h+='<button class="dpcard'+(on?' sel':'')+(enough?'':' no')+'" data-g="'+g+'" data-id="'+it.id+'">'
-        +'<div class="dppic">'+dpPic(g,it)+'</div><div class="dpnm">'+it.n+'</div>'
-        +'<div class="dpprice'+(own?' free':'')+'">'
-        +(own?(on?'✓ надето':'есть'):coinHTML((it.cur==='star'?'⭐':'🪙')+' '+it.p))+'</div></button>';});
-    return h+'</div></div>';}
-  function dpDraw(){const s=snShop();
-    $('#dpMoney').innerHTML=coinHTML('🪙 '+coins+'  ⭐ '+stars);
-    let t='';
-    for(let i=3;i>=0;i--)t+='<div class="dppart" style="left:'+((3-i)*88)+'px">'
-      +(i?snWagSVG(i):snLocoSVG())+'</div>';
-    $('#dpTrain').innerHTML=t;
-    $('#dpRows').innerHTML=dpRow('Паровоз',SN_LOCO,'loco')+dpRow('Вагончики',SN_WAG,'wag')
-      +dpRow('Оформление',SN_DEC,'dec');}
-  $('#dpRows').onclick=function(e){
-    const b=e.target.closest?e.target.closest('.dpcard'):null;if(!b)return;
-    const g=b.dataset.g,id=b.dataset.id,s=snShop();
-    const it=snFind(g==='loco'?SN_LOCO:g==='wag'?SN_WAG:SN_DEC,id);
-    const key=g+':'+id;
-    if(it.p&&!s.own[key]){
-      const st=it.cur==='star';
-      if((st?stars:coins)<it.p){chime(false);flash(screens.depot,'Пока не хватает '+(st?'⭐':'🪙'));return;}
-      if(st){stars-=it.p;starsSpent+=it.p;}else{coins-=it.p;coinsSpent+=it.p;}
-      s.own[key]=1;chime(true);flash(screens.depot,'Куплено! 🎉');}
-    else blip();
-    if(g==='dec')s.dec[id]=s.dec[id]?0:1;else s[g]=id;
-    save();updateHUD();dpDraw();};
 
 
   /* ---------- ПАРК: «СЛАДКАЯ ТРОЙКА» ----------
