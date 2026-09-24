@@ -5729,8 +5729,10 @@
   function snTick(){if(!snRun)return;
     snDir=snNext;
     const st=SN_STEP[snDir],h=snBody[0],nc=h.c+st[0],nr=h.r+st[1],k=snKey(nc,nr);
-    if(nc<0||nr<0||nc>=snC||nr>=snR||snBlk[k]||snBody.some(function(p){return p.c===nc&&p.r===nr;}))
-      {snCrash(nc,nr);return;}
+    /* Край поля - не авария: паровозик упирается в бортик, стоит и ждёт нового
+       направления. Ни искр, ни карточки. Авария осталась на завале и своём хвосте. */
+    if(nc<0||nr<0||nc>=snC||nr>=snR){snPuff();snTimer=setTimeout(snTick,snMs);return;}
+    if(snBlk[k]||snBody.some(function(p){return p.c===nc&&p.r===nr;})){snCrash(nc,nr);return;}
     const it=snIt[k];
     snBody.unshift({c:nc,r:nr,d:snDir});
     if(it){delete snIt[k];it.el.classList.add('gone');setTimeout(function(){it.el.remove();},320);
