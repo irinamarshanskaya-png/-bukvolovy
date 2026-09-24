@@ -1025,7 +1025,7 @@
 
   /* ============ ВОКЗАЛ: ЭКРАН ЛОКАЦИИ ============ */
   #smenu{background:linear-gradient(180deg,#BFE9F5 0%,#E7F4FA 44%,#CFE0C4 44%,#B7D69A 100%);padding:0;}
-  #smenu .nwbtn{width:420px;}
+  #smenu .nwbtn{width:380px;font-size:23px;}
 
   /* ============ ВОКЗАЛ: «ПОЕЗД-ЗМЕЙКА» ============
      Поле — сетка клеток, размер клетки свой у каждого уровня (84/74/66), но само
@@ -1099,6 +1099,73 @@
   .dpnm{line-height:1.05;}
   .dpprice{font-size:16px;font-weight:700;color:#6b4a24;display:flex;align-items:center;gap:4px;}
   .dpprice.free{color:#4a8b2a;}
+
+  /* ============ ВОКЗАЛ: «ПЕРЕЙДИ БЕЗОПАСНО» ============
+     Полосы вертикальные, монстрик идёт слева направо. Ширина полосы своя у каждого
+     уровня (84/80/72 у дорог), поэтому размеры ставит скрипт, а здесь только вид. */
+  #cross{background:linear-gradient(180deg,#BFE9F5 0%,#E3F4FB 40%,#CDE6B6 40%,#AFD98C 100%);}
+  .sfbody{flex:1;display:flex;align-items:center;justify-content:center;gap:22px;padding:2px 22px 10px;}
+  .sffield{position:relative;flex:none;border-radius:24px;overflow:hidden;touch-action:none;cursor:pointer;
+           box-shadow:0 10px 26px rgba(40,60,90,.24), inset 0 0 0 5px rgba(255,255,255,.7);}
+  .sflane{position:absolute;top:0;bottom:0;}
+  .sfsafe{background:linear-gradient(180deg,#95D96F,#7BC950);
+          box-shadow:inset 0 0 0 2px rgba(255,255,255,.28);}
+  .sfsafe.sfend{background:linear-gradient(180deg,#FFE9A8,#FFD23F);}
+  .sfroad{background:linear-gradient(90deg,#5E6470,#535964 55%,#5E6470);}
+  .sfroad.a{box-shadow:inset 5px 0 0 #EDF1F4;}   /* внешний край дороги */
+  .sfroad.b{box-shadow:inset -5px 0 0 #EDF1F4;}
+  .sfdash{position:absolute;left:0;top:0;bottom:0;width:7px;margin-left:-3.5px;
+          background:repeating-linear-gradient(180deg,#F5D547 0 30px,transparent 30px 62px);}
+  .sfrail{background-color:#D3BC97;
+          background-image:repeating-linear-gradient(180deg,#9A7247 0 15px,transparent 15px 34px);}
+  .sfrail::before,.sfrail::after{content:'';position:absolute;top:0;bottom:0;width:7px;background:#A9B2BA;}
+  .sfrail::before{left:22%;} .sfrail::after{right:22%;}
+  /* полоса, из-за которой сейчас нельзя идти, краснеет — но мягко: сплошная заливка
+     превращала дорогу в красное пятно, и она переставала читаться дорогой */
+  .sfwarn{position:absolute;inset:0;background:#FF3B30;opacity:0;pointer-events:none;
+          transition:opacity .2s ease;}
+  .sfwarn.on{animation:sfwarn .8s ease-in-out infinite alternate;}
+  @keyframes sfwarn{from{opacity:.18;}to{opacity:.36;}}
+  .sfcar{position:absolute;top:0;will-change:transform;filter:drop-shadow(0 4px 4px rgba(0,0,0,.28));}
+  .sfcar svg{width:100%;height:100%;display:block;}
+  .sftr{width:100%;height:100%;display:flex;flex-direction:column;}
+  .sftp{flex:1;min-height:0;}
+  .sftp svg{width:100%;height:100%;display:block;}
+  /* размер монстрика ставит скрипт — островок на третьем уровне уже, чем на первом */
+  .sfmon{position:absolute;z-index:6;}
+  .sfmon img{position:absolute;left:6%;top:0;width:88%;height:92%;object-fit:contain;}
+  .sfshadow{position:absolute;left:14%;bottom:-3px;width:72%;height:16%;border-radius:50%;
+            background:rgba(0,0,0,.26);}
+  .sfmon.shake{animation:sfshake .42s ease;}
+  @keyframes sfshake{25%{transform:translateX(-7px);}50%{transform:translateX(6px);}75%{transform:translateX(-4px);}}
+  .sfmon.win img{animation:cheerjump .5s ease 2;}
+  .sfmon.warp{animation:sfwarp .42s ease;}
+  @keyframes sfwarp{from{opacity:0;transform:scale(.5);}}
+  .sfbub{position:absolute;left:50%;top:-40px;transform:translateX(-50%) scale(0);
+         background:#fff;border-radius:14px;padding:4px 12px;white-space:nowrap;
+         font-family:'Fredoka';font-weight:700;font-size:18px;color:#C0392B;
+         box-shadow:0 5px 12px rgba(0,0,0,.22);transition:transform .18s ease;}
+  .sfbub.on{transform:translateX(-50%) scale(1);}
+  /* светофор едет вместе с монстриком: он смотрит туда же, куда ребёнок */
+  .sfnohero{position:absolute;left:0;top:0;width:100%;height:92%;display:flex;
+            align-items:center;justify-content:center;font-size:42px;line-height:1;}
+  .sflight{position:absolute;width:52px;height:52px;margin:-26px 0 0 -26px;border-radius:50%;
+           display:none;align-items:center;justify-content:center;font-size:30px;line-height:1;z-index:7;
+           box-shadow:0 5px 0 rgba(0,0,0,.2), 0 0 0 5px rgba(255,255,255,.85);}
+  .sflight.go{background:#4CD964;animation:sfpulse .9s ease-in-out infinite alternate;}
+  .sflight.no{background:#FF3B30;}
+  @keyframes sfpulse{to{transform:scale(1.12);}}
+  .sfside{width:214px;flex:none;display:flex;flex-direction:column;align-items:center;gap:14px;}
+  .sfcard{width:100%;background:var(--cream);border-radius:22px;padding:13px 12px;
+          box-shadow:0 6px 0 rgba(0,0,0,.10);display:flex;flex-direction:column;align-items:center;gap:9px;
+          font-family:'Fredoka';font-weight:700;font-size:25px;color:#6b4a24;}
+  .sfkey{display:flex;flex-direction:column;gap:9px;width:100%;
+         font-family:'Fredoka';font-weight:600;font-size:17px;color:#3f5a68;}
+  .sfkey div{display:flex;align-items:center;gap:9px;background:rgba(255,255,255,.82);
+             border-radius:16px;padding:7px 11px;}
+  .sfkey b{width:30px;height:30px;border-radius:50%;flex:none;display:flex;align-items:center;
+           justify-content:center;font-size:17px;}
+  .sfkey .g{background:#4CD964;} .sfkey .r{background:#FF3B30;}
 </style>
 </head>
 <body>
@@ -1652,6 +1719,7 @@
     <div class="nwbtns">
       <button class="nwbtn" id="sm1"><span>🚉</span>Путешествие</button>
       <button class="nwbtn" id="sm2"><span>🚂</span>Поезд-змейка</button>
+      <button class="nwbtn" id="sm3"><span>🚦</span>Перейди безопасно</button>
     </div>
   </section>
 
@@ -1704,6 +1772,33 @@
       <div class="dpview"><div class="dptrain" id="dpTrain"></div></div>
       <div class="dprows" id="dpRows"></div>
     </div>
+  </section>
+
+  <section id="cross" class="screen">
+    <div class="topbar"><button class="backb" id="sfBack">← Вокзал</button><h2>🚦 Перейди безопасно</h2><div class="prog" id="sfProg"></div></div>
+    <div class="sfbody">
+      <div class="sffield" id="sfField"></div>
+      <div class="sfside">
+        <div class="lvsel" id="sfLevels"></div>
+        <div class="sfcard"><div id="sfCnt">🏁 0 / 3</div></div>
+        <div class="sfkey">
+          <div><b class="g">👣</b>Зелёный — иди</div>
+          <div><b class="r">✋</b>Красный — жди</div>
+        </div>
+        <div class="snhint">👆 Веди монстрика пальцем<br>к правому краю</div>
+      </div>
+    </div>
+    <div class="tvtask" id="sfTask"><div class="wkcard">
+      <div class="wkwin" id="sfTaskTtl">🎯 Уровень 1</div>
+      <div class="tvvis" id="sfTaskVis"></div>
+      <button class="btn" id="sfStart">🚦 Пошли!</button>
+    </div></div>
+    <div class="wkprize" id="sfPrize"><div class="wkcard">
+      <div class="wkwin" id="sfWinTxt">🎉 Дорога пройдена!</div>
+      <div class="wkgifts" id="sfGifts"></div>
+      <button class="btn small" id="sfMore">🚦 Дальше</button>
+      <button class="btn small coral" id="sfOut">← Вокзал</button>
+    </div></div>
   </section>
 
   <section id="pmenu" class="screen">
@@ -1766,7 +1861,7 @@
     const touch=matchMedia('(pointer:coarse)').matches;
     document.body.classList.toggle('portrait',touch&&innerHeight>innerWidth);}
   addEventListener('resize',fitStage);addEventListener('orientationchange',()=>setTimeout(fitStage,120));fitStage();
-  const screens={house:$('#house'),intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),wkmenu:$('#wkmenu'),mk:$('#mk'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),smenu:$('#smenu'),tsnake:$('#tsnake'),depot:$('#depot'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
+  const screens={house:$('#house'),intro:$('#intro'),name:$('#name'),build:$('#build'),world:$('#world'),lmenu:$('#lmenu'),picker:$('#picker'),play:$('#play'),asm:$('#asm'),slog:$('#slog'),gap:$('#gap'),shmenu:$('#shmenu'),cart:$('#cart'),cash:$('#cash'),cmenu:$('#cmenu'),diff:$('#diff'),vanish:$('#vanish'),seq:$('#seq'),cgal:$('#cgal'),cthemes:$('#cthemes'),circus:$('#circus'),cthemes:$('#cthemes'),fmenu:$('#fmenu'),fquiz:$('#fquiz'),ftrack:$('#ftrack'),fseason:$('#fseason'),trk:$('#trk'),tails:$('#tails'),mmenu:$('#mmenu'),memory:$('#memory'),order:$('#order'),cond:$('#cond'),bakery:$('#bakery'),bmenu:$('#bmenu'),odd:$('#odd'),wkshop:$('#wkshop'),wkmenu:$('#wkmenu'),mk:$('#mk'),park:$('#park'),pmenu:$('#pmenu'),m3:$('#m3'),board:$('#board'),train:$('#train'),smenu:$('#smenu'),tsnake:$('#tsnake'),depot:$('#depot'),cross:$('#cross'),final:$('#final'),sleep:$('#sleep'),stub:$('#stub')};
   function show(n){Object.values(screens).forEach(s=>s.classList.remove('active'));screens[n].classList.add('active');}
 
   let actx=null;
@@ -9358,6 +9453,301 @@
     const h=$('#hhHero');h.style.left=hhX+'%';h.style.top=hhY+'%';h.style.zIndex=4+Math.round(hhY);
     hhPose('');chime(true);save();}
   $('#hhSleep').onclick=function(){hhEndPut(true);enterSleep();};
+
+  /* ============ ВОКЗАЛ: «ПЕРЕЙДИ БЕЗОПАСНО» ============
+     Монстрик переходит дороги и рельсы слева направо. Полосы вертикальные: так на
+     сцену 1360x765 влезают и четыре дороги первого уровня, и восемь полос с двумя
+     путями на третьем, а машины и монстрик остаются крупными.
+
+     Правило, на котором держится вся игра: ПОПАСТЬ ПОД МАШИНУ НЕЛЬЗЯ. Пока путь
+     занят, монстрик стоит на островке и мотает головой, а у края горит красный
+     кружок. Как только впереди чисто — кружок зеленеет, и монстрик переходит до
+     следующего островка НЕ ОСТАНАВЛИВАЯСЬ. Это и есть настоящее правило перехода,
+     и заодно оно делает проигрыш невозможным: разрешение даётся только тогда, когда
+     времени заведомо хватает на всю дорогу целиком.
+
+     Поэтому «безопасно» считается не по картинке, а по времени: sfClear() прокручивает
+     каждую машину вперёд по секундам и смотрит, накроет ли она монстрика, пока тот
+     идёт. Быстрая машина закрывает переход раньше медленной — ребёнок как раз и учится
+     оценивать скорость, а не только расстояние. */
+  const SF_H=616;            /* высота поля */
+  const SF_V=200;            /* скорость монстрика, px/сек */
+  const SF_LOOK=0.34;        /* запас времени с обеих сторон, сек */
+  const SF_CROSS=3;          /* переходов на уровень */
+  /* Подряд идущих опасных полос всегда не больше двух, а рельсы с обеих сторон
+     окружены островками: иначе пришлось бы ловить свободное окно сразу на трёх
+     полосах, и уровень становился непроходимым. gap — промежуток между машинами. */
+  const SF_LEVELS=[
+    {lay:'s r r s r r s',w:{s:84,r:104,t:0},car:112,gap:660,
+     roads:[[1,54],[-1,62]],rails:[],
+     say:'Помоги монстрику перейти дорогу! Зелёный кружок — можно идти, красный — подожди.'},
+    {lay:'s r r s t s r r s r r s r r s',w:{s:60,r:76,t:70},car:96,gap:600,
+     roads:[[1,64],[-1,78],[1,70],[-1,86]],
+     rails:[[1,150]],
+     say:'Дорог стало больше, и машины едут по-разному. А ещё появились рельсы — поезд быстрый, жди его внимательно!'},
+    {lay:'s r r s t s r r s r r s t s r r s',w:{s:56,r:66,t:62},car:88,gap:560,
+     roads:[[1,80],[-1,98],[1,88],[-1,108]],
+     rails:[[1,196],[-1,178]],
+     say:'Самый сложный маршрут: два железнодорожных пути и быстрые машины. Смотри в оба и не торопись!'}];
+  const SF_CAR=[['#E4573B','#C0553F'],['#4DB6E5','#2C88B8'],['#FFD23F','#E0A417'],
+                ['#7BC950','#5AA336'],['#9B5DE5','#7B3FC4'],['#F368C4','#C94E9F'],
+                ['#FF9F45','#D97B23'],['#3FC6B0','#2A9C8A']];
+
+  let sfLv=1,sfLanes=[],sfW=0,sfMon={x:0,y:0,lane:0,go:null},sfDone=0;
+  let sfRaf=0,sfLast=0,sfRun=false,sfBusy=true,sfTouch=null,sfWait=0,sfT=0;
+  let sfTm=[];
+  function sfLater(fn,ms){const id=setTimeout(fn,ms);sfTm.push(id);return id;}
+  function sfStop(){sfRun=false;if(sfRaf)cancelAnimationFrame(sfRaf);sfRaf=0;
+    sfTm.forEach(clearTimeout);sfTm=[];}
+
+  /* ---- рисунки: вид сверху, машина носом вниз ---- */
+  function sfCarArt(c){return '<svg viewBox="0 0 60 120" preserveAspectRatio="none">'
+    +'<rect x="3" y="26" width="6" height="22" rx="3" fill="'+c[1]+'"/>'
+    +'<rect x="51" y="26" width="6" height="22" rx="3" fill="'+c[1]+'"/>'
+    +'<rect x="6" y="5" width="48" height="110" rx="19" fill="'+c[0]+'"/>'
+    +'<rect x="13" y="18" width="34" height="24" rx="10" fill="#CDEEFB"/>'
+    +'<rect x="10" y="50" width="40" height="20" rx="9" fill="'+c[1]+'"/>'
+    +'<rect x="13" y="76" width="34" height="26" rx="10" fill="#CDEEFB"/>'
+    +'<circle cx="17" cy="110" r="5" fill="#FFF3B0"/><circle cx="43" cy="110" r="5" fill="#FFF3B0"/>'
+    +'</svg>';}
+  /* поезд собран из тех же деталей, что в «Поезде-змейке», и повёрнут носом вниз.
+     Паровоз идёт последним в разметке, чтобы оказаться внизу — то есть впереди */
+  /* Вагоны нарисованы сразу вертикально. Разворачивать через CSS квадратные рисунки
+     из «Поезда-змейки» не вышло: после rotate(90deg) вагон растягивался поперёк полосы,
+     и состав выглядел как рассыпанные машинки с зазорами. */
+  function sfWagArt(c){return '<svg viewBox="0 0 60 120" preserveAspectRatio="none">'
+    +'<rect x="4" y="2" width="52" height="116" rx="14" fill="'+c+'"/>'
+    +'<rect x="12" y="14" width="36" height="26" rx="9" fill="#CDEEFB"/>'
+    +'<rect x="12" y="50" width="36" height="26" rx="9" fill="#CDEEFB"/>'
+    +'<rect x="12" y="86" width="36" height="22" rx="9" fill="rgba(255,255,255,.34)"/></svg>';}
+  function sfEngArt(){return '<svg viewBox="0 0 60 120" preserveAspectRatio="none">'
+    +'<rect x="4" y="2" width="52" height="116" rx="16" fill="#4DB6E5"/>'
+    +'<rect x="10" y="10" width="40" height="32" rx="12" fill="#2C88B8"/>'
+    +'<rect x="14" y="50" width="32" height="26" rx="9" fill="#CDEEFB"/>'
+    +'<circle cx="30" cy="90" r="10" fill="#37344F"/><circle cx="30" cy="90" r="5" fill="#9AA0A6"/>'
+    +'<circle cx="17" cy="110" r="5.5" fill="#FFF3B0"/><circle cx="43" cy="110" r="5.5" fill="#FFF3B0"/></svg>';}
+  function sfTrainArt(){return '<div class="sftr">'
+    +'<div class="sftp">'+sfWagArt('#F368C4')+'</div>'
+    +'<div class="sftp">'+sfWagArt('#7BC950')+'</div>'
+    +'<div class="sftp">'+sfWagArt('#FFD23F')+'</div>'
+    +'<div class="sftp">'+sfEngArt()+'</div></div>';}
+
+  /* ---- разметка поля ---- */
+  function sfBuild(){const lv=SF_LEVELS[sfLv-1],box=$('#sfField');
+    sfLanes=[];box.innerHTML='';sfW=0;
+    let ri=0,ti=0,x=0;
+    lv.lay.split(' ').forEach(function(t){
+      const w=lv.w[t],ln={t:t,x:x,w:w,cars:[],dir:1,v:0,len:0,ph:0,els:[]};
+      /* Две полосы подряд — это ОДНА двухполосная дорога: то же направление, та же
+         скорость, машины идут уступом в полкорпуса. Так свободные окна у обеих полос
+         совпадают всегда. Когда у них были разные скорости, окна расходились с
+         периодом биений около ста секунд, и ребёнку приходилось ждать до 15 с
+         на самом лёгком уровне — это поймал тест. */
+      if(t==='r'){const p=sfLanes[sfLanes.length-1];
+        if(p&&p.t==='r'){ln.dir=p.dir;ln.v=p.v;ln.ph=p.ph+96;ln.second=1;}
+        else{const r=lv.roads[ri++]||[1,60];ln.dir=r[0];ln.v=r[1];ln.ph=(ri*277)%lv.gap;}
+        ln.len=lv.car;}
+      if(t==='t'){const r=lv.rails[ti++]||[1,170];ln.dir=r[0];ln.v=r[1];ln.len=330;
+        ln.ph=(ti*613)%1900;}
+      sfLanes.push(ln);x+=w;});
+    sfW=x;
+    box.style.width=sfW+'px';box.style.height=SF_H+'px';
+    sfLanes.forEach(function(ln,i){
+      const d=document.createElement('div');
+      d.className='sflane '+(ln.t==='s'?'sfsafe':ln.t==='r'?('sfroad '+(ln.second?'b':'a')):'sfrail');
+      d.style.left=ln.x+'px';d.style.width=ln.w+'px';
+      /* пунктир — на границе между полосами одной дороги, а не по центру каждой:
+         иначе машина едет прямо по разделительной линии */
+      if(ln.second)d.innerHTML='<div class="sfdash"></div>';
+      if(ln.t==='s'&&(i===0||i===sfLanes.length-1))d.classList.add('sfend');
+      /* предупреждение — отдельным слоем, а не ::after: у рельсов оба псевдоэлемента
+         уже заняты под сами рельсы, и подсветка стирала бы разметку пути */
+      if(ln.t!=='s'){const wv=document.createElement('div');wv.className='sfwarn';
+        d.appendChild(wv);ln.warn=wv;}
+      box.appendChild(d);ln.el=d;
+      /* машины расставлены с равным промежутком и едут по кругу: позиция —
+         честная функция времени, поэтому её же считает проверка безопасности */
+      if(ln.t!=='s'){
+        /* Промежуток между машинами задан уровнем, а не выведен из длины машины:
+           именно от него зависит, откроется ли вообще окно для перехода. При
+           прежних 274 px быстрая полоса третьего уровня освобождалась на 1,1 с
+           при нужных 1,3 — и уровень оказался непроходимым (поймано тестом). */
+        const loop=ln.t==='t'?1900:lv.gap*2;
+        ln.loop=loop;ln.n=ln.t==='t'?1:2;
+        for(let k=0;k<ln.n;k++){
+          const e=document.createElement('div');e.className='sfcar'+(ln.t==='t'?' train':'');
+          e.style.left=(ln.x+(ln.t==='t'?4:11))+'px';
+          e.style.width=(ln.w-(ln.t==='t'?8:22))+'px';e.style.height=ln.len+'px';
+          e.innerHTML=ln.t==='t'?sfTrainArt():sfCarArt(SF_CAR[(i*3+k)%SF_CAR.length]);
+          if(ln.dir<0)e.classList.add('up');
+          box.appendChild(e);ln.els.push(e);
+          ln.cars.push((loop*k/ln.n+ln.ph)%loop);}}});
+    const m=document.createElement('div');m.className='sfmon';m.id='sfMon';
+    const ms=Math.min(68,lv.w.s+6);
+    m.style.width=ms+'px';m.style.height=ms+'px';m.style.margin=(-ms/2)+'px 0 0 '+(-ms/2)+'px';
+    m.innerHTML='<div class="sfshadow"></div>'
+      +(heroSrc?'<img id="sfImg" alt="монстрик">':'<div class="sfnohero">🧒</div>')
+      +'<div class="sfbub" id="sfBub">Подожди!</div>';
+    box.appendChild(m);
+    if(heroSrc)$('#sfImg').src=heroSrc;
+    const g=document.createElement('div');g.className='sflight';g.id='sfLight';
+    box.appendChild(g);}
+
+  /* ---- положение машины в полосе через t секунд от текущего момента ---- */
+  function sfCarY(ln,base,t){
+    let p=(base+ln.v*t)%ln.loop;if(p<0)p+=ln.loop;
+    return ln.dir>0?(p-ln.len):(SF_H-p);}
+  /* свободна ли полоса в окно [t0;t1], пока монстрик её пересекает */
+  function sfClear(ln,t0,t1,my){
+    if(ln.t==='s')return true;
+    const reach=ln.len/2+34;
+    for(let t=t0-SF_LOOK;t<=t1+SF_LOOK;t+=0.07)
+      for(let k=0;k<ln.cars.length;k++){
+        const cy=sfCarY(ln,ln.cars[k],t)+ln.len/2;
+        if(Math.abs(cy-my)<reach)return false;}
+    return true;}
+  /* можно ли отсюда дойти до соседнего островка: считаем ВСЕ полосы по дороге,
+     каждую в то время, когда монстрик до неё доберётся */
+  function sfTarget(dir){
+    for(let i=sfMon.lane+dir;i>=0&&i<sfLanes.length;i+=dir)
+      if(sfLanes[i].t==='s')return i;
+    return -1;}
+  function sfCan(dir){
+    const to=sfTarget(dir);if(to<0)return false;
+    let t=0;
+    for(let i=sfMon.lane+dir;i!==to;i+=dir){
+      const ln=sfLanes[i],t1=t+ln.w/SF_V;
+      if(!sfClear(ln,t,t1,sfMon.y))return false;
+      t=t1;}
+    return true;}
+
+  function sfCenter(i){return sfLanes[i].x+sfLanes[i].w/2;}
+  function sfPaint(){
+    const m=$('#sfMon');if(!m)return;
+    m.style.left=sfMon.x+'px';m.style.top=sfMon.y+'px';
+    const g=$('#sfLight');
+    if(sfMon.go){g.style.display='none';return;}
+    const to=sfTarget(1);
+    if(to<0){g.style.display='none';return;}
+    const ok=sfCan(1);
+    g.style.display='block';
+    g.className='sflight '+(ok?'go':'no');
+    g.textContent=ok?'👣':'✋';
+    /* кружок висит НАД монстриком по центру островка: у края полосы он накрывал
+       самого монстрика, и ребёнок не видел, кем управляет */
+    g.style.left=sfCenter(sfMon.lane)+'px';
+    g.style.top=Math.max(32,sfMon.y-62)+'px';
+    sfLanes.forEach(function(ln,i){
+      if(ln.warn)ln.warn.classList.toggle('on',!ok&&i>sfMon.lane&&i<to);});}
+
+  function sfTry(dir){
+    if(!sfRun||sfMon.go||sfBusy)return;
+    const to=sfTarget(dir);if(to<0)return;
+    if(!sfCan(dir)){
+      if(sfT-sfWait>1.1){sfWait=sfT;chime(false);
+        const b=$('#sfBub');if(b){b.classList.add('on');setTimeout(function(){b.classList.remove('on');},900);}
+        $('#sfMon').classList.add('shake');setTimeout(function(){$('#sfMon').classList.remove('shake');},420);}
+      return;}
+    sfMon.go={to:to,dir:dir};blip();}
+
+  function sfStep(dt){
+    sfT+=dt;
+    sfLanes.forEach(function(ln){
+      if(ln.t==='s')return;
+      ln.cars=ln.cars.map(function(b){let p=b+ln.v*dt;return p%ln.loop;});
+      ln.els.forEach(function(e,k){
+        e.style.transform='translateY('+sfCarY(ln,ln.cars[k],0)+'px)'+(ln.dir<0?' rotate(180deg)':'');});});
+    if(sfMon.go){
+      const cx=sfCenter(sfMon.go.to),d=sfMon.go.dir;
+      sfMon.x+=SF_V*dt*d;
+      if((d>0&&sfMon.x>=cx)||(d<0&&sfMon.x<=cx)){
+        sfMon.x=cx;sfMon.lane=sfMon.go.to;sfMon.go=null;chime(true);
+        if(sfMon.lane===sfLanes.length-1)sfArrive();}}
+    else if(sfTouch&&!sfBusy){
+      const ln=sfLanes[sfMon.lane];
+      const ty=Math.max(40,Math.min(SF_H-40,sfTouch[1]));
+      const dy=ty-sfMon.y,st=SF_V*dt;
+      sfMon.y+=Math.abs(dy)<st?dy:(dy>0?st:-st);
+      if(sfTouch[0]>ln.x+ln.w-6)sfTry(1);
+      else if(sfTouch[0]<ln.x+6)sfTry(-1);}
+    sfPaint();}
+
+  function sfLoop(ts){sfRaf=requestAnimationFrame(sfLoop);
+    const dt=sfLast?Math.min(0.05,(ts-sfLast)/1000):0;sfLast=ts;
+    if(sfRun)sfStep(dt);}
+
+  function sfArrive(){
+    sfBusy=true;sfDone++;
+    const m=$('#sfMon');m.classList.add('win');
+    confetti(screens.cross);chime(true);blip();
+    $('#sfCnt').innerHTML='🏁 '+sfDone+' / '+SF_CROSS;
+    if(sfDone>=SF_CROSS){tvSpeak('Ура! Ты перешёл дорогу правильно!');sfLater(sfReward,1200);return;}
+    tvSpeak('Молодец! Перешёл правильно. Идём ещё раз?');
+    sfLater(function(){
+      m.classList.remove('win');m.classList.add('warp');
+      sfMon.lane=0;sfMon.x=sfCenter(0);sfMon.y=SF_H/2;sfPaint();
+      sfLater(function(){m.classList.remove('warp');sfBusy=false;},420);},1100);}
+
+  function sfReward(){const id='cross_l'+sfLv,first=!games[id],got=[];
+    coins+=3;stars+=3;got.push(['🪙','+3'],['⭐','+3']);
+    if(first){
+      if(sfLv>=2){keys+=3;got.push(['🔑','+3']);}
+      markGame(id);
+      if(sfLv<3&&(levels.sf||1)<sfLv+1)levels.sf=sfLv+1;
+      if(sfLv>=3)markGame('cross_all');}
+    save();updateHUD();
+    $('#sfWinTxt').textContent=first?'🎉 Дорога пройдена!':'🎉 И ещё раз безопасно!';
+    $('#sfGifts').innerHTML=got.map(function(g,i){
+      return '<div class="wkgift'+(g[0]==='🪙'?' coin':'')+'" style="animation-delay:'+(i*0.18)+'s">'
+        +coinHTML(g[0])+'<span>'+g[1]+'</span></div>';}).join('');
+    $('#sfMore').textContent=(first&&sfLv<3)?'🚦 Следующий уровень':'🚦 Ещё раз';
+    $('#sfPrize').classList.add('on');
+    if(first&&sfLv<3)sfLv++;}
+
+  function sfRenderLevels(){const box=$('#sfLevels');box.innerHTML='';const open=Math.min(3,levels.sf||1);
+    for(let i=1;i<=3;i++){const b=document.createElement('button');
+      b.className='lvbtn'+(i===sfLv?' sel':'');b.textContent=i;b.disabled=i>open;b.style.opacity=i>open?'.35':'';
+      b.onclick=(function(n){return function(){sfLv=n;sfLoad();};})(i);box.appendChild(b);}}
+
+  function sfLoad(){sfStop();
+    const lv=SF_LEVELS[sfLv-1];
+    sfDone=0;sfT=0;sfWait=0;sfTouch=null;sfBusy=true;
+    sfBuild();
+    sfMon={x:0,y:SF_H/2,lane:0,go:null};sfMon.x=sfCenter(0);
+    $('#sfCnt').innerHTML='🏁 0 / '+SF_CROSS;
+    $('#sfProg').textContent='Уровень '+sfLv+' / 3';
+    $('#sfTaskTtl').textContent='🎯 Уровень '+sfLv;
+    $('#sfTaskVis').innerHTML='<span class="vbig">🚦</span><span class="varr">→</span>'
+      +'<span class="vbig">🏁</span><span class="vnum">×'+SF_CROSS+'</span>';
+    $('#sfPrize').classList.remove('on');
+    sfRenderLevels();sfPaint();
+    show('cross');
+    $('#sfTask').classList.add('on');
+    tvSpeak(lv.say);
+    sfLast=0;sfRun=true;sfRaf=requestAnimationFrame(sfLoop);}
+  function sfOpen(){sfLv=Math.min(3,levels.sf||1);sfLoad();}
+  function sfGo(){$('#sfTask').classList.remove('on');sfBusy=false;ensureAudio();}
+  function sfLeave(){sfStop();openStationMenu();}
+
+  (function(){const f=$('#sfField');
+    const pos=function(e){const r=f.getBoundingClientRect(),k=r.width/f.clientWidth||1;
+      return [(e.clientX-r.left)/k,(e.clientY-r.top)/k];};
+    f.addEventListener('pointerdown',function(e){e.preventDefault();sfTouch=pos(e);
+      if(f.setPointerCapture&&e.pointerId!==undefined){try{f.setPointerCapture(e.pointerId);}catch(x){}}});
+    f.addEventListener('pointermove',function(e){if(sfTouch)sfTouch=pos(e);});
+    f.addEventListener('pointerup',function(){sfTouch=null;});
+    f.addEventListener('pointercancel',function(){sfTouch=null;});})();
+  addEventListener('keydown',function(e){
+    if(!screens.cross.classList.contains('active'))return;
+    if(e.key==='ArrowRight'||e.key==='d'){e.preventDefault();sfTry(1);}
+    else if(e.key==='ArrowLeft'||e.key==='a'){e.preventDefault();sfTry(-1);}
+    else if(e.key==='ArrowUp'||e.key==='w'){e.preventDefault();sfMon.y=Math.max(40,sfMon.y-34);sfPaint();}
+    else if(e.key==='ArrowDown'||e.key==='s'){e.preventDefault();sfMon.y=Math.min(SF_H-40,sfMon.y+34);sfPaint();}});
+  $('#sfStart').onclick=sfGo;
+  $('#sfMore').onclick=function(){$('#sfPrize').classList.remove('on');sfLoad();};
+  $('#sfBack').onclick=sfLeave;$('#sfOut').onclick=sfLeave;
+  $('#sm3').onclick=function(){sfOpen();};
+
 })();
 </script>
 </body>
